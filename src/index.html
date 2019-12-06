@@ -12,6 +12,8 @@
     }
     canvas {
       box-sizing: border-box;
+      backface-visibility: hidden;
+      perspective: 1000;
     }
   </style>
 </head>
@@ -27,20 +29,82 @@
 
     var canvas = null
 
+    class Rectangle {
+      constructor(x, y, w, h) {
+        this.x1 = x
+        this.y1 = y
+        this.x2 = x + w
+        this.y2 = y + h
+      }
+
+      intersects(rect) {
+        return this.x1 <= rect.x2 && rect.x2 >= this.x1 && rect.y1 <= this.y2 && rect.y2 >= this.y1;
+      }
+
+      draw(canvas) {
+        const x = (canvas.viewport.x1 + this.x1) * canvas.scale
+        const y = (canvas.viewport.y1 + this.y1) * canvas.scale
+        const w = (this.x2 - this.x1) * canvas.scale
+        const h = (this.y2 - this.y1) * canvas.scale
+
+        if (x < canvas.ctx.canvas.width && y < canvas.ctx.canvas.height && x >= -w && y >= -h) {
+          canvas.ctx.fillRect(x+2, y+2, w-4, h-4);
+          canvas.ctx.strokeRect(x, y, w, h);
+        }
+      }
+
+      resize(w, h) {
+        this.x2 = this.x1 + w
+        this.y2 = this.y1 + h
+      }
+    }
+
+
+    class Point {
+      constructor(x, y) {
+        this.x = x
+        this.y = y
+      }
+
+      intersects(rect) {
+        return x >= rect.x1 && x <= rect.x2 && y >= rect.y && y <= rect.y2
+      }
+    }
+
+    class BlueRectangle extends Rectangle {
+      draw(canvas) {
+        canvas.ctx.fillStyle = "blue"
+        canvas.ctx.strokeStyle = "blue"
+        super.draw(canvas)
+      }
+    }
+
+    class RedRectangle extends Rectangle {
+      draw(canvas) {
+        canvas.ctx.fillStyle = "red"
+        canvas.ctx.strokeStyle = "red"
+        super.draw(canvas)
+      }
+    }
+
+    class GreenRectangle extends Rectangle {
+      draw(canvas) {
+        canvas.ctx.fillStyle = "green"
+        canvas.ctx.strokeStyle = "green"
+        super.draw(canvas)
+      }
+    }
+
     class Canvas {
       ctx = null
 
       constructor(id) {
         const element = document.getElementById(id);
         this.ctx = element.getContext("2d", { alpha: false });
+        this.ctx.imageSmoothingEnabled = true;
 
-        this.viewport = {
-          x: 0,
-          y: 0,
-          width: this.ctx.canvas.width,
-          height: this.ctx.canvas.height,
-          scale: 1,
-        };
+        this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+        this.scale = 1
 
         this.mode = 'view'
         this.dirty = false
@@ -49,6 +113,27 @@
           originalClientY: 0,
           originalViewportX: 0,
           originalViewportY: 0,
+        }
+
+        this.elements = []
+
+        const counts = 100
+        for (let x = 0; x < counts; x++) {
+          for (let y = 0; y < counts; y++) {
+            let element
+            switch ((x+y) % 3) {
+              case 0:
+                element = new RedRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                break
+              case 1:
+                element = new GreenRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                break
+              case 2:
+                element = new BlueRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                break
+            }
+            this.elements.push(element)
+          }
         }
       }
 
@@ -67,23 +152,24 @@
         this.drag.originalClientX = event.clientX
         this.drag.originalClientY = event.clientY
 
-        this.drag.originalViewportX = this.viewport.x
-        this.drag.originalViewportY = this.viewport.y
+        this.drag.originalViewportX = this.viewport.x1
+        this.drag.originalViewportY = this.viewport.y1
 
         this.dirty = true
       }
 
       zoom = (event) => {
         event.preventDefault();
-        const prevScale = this.viewport.scale
+        const prevScale = this.scale
 
         if (event.wheelDelta > 0) {
-          this.viewport.scale = Math.max(this.viewport.scale * 0.95, 0.3)
+          this.scale = Math.max(this.scale * 0.95, 0.2)
         } else {
-          this.viewport.scale = Math.min(this.viewport.scale * 1.05, 8)
+          this.scale = Math.min(this.scale * 1.05, 8)
         }
 
-        if (prevScale != this.viewport.scale) {
+        if (prevScale != this.scale) {
+          this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
           this.dirty = true
         }
       }
@@ -98,11 +184,11 @@
           return
         }
 
-        const xDelta = (event.clientX - this.drag.originalClientX) / this.viewport.scale
-        const yDelta = (event.clientY - this.drag.originalClientY) / this.viewport.scale
+        const xDelta = (event.clientX - this.drag.originalClientX) / this.scale
+        const yDelta = (event.clientY - this.drag.originalClientY) / this.scale
 
-        this.viewport.x = this.drag.originalViewportX + xDelta
-        this.viewport.y = this.drag.originalViewportY + yDelta
+        this.viewport.x1 = this.drag.originalViewportX + xDelta
+        this.viewport.y1 = this.drag.originalViewportY + yDelta
 
         this.dirty = true
       }
@@ -111,13 +197,8 @@
         this.ctx.canvas.width  = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight;
 
-        this.viewport.width = this.ctx.canvas.width;
-        this.viewport.height = this.ctx.canvas.height;
+        this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
         this.dirty = true;
-      }
-
-      normalizePoint = (point) => {
-        return point * this.viewport.scale
       }
 
       repaint = () => {
@@ -125,13 +206,15 @@
           return
         }
 
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.restore();
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-        const p = this.normalizePoint(10)
-        const xOffset = this.normalizePoint(this.viewport.x) % p
-        const yOffset = this.normalizePoint(this.viewport.y) % p
+
+        const p = 10 * this.scale
+        const xOffset = (this.viewport.x1 * this.scale) % p
+        const yOffset = (this.viewport.y1 * this.scale) % p
+
         this.ctx.beginPath();
         for (var x = xOffset; x <= this.ctx.canvas.width + p; x += p) {
           this.ctx.moveTo(0.5 + x, 0);
@@ -144,18 +227,9 @@
         this.ctx.strokeStyle = "#ccc";
         this.ctx.stroke();
 
-        for (let x = 0; x < 1000; x++) {
-          for (let y = 0; y < 1000; y++) {
-            let normX = this.normalizePoint(this.viewport.x + 10 + (x*60))
-            let normY = this.normalizePoint(this.viewport.y + 10 + (y*60))
-            let normW = this.normalizePoint(50)
-            let normH = this.normalizePoint(50)
-            if (normX < this.viewport.width && normY < this.viewport.height && normX >= -normW && normY >= -normH) {
-              this.ctx.fillStyle = ["red", "green", "blue"][(x+y)%3];
-              this.ctx.fillRect(normX, normY, normW, normH);
-            }
-          }
-        }
+        this.elements.forEach((element) => {
+          element.draw(canvas)
+        })
 
         this.dirty = false
       }
@@ -172,7 +246,6 @@
         canvas.repaint()
       }
     }
-
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log('loaded')
