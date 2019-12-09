@@ -14,6 +14,7 @@
       box-sizing: border-box;
       backface-visibility: hidden;
       perspective: 1000;
+      cursor: default;
     }
   </style>
 </head>
@@ -24,10 +25,24 @@
     var fps = 120;
     var now;
     var then = Date.now();
-    var interval = 1000/fps;
+    var interval = 1000 / fps;
     var delta;
 
     var canvas = null
+
+    function throttle(callback, wait) {
+      let timeout = null
+      return function(event) {
+        event.preventDefault();
+        const next = () => {
+          callback.apply(this, [event])
+          timeout = null
+        }
+        if (!timeout) {
+          timeout = setTimeout(next, wait)
+        }
+      }
+    }
 
     class Rectangle {
       constructor(x, y, w, h) {
@@ -35,6 +50,11 @@
         this.y1 = y
         this.x2 = x + w
         this.y2 = y + h
+        this.selected = false
+      }
+
+      intersectsPoint(point) {
+        return point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
       }
 
       intersects(rect) {
@@ -48,8 +68,7 @@
         const h = (this.y2 - this.y1) * canvas.scale
 
         if (x < canvas.ctx.canvas.width && y < canvas.ctx.canvas.height && x >= -w && y >= -h) {
-          canvas.ctx.fillRect(x+2, y+2, w-4, h-4);
-          canvas.ctx.strokeRect(x, y, w, h);
+          canvas.ctx.fillRect(x, y, w, h);
         }
       }
 
@@ -59,7 +78,6 @@
       }
 
     }
-
 
     class Point {
       constructor(x, y) {
@@ -74,24 +92,33 @@
 
     class BlueRectangle extends Rectangle {
       draw(canvas) {
-        canvas.ctx.fillStyle = "blue"
-        canvas.ctx.strokeStyle = "blue"
+        if (this.selected) {
+          canvas.ctx.fillStyle = "black"
+        } else {
+          canvas.ctx.fillStyle = "blue"
+        }
         super.draw(canvas)
       }
     }
 
     class RedRectangle extends Rectangle {
       draw(canvas) {
-        canvas.ctx.fillStyle = "red"
-        canvas.ctx.strokeStyle = "red"
+        if (this.selected) {
+          canvas.ctx.fillStyle = "black"
+        } else {
+          canvas.ctx.fillStyle = "red"
+        }
         super.draw(canvas)
       }
     }
 
     class GreenRectangle extends Rectangle {
       draw(canvas) {
-        canvas.ctx.fillStyle = "green"
-        canvas.ctx.strokeStyle = "green"
+        if (this.selected) {
+          canvas.ctx.fillStyle = "black"
+        } else {
+          canvas.ctx.fillStyle = "green"
+        }
         super.draw(canvas)
       }
     }
@@ -116,6 +143,7 @@
           originalViewportY: 0,
         }
 
+        this.cursor = new Point(0, 0)
         this.elements = []
 
         const counts = 100
@@ -157,31 +185,31 @@
         this.dirty = true
       }
 
-      zoom = (event) => {
-        event.preventDefault();
+      zoom = throttle((event) => {
         const prevScale = this.scale
-
+        let nextScale
         if (event.wheelDelta > 0) {
-          this.scale = Math.max(this.scale / 1.03, 0.2)
+          nextScale = Math.max(this.scale / 1.03, 0.2)
         } else {
-          this.scale = Math.min(this.scale * 1.03, 8)
+          nextScale = Math.min(this.scale * 1.03, 8)
         }
 
-        if (prevScale != this.scale) {
-
+        if (prevScale != nextScale) {
           const zoomX = (event.clientX - this.viewport.x1 * prevScale) / prevScale
           const zoomY = (event.clientY - this.viewport.y1 * prevScale) / prevScale
 
-          this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
+          this.viewport.x1 = (-zoomX * nextScale + event.clientX) / nextScale
+          this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / nextScale)
+          this.viewport.y1 = (-zoomY * nextScale + event.clientY) / nextScale
+          this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / nextScale)
 
-          this.viewport.x1 = (-zoomX * this.scale + event.clientX) / this.scale
-          this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
+          this.cursor.x = (event.clientX / nextScale) - this.viewport.x1
+          this.cursor.y = (event.clientY / nextScale) - this.viewport.y1
 
-
-
+          this.scale = nextScale
           this.dirty = true
         }
-      }
+      }, 1/fps)
 
       mouseUp = () => {
         this.mode = 'view'
@@ -189,18 +217,39 @@
       }
 
       mouseMove = (event) => {
-        if (this.mode != 'drag') {
-          return
+
+
+        switch (this.mode) {
+          case 'drag': {
+            const xDelta = (event.clientX - this.drag.originalClientX) / this.scale
+            const yDelta = (event.clientY - this.drag.originalClientY) / this.scale
+
+            this.viewport.x1 = this.drag.originalViewportX + xDelta
+            this.viewport.y1 = this.drag.originalViewportY + yDelta
+
+            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
+            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
+
+            this.dirty = true
+            break
+          }
+
+          default: {
+            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
+            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
+
+            this.elements.forEach((element) => {
+              if (element.intersectsPoint(this.cursor)) {
+                element.selected = true
+              } else {
+                element.selected = false
+              }
+            })
+
+            this.dirty = true
+            break
+          }
         }
-
-        const xDelta = (event.clientX - this.drag.originalClientX) / this.scale
-        const yDelta = (event.clientY - this.drag.originalClientY) / this.scale
-
-        this.viewport.x1 = this.drag.originalViewportX + xDelta
-        this.viewport.y1 = this.drag.originalViewportY + yDelta
-
-
-        this.dirty = true
       }
 
       resize = () => {
@@ -240,19 +289,18 @@
           element.draw(canvas)
         })
 
-
         this.ctx.fillStyle = "white"
         this.ctx.strokeStyle = "black"
-        this.ctx.fillRect(20, 20, 100, 100);
-        this.ctx.strokeRect(20, 20, 100, 100);
-        //this.ctx.beginPath();
-        //const W = 20
-        //this.ctx.strokeStyle = "#777";
-        //this.ctx.moveTo(5.5, 5.5);
-        //this.ctx.lineTo(5.5, W + 5.5);
-        //this.ctx.moveTo(5.5, 5.5);
-        //this.ctx.lineTo(W + 5.5, 5.5);
-        //this.ctx.stroke();
+        this.ctx.fillRect(20, 20, 150, 200);
+        this.ctx.strokeRect(20, 20, 150, 200);
+        this.ctx.font = "12px Verdana"
+        this.ctx.fillStyle = "black"
+        this.ctx.fillText(`view-x: ${this.viewport.x1.toFixed(3)}`, 25, 35);
+        this.ctx.fillText(`view-y: ${this.viewport.y1.toFixed(3)}`, 25, 50);
+        this.ctx.fillText(`view-z: ${this.scale.toFixed(3)}`, 25, 65);
+
+        this.ctx.fillText(`cursor-x: ${(this.cursor.x).toFixed(3)}`, 25, 80);
+        this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 95);
 
         this.dirty = false
       }
