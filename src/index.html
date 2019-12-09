@@ -53,12 +53,30 @@
         this.selected = false
       }
 
+      copy() {
+        return new Rectangle(this.x1, this.y1, this.x2 - this.x1, this.y2 - this.y1)
+      }
+
       intersectsPoint(point) {
         return point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
       }
 
-      intersects(rect) {
-        return this.x1 <= rect.x2 && rect.x2 >= this.x1 && rect.y1 <= this.y2 && rect.y2 >= this.y1;
+      visibleInCanvas(canvas) {
+        const outOfRight = (canvas.viewport.x2 - 2*canvas.viewport.x1 - this.x1) < 0
+        const outOfLeft = (canvas.viewport.x1 + this.x2) < 0
+        const outOfBottom = (canvas.viewport.y2 - 2*canvas.viewport.y1 - this.y1) < 0
+        const outOfUp = (canvas.viewport.y1 + this.y2) < 0
+
+        //console.log(canvas.viewport.x1, this.x2)
+        if (outOfRight || outOfLeft || outOfBottom || outOfUp) {
+          return false
+        }
+
+        return true
+      }
+
+      toString() {
+        return `Rectangle(${this.x1}, ${this.y1}, ${this.x2}, ${this.y2})`
       }
 
       draw(canvas) {
@@ -67,9 +85,7 @@
         const w = (this.x2 - this.x1) * canvas.scale
         const h = (this.y2 - this.y1) * canvas.scale
 
-        if (x < canvas.ctx.canvas.width && y < canvas.ctx.canvas.height && x >= -w && y >= -h) {
-          canvas.ctx.fillRect(x, y, w, h);
-        }
+        canvas.ctx.fillRect(x, y, w, h);
       }
 
       resize(w, h) {
@@ -145,8 +161,9 @@
 
         this.cursor = new Point(0, 0)
         this.elements = []
+        this.visible = []
 
-        const counts = 100
+        const counts = 200 //100
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -207,6 +224,9 @@
           this.cursor.y = (event.clientY / nextScale) - this.viewport.y1
 
           this.scale = nextScale
+
+          this.updateVisible();
+
           this.dirty = true
         }
       }, 1/fps)
@@ -217,18 +237,20 @@
       }
 
       mouseMove = (event) => {
-
-
         switch (this.mode) {
           case 'drag': {
             const xDelta = (event.clientX - this.drag.originalClientX) / this.scale
             const yDelta = (event.clientY - this.drag.originalClientY) / this.scale
 
             this.viewport.x1 = this.drag.originalViewportX + xDelta
+            this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
             this.viewport.y1 = this.drag.originalViewportY + yDelta
+            this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
 
             this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
             this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
+
+            this.updateVisible();
 
             this.dirty = true
             break
@@ -238,7 +260,7 @@
             this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
             this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
 
-            this.elements.forEach((element) => {
+            this.visible.forEach((element) => {
               if (element.intersectsPoint(this.cursor)) {
                 element.selected = true
               } else {
@@ -252,11 +274,21 @@
         }
       }
 
+      updateVisible = () => {
+        this.visible = []
+        this.elements.forEach((element) => {
+          if (element.visibleInCanvas(this)) {
+            this.visible.push(element)
+          }
+        })
+      }
+
       resize = () => {
         this.ctx.canvas.width  = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight;
 
         this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
+        this.updateVisible();
         this.dirty = true;
       }
 
@@ -285,7 +317,7 @@
         this.ctx.strokeStyle = "#ccc";
         this.ctx.stroke();
 
-        this.elements.forEach((element) => {
+        this.visible.forEach((element) => {
           element.draw(canvas)
         })
 
@@ -295,12 +327,15 @@
         this.ctx.strokeRect(20, 20, 150, 200);
         this.ctx.font = "12px Verdana"
         this.ctx.fillStyle = "black"
-        this.ctx.fillText(`view-x: ${this.viewport.x1.toFixed(3)}`, 25, 35);
-        this.ctx.fillText(`view-y: ${this.viewport.y1.toFixed(3)}`, 25, 50);
-        this.ctx.fillText(`view-z: ${this.scale.toFixed(3)}`, 25, 65);
+        this.ctx.fillText(`view-x1: ${this.viewport.x1.toFixed(3)}`, 25, 35);
+        this.ctx.fillText(`view-x2: ${this.viewport.x2.toFixed(3)}`, 25, 35 + (1*15));
+        this.ctx.fillText(`view-y1: ${this.viewport.y1.toFixed(3)}`, 25, 35 + (2*15));
+        this.ctx.fillText(`view-y2: ${this.viewport.y2.toFixed(3)}`, 25, 35 + (3*15));
+        this.ctx.fillText(`view-z: ${this.scale.toFixed(3)}`, 25, 35 + (4*15));
+        this.ctx.fillText(`cursor-x: ${(this.cursor.x).toFixed(3)}`, 25, 35 + (5*15));
+        this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 35 + (6*15));
 
-        this.ctx.fillText(`cursor-x: ${(this.cursor.x).toFixed(3)}`, 25, 80);
-        this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 95);
+        this.ctx.fillText(`visible: ${this.visible.length}/${this.elements.length}`, 25, 35 + (7*15));
 
         this.dirty = false
       }
