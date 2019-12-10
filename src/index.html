@@ -44,6 +44,36 @@
       }
     }
 
+    class MouseFascade {
+
+      constructor() {
+        this.currentEvent = null
+        this.coordinates = new Rectangle(0, 0, 0, 0)
+      }
+
+      down(event) {
+        if (event.shiftKey) {
+          this.currentEvent = 'selection'
+        } else {
+          this.currentEvent = 'drag'
+        }
+        this.coordinates.x1 = event.clientX
+        this.coordinates.y1 = event.clientY
+        this.coordinates.x2 = event.clientX
+        this.coordinates.y2 = event.clientY
+      }
+
+      move(event) {
+        this.coordinates.x2 = event.clientX
+        this.coordinates.y2 = event.clientY
+      }
+
+      up(event) {
+        this.currentEvent = null
+      }
+
+    }
+
     class Rectangle {
       constructor(x, y, w, h) {
         this.x1 = x
@@ -67,16 +97,11 @@
         const outOfBottom = (canvas.viewport.y2 - 2*canvas.viewport.y1 - this.y1) < 0
         const outOfUp = (canvas.viewport.y1 + this.y2) < 0
 
-        //console.log(canvas.viewport.x1, this.x2)
         if (outOfRight || outOfLeft || outOfBottom || outOfUp) {
           return false
         }
 
         return true
-      }
-
-      toString() {
-        return `Rectangle(${this.x1}, ${this.y1}, ${this.x2}, ${this.y2})`
       }
 
       draw(canvas) {
@@ -107,6 +132,7 @@
     }
 
     class BlueRectangle extends Rectangle {
+
       draw(canvas) {
         if (this.selected) {
           canvas.ctx.fillStyle = "black"
@@ -149,21 +175,14 @@
 
         this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
         this.scale = 1
-
-        this.mode = 'view'
         this.dirty = false
-        this.drag = {
-          originalClientX: 0,
-          originalClientY: 0,
-          originalViewportX: 0,
-          originalViewportY: 0,
-        }
 
         this.cursor = new Point(0, 0)
+        this.mouse = new MouseFascade()
         this.elements = []
         this.visible = []
 
-        const counts = 200 //100
+        const counts = 200
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -193,12 +212,8 @@
       }
 
       mouseDown = (event) => {
-        this.mode = 'drag'
+        this.mouse.down(event)
         this.ctx.canvas.focus()
-        this.drag.originalClientX = event.clientX
-        this.drag.originalClientY = event.clientY
-        this.drag.originalViewportX = this.viewport.x1
-        this.drag.originalViewportY = this.viewport.y1
         this.dirty = true
       }
 
@@ -232,19 +247,21 @@
       }, 1/fps)
 
       mouseUp = () => {
-        this.mode = 'view'
+        this.mouse.up(event)
         this.dirty = true
       }
 
       mouseMove = (event) => {
-        switch (this.mode) {
+        switch (this.mouse.currentEvent) {
           case 'drag': {
-            const xDelta = (event.clientX - this.drag.originalClientX) / this.scale
-            const yDelta = (event.clientY - this.drag.originalClientY) / this.scale
+            const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
+            const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
 
-            this.viewport.x1 = this.drag.originalViewportX + xDelta
+            this.mouse.move(event)
+
+            this.viewport.x1 += xDelta
             this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
-            this.viewport.y1 = this.drag.originalViewportY + yDelta
+            this.viewport.y1 += yDelta
             this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
 
             this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
@@ -256,17 +273,31 @@
             break
           }
 
+          case 'selection': {
+            const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
+            const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
+
+            this.mouse.move(event)
+
+            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
+            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
+
+            this.dirty = true
+            break
+          }
+
           default: {
             this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
             this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
 
+            /*
             this.visible.forEach((element) => {
               if (element.intersectsPoint(this.cursor)) {
                 element.selected = true
               } else {
                 element.selected = false
               }
-            })
+            })*/
 
             this.dirty = true
             break
@@ -292,15 +323,7 @@
         this.dirty = true;
       }
 
-      repaint = () => {
-        if (!this.dirty) {
-          return
-        }
-
-        this.ctx.restore();
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
+      drawGrid = () => {
         const p = 10 * this.scale
         const xOffset = (this.viewport.x1 * this.scale) % p
         const yOffset = (this.viewport.y1 * this.scale) % p
@@ -316,11 +339,14 @@
         }
         this.ctx.strokeStyle = "#ccc";
         this.ctx.stroke();
+      }
 
-        this.visible.forEach((element) => {
-          element.draw(canvas)
-        })
+      drawBackground = () => {
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      }
 
+      drawDebugBox = () => {
         this.ctx.fillStyle = "white"
         this.ctx.strokeStyle = "black"
         this.ctx.fillRect(20, 20, 150, 200);
@@ -336,6 +362,33 @@
         this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 35 + (6*15));
 
         this.ctx.fillText(`visible: ${this.visible.length}/${this.elements.length}`, 25, 35 + (7*15));
+      }
+
+      drawSelextionBox = () => {
+        if (this.mouse.currentEvent !== 'selection') {
+          return
+        }
+
+        this.ctx.fillStyle = "rgba(0,0,0,.6)"
+        this.ctx.fillRect(this.mouse.coordinates.x1, this.mouse.coordinates.y1, this.mouse.coordinates.x2 - this.mouse.coordinates.x1, this.mouse.coordinates.y2 - this.mouse.coordinates.y1);
+      }
+
+      repaint = () => {
+        if (!this.dirty) {
+          return
+        }
+
+        this.ctx.restore();
+
+        this.drawBackground()
+        this.drawGrid()
+
+        this.visible.forEach((element) => {
+          element.draw(canvas)
+        })
+
+        this.drawSelextionBox()
+        this.drawDebugBox()
 
         this.dirty = false
       }
