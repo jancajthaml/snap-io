@@ -22,27 +22,13 @@
   <canvas id="mount" width="400" height="400" tabindex="0"></canvas>
   <script>
 
-    var fps = 120;
+    var fps = 60;
     var now;
     var then = Date.now();
     var interval = 1000 / fps;
     var delta;
 
     var canvas = null
-
-    function throttle(callback, wait) {
-      let timeout = null
-      return function(event) {
-        event.preventDefault();
-        const next = () => {
-          callback.apply(this, [event])
-          timeout = null
-        }
-        if (!timeout) {
-          timeout = setTimeout(next, wait)
-        }
-      }
-    }
 
     class MouseFascade {
 
@@ -80,6 +66,7 @@
         this.y1 = y
         this.x2 = x + w
         this.y2 = y + h
+        this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
       }
 
       copy() {
@@ -110,10 +97,11 @@
       resize(w, h) {
         this.x2 = this.x1 + w
         this.y2 = this.y1 + h
+        this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
       }
 
       toString() {
-        return `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
+        return this.repr
       }
 
     }
@@ -122,6 +110,7 @@
       constructor(x, y) {
         this.x = x
         this.y = y
+        this.repr = `P${this.x}|${this.y}`
       }
 
       intersects(rect) {
@@ -129,7 +118,7 @@
       }
 
       toString() {
-        return `P${this.x}|${this.y}`
+        return this.repr
       }
     }
 
@@ -192,14 +181,12 @@
         this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
         this.scale = 1
         this.dirty = false
-
-        this.cursor = new Point(0, 0)
         this.mouse = new MouseFascade()
-        this.elements = {}
+        this.elements = []
         this.selected = {}
         this.visible = []
 
-        const counts = 200
+        const counts = 1000
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -214,7 +201,7 @@
                 element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
                 break
             }
-            this.elements[element.toString()] = element
+            this.elements.push(element)
           }
         }
       }
@@ -234,54 +221,31 @@
         this.dirty = true
       }
 
-      zoom = throttle((event) => {
+      zoom = (event) => {
+        event.preventDefault()
         const prevScale = this.scale
-        let nextScale
         if (event.wheelDelta > 0) {
-          nextScale = Math.max(this.scale / 1.03, 0.2)
+          this.scale = Math.max(this.scale / 1.03, 0.2)
         } else {
-          nextScale = Math.min(this.scale * 1.03, 8)
+          this.scale = Math.min(this.scale * 1.03, 8)
         }
-
-        if (prevScale != nextScale) {
+        if (prevScale != this.scale) {
           const zoomX = (event.clientX - this.viewport.x1 * prevScale) / prevScale
           const zoomY = (event.clientY - this.viewport.y1 * prevScale) / prevScale
 
-          this.viewport.x1 = (-zoomX * nextScale + event.clientX) / nextScale
-          this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / nextScale)
-          this.viewport.y1 = (-zoomY * nextScale + event.clientY) / nextScale
-          this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / nextScale)
-
-          this.cursor.x = (event.clientX / nextScale) - this.viewport.x1
-          this.cursor.y = (event.clientY / nextScale) - this.viewport.y1
-
-          this.scale = nextScale
-
+          this.viewport.x1 = (-zoomX * this.scale + event.clientX) / this.scale
+          this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
+          this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
+          this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
           this.updateVisible();
-
           this.dirty = true
         }
-      }, 1/fps)
+      }
 
       mouseUp = (event) => {
-
         if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-
-          const coords = new Rectangle(
-            this.mouse.coordinates.x1 / this.scale - this.viewport.x1,
-            this.mouse.coordinates.y1 / this.scale - this.viewport.y1,
-            (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale,
-            (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale,
-          )
-
-          this.selected = {}
-          this.visible.forEach((element) => {
-            if (element.insideRectangle(coords)) {
-              this.selected[element.toString()] = true
-            }
-          })
+          this.updateSelected()
         }
-
         this.mouse.up(event)
         this.dirty = true
       }
@@ -291,73 +255,56 @@
           case 'drag': {
             const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
             const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
-
             this.mouse.move(event)
-
             this.viewport.x1 += xDelta
             this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
             this.viewport.y1 += yDelta
             this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
-
-            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
-            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
-
-            this.updateVisible();
-
+            this.updateVisible()
             this.dirty = true
             break
           }
 
           case 'selection': {
-            const xDelta = (event.clientX - this.mouse.x2) / this.scale
-            const yDelta = (event.clientY - this.mouse.y2) / this.scale
-
             this.mouse.move(event)
-
-            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
-            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
-
-            const coords = new Rectangle(
-              (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1,
-              (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1,
-              (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale,
-              (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale,
-            )
-
-            this.selected = {}
-            this.visible.forEach((element) => {
-              if (element.insideRectangle(coords)) {
-                this.selected[element.toString()] = true
-              }
-            })
-
+            this.updateSelected()
             this.dirty = true
             break
           }
 
           default: {
-            this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
-            this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
-
-            this.dirty = true
             break
           }
         }
       }
 
+      updateSelected = () => {
+        const coords = new Rectangle(
+          (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1,
+          (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1,
+          (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale,
+          (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale,
+        )
+        this.selected = {}
+        this.visible.forEach((element) => {
+          if (element.insideRectangle(coords)) {
+            this.selected[element.toString()] = true
+          }
+        })
+      }
+
       updateVisible = () => {
         this.visible = []
-        for (const value of Object.values(this.elements)) {
-          if (value.visibleInCanvas(this)) {
-            this.visible.push(value)
+        this.elements.forEach((element) => {
+          if (element.visibleInCanvas(this)) {
+            this.visible.push(element)
           }
-        }
+        })
       }
 
       resize = () => {
         this.ctx.canvas.width  = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight;
-
         this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
         this.updateVisible();
         this.dirty = true;
@@ -367,7 +314,6 @@
         const p = 10 * this.scale
         const xOffset = (this.viewport.x1 * this.scale) % p
         const yOffset = (this.viewport.y1 * this.scale) % p
-
         this.ctx.beginPath();
         for (var x = xOffset; x <= this.ctx.canvas.width + p; x += p) {
           this.ctx.moveTo(0.5 + x, 0);
@@ -386,29 +332,10 @@
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
       }
 
-      drawDebugBox = () => {
-        this.ctx.fillStyle = "white"
-        this.ctx.strokeStyle = "black"
-        this.ctx.fillRect(20, 20, 150, 200);
-        this.ctx.strokeRect(20, 20, 150, 200);
-        this.ctx.font = "12px Verdana"
-        this.ctx.fillStyle = "black"
-        this.ctx.fillText(`view-x1: ${this.viewport.x1.toFixed(3)}`, 25, 35);
-        this.ctx.fillText(`view-x2: ${this.viewport.x2.toFixed(3)}`, 25, 35 + (1*15));
-        this.ctx.fillText(`view-y1: ${this.viewport.y1.toFixed(3)}`, 25, 35 + (2*15));
-        this.ctx.fillText(`view-y2: ${this.viewport.y2.toFixed(3)}`, 25, 35 + (3*15));
-        this.ctx.fillText(`view-z: ${this.scale.toFixed(3)}`, 25, 35 + (4*15));
-        this.ctx.fillText(`cursor-x: ${(this.cursor.x).toFixed(3)}`, 25, 35 + (5*15));
-        this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 35 + (6*15));
-
-        this.ctx.fillText(`visible: ${this.visible.length}/${Object.keys(this.elements).length}`, 25, 35 + (7*15));
-      }
-
       drawSelextionBox = () => {
         if (this.mouse.currentEvent !== 'selection') {
           return
         }
-
         this.ctx.fillStyle = "rgba(0,0,0,.6)"
         this.ctx.fillRect(this.mouse.coordinates.x1, this.mouse.coordinates.y1, this.mouse.coordinates.x2 - this.mouse.coordinates.x1, this.mouse.coordinates.y2 - this.mouse.coordinates.y1);
       }
@@ -417,18 +344,14 @@
         if (!this.dirty) {
           return
         }
-
-        this.ctx.restore();
-
         this.drawBackground()
         this.drawGrid()
 
         this.visible.forEach((element) => {
-          element.draw(canvas)
+          element.draw(this)
         })
 
         this.drawSelextionBox()
-        this.drawDebugBox()
 
         this.dirty = false
       }
