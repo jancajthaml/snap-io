@@ -80,7 +80,6 @@
         this.y1 = y
         this.x2 = x + w
         this.y2 = y + h
-        this.selected = false
       }
 
       copy() {
@@ -113,6 +112,10 @@
         this.y2 = this.y1 + h
       }
 
+      toString() {
+        return `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
+      }
+
     }
 
     class Point {
@@ -124,6 +127,10 @@
       intersects(rect) {
         return x >= rect.x1 && x <= rect.x2 && y >= rect.y && y <= rect.y2
       }
+
+      toString() {
+        return `P${this.x}|${this.y}`
+      }
     }
 
     class RectangleEntity extends Rectangle {
@@ -134,7 +141,7 @@
       }
 
       drawSimple(canvas) {
-        if (this.selected) {
+        if (canvas.selected[this.toString()]) {
           canvas.ctx.fillStyle = "black"
         } else {
           canvas.ctx.fillStyle = this.color
@@ -148,7 +155,7 @@
       }
 
       drawDetail(canvas) {
-        if (this.selected) {
+        if (canvas.selected[this.toString()]) {
           canvas.ctx.fillStyle = "black"
           canvas.ctx.strokeStyle = "black"
         } else {
@@ -188,7 +195,8 @@
 
         this.cursor = new Point(0, 0)
         this.mouse = new MouseFascade()
-        this.elements = []
+        this.elements = {}
+        this.selected = {}
         this.visible = []
 
         const counts = 200
@@ -206,7 +214,7 @@
                 element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
                 break
             }
-            this.elements.push(element)
+            this.elements[element.toString()] = element
           }
         }
       }
@@ -255,7 +263,25 @@
         }
       }, 1/fps)
 
-      mouseUp = () => {
+      mouseUp = (event) => {
+
+        if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
+
+          const coords = new Rectangle(
+            this.mouse.coordinates.x1 / this.scale - this.viewport.x1,
+            this.mouse.coordinates.y1 / this.scale - this.viewport.y1,
+            (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale,
+            (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale,
+          )
+
+          this.selected = {}
+          this.visible.forEach((element) => {
+            if (element.insideRectangle(coords)) {
+              this.selected[element.toString()] = true
+            }
+          })
+        }
+
         this.mouse.up(event)
         this.dirty = true
       }
@@ -298,11 +324,10 @@
               (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale,
             )
 
+            this.selected = {}
             this.visible.forEach((element) => {
               if (element.insideRectangle(coords)) {
-                element.selected = true
-              } else {
-                element.selected = false
+                this.selected[element.toString()] = true
               }
             })
 
@@ -314,8 +339,6 @@
             this.cursor.x = (event.clientX / this.scale) - this.viewport.x1
             this.cursor.y = (event.clientY / this.scale) - this.viewport.y1
 
-
-
             this.dirty = true
             break
           }
@@ -324,11 +347,11 @@
 
       updateVisible = () => {
         this.visible = []
-        this.elements.forEach((element) => {
-          if (element.visibleInCanvas(this)) {
-            this.visible.push(element)
+        for (const value of Object.values(this.elements)) {
+          if (value.visibleInCanvas(this)) {
+            this.visible.push(value)
           }
-        })
+        }
       }
 
       resize = () => {
@@ -378,7 +401,7 @@
         this.ctx.fillText(`cursor-x: ${(this.cursor.x).toFixed(3)}`, 25, 35 + (5*15));
         this.ctx.fillText(`cursor-y: ${(this.cursor.y).toFixed(3)}`, 25, 35 + (6*15));
 
-        this.ctx.fillText(`visible: ${this.visible.length}/${this.elements.length}`, 25, 35 + (7*15));
+        this.ctx.fillText(`visible: ${this.visible.length}/${Object.keys(this.elements).length}`, 25, 35 + (7*15));
       }
 
       drawSelextionBox = () => {
