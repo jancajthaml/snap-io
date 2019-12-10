@@ -104,15 +104,6 @@
         return true
       }
 
-      draw(canvas) {
-        const x = (canvas.viewport.x1 + this.x1) * canvas.scale
-        const y = (canvas.viewport.y1 + this.y1) * canvas.scale
-        const w = (this.x2 - this.x1) * canvas.scale
-        const h = (this.y2 - this.y1) * canvas.scale
-
-        canvas.ctx.fillRect(x, y, w, h);
-      }
-
       resize(w, h) {
         this.x2 = this.x1 + w
         this.y2 = this.y1 + h
@@ -131,37 +122,51 @@
       }
     }
 
-    class BlueRectangle extends Rectangle {
+    class RectangleEntity extends Rectangle {
 
-      draw(canvas) {
-        if (this.selected) {
-          canvas.ctx.fillStyle = "black"
-        } else {
-          canvas.ctx.fillStyle = "blue"
-        }
-        super.draw(canvas)
+      constructor(x, y, w, h, color) {
+        super(x,y,w,h)
+        this.color = color
       }
-    }
 
-    class RedRectangle extends Rectangle {
-      draw(canvas) {
+      drawSimple(canvas) {
         if (this.selected) {
           canvas.ctx.fillStyle = "black"
         } else {
-          canvas.ctx.fillStyle = "red"
+          canvas.ctx.fillStyle = this.color
         }
-        super.draw(canvas)
+        const x = (canvas.viewport.x1 + this.x1) * canvas.scale
+        const y = (canvas.viewport.y1 + this.y1) * canvas.scale
+        const w = (this.x2 - this.x1) * canvas.scale
+        const h = (this.y2 - this.y1) * canvas.scale
+
+        canvas.ctx.fillRect(x, y, w, h);
       }
-    }
 
-    class GreenRectangle extends Rectangle {
-      draw(canvas) {
+      drawDetail(canvas) {
         if (this.selected) {
           canvas.ctx.fillStyle = "black"
+          canvas.ctx.strokeStyle = "black"
         } else {
-          canvas.ctx.fillStyle = "green"
+          canvas.ctx.fillStyle = this.color
+          canvas.ctx.strokeStyle = this.color
         }
-        super.draw(canvas)
+        const x = (canvas.viewport.x1 + this.x1) * canvas.scale
+        const y = (canvas.viewport.y1 + this.y1) * canvas.scale
+        const w = (this.x2 - this.x1) * canvas.scale
+        const h = (this.y2 - this.y1) * canvas.scale
+
+        const offset = 3 * canvas.scale
+        canvas.ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
+        canvas.ctx.strokeRect(x, y, w, h);
+      }
+
+      draw(canvas) {
+        if (canvas.scale <= 0.4) {
+          this.drawSimple(canvas)
+        } else {
+          this.drawDetail(canvas)
+        }
       }
     }
 
@@ -188,13 +193,13 @@
             let element
             switch ((x+y) % 3) {
               case 0:
-                element = new RedRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "red")
                 break
               case 1:
-                element = new GreenRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "green")
                 break
               case 2:
-                element = new BlueRectangle(10 + (x*60), 10 + (y*60), 50, 50)
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
                 break
             }
             this.elements.push(element)
