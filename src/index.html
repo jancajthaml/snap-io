@@ -186,7 +186,7 @@
         this.selected = {}
         this.visible = []
 
-        const counts = 1000
+        const counts = 10 //1000
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -336,6 +336,10 @@
         if (this.mouse.currentEvent !== 'selection') {
           return
         }
+        const xoffset = this.mouse.coordinates.x1 < this.mouse.coordinates.x2 ? -1.5 : 1.5
+        const yoffset = this.mouse.coordinates.y1 < this.mouse.coordinates.y2 ? -1.5 : 1.5
+        this.ctx.strokeStyle = "black";
+        this.ctx.strokeRect(this.mouse.coordinates.x1 + xoffset, this.mouse.coordinates.y1 + yoffset, this.mouse.coordinates.x2 - this.mouse.coordinates.x1 - 2*xoffset, this.mouse.coordinates.y2 - this.mouse.coordinates.y1 - 2*yoffset);
         this.ctx.fillStyle = "rgba(0,0,0,.6)"
         this.ctx.fillRect(this.mouse.coordinates.x1, this.mouse.coordinates.y1, this.mouse.coordinates.x2 - this.mouse.coordinates.x1, this.mouse.coordinates.y2 - this.mouse.coordinates.y1);
       }
@@ -344,25 +348,20 @@
         if (!this.dirty) {
           return
         }
+        this.dirty = false
         this.drawBackground()
         this.drawGrid()
-
         this.visible.forEach((element) => {
           element.draw(this)
         })
-
         this.drawSelextionBox()
-
-        this.dirty = false
       }
     }
 
     function draw() {
       requestAnimationFrame(draw);
-
       now = Date.now();
       delta = now - then;
-
       if (delta > interval) {
         then = now - (delta % interval);
         canvas.repaint()
