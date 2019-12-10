@@ -15,6 +15,8 @@
       backface-visibility: hidden;
       perspective: 1000;
       cursor: default;
+      transform: translateZ(0);
+
     }
   </style>
 </head>
@@ -186,7 +188,7 @@
         this.selected = {}
         this.visible = []
 
-        const counts = 10 //1000
+        const counts = 1000
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
