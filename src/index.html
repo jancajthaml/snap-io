@@ -39,12 +39,11 @@
         this.coordinates = new Rectangle(0, 0, 0, 0)
       }
 
+      setEvent(event) {
+        this.currentEvent = event
+      }
+
       down(event) {
-        if (event.shiftKey) {
-          this.currentEvent = 'selection'
-        } else {
-          this.currentEvent = 'drag'
-        }
         this.coordinates.x1 = event.clientX
         this.coordinates.y1 = event.clientY
         this.coordinates.x2 = event.clientX
@@ -131,8 +130,8 @@
         this.color = color
       }
 
-      drawSimple(canvas) {
-        if (canvas.selected[this.toString()]) {
+      drawSimple(canvas, selected) {
+        if (selected) {
           canvas.ctx.fillStyle = "black"
         } else {
           canvas.ctx.fillStyle = this.color
@@ -145,8 +144,8 @@
         canvas.ctx.fillRect(x, y, w, h);
       }
 
-      drawDetail(canvas) {
-        if (canvas.selected[this.toString()]) {
+      drawDetail(canvas, selected) {
+        if (selected) {
           canvas.ctx.fillStyle = "black"
           canvas.ctx.strokeStyle = "black"
         } else {
@@ -163,11 +162,11 @@
         canvas.ctx.strokeRect(x, y, w, h);
       }
 
-      draw(canvas) {
+      draw(canvas, selected) {
         if (canvas.scale <= 0.4) {
-          this.drawSimple(canvas)
+          this.drawSimple(canvas, selected)
         } else {
-          this.drawDetail(canvas)
+          this.drawDetail(canvas, selected)
         }
       }
     }
@@ -181,6 +180,7 @@
         this.ctx.imageSmoothingEnabled = true;
 
         this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+        this.selection = new Rectangle(0, 0, 0, 0)
         this.scale = 1
         this.dirty = false
         this.mouse = new MouseFascade()
@@ -188,7 +188,7 @@
         this.selected = {}
         this.visible = []
 
-        const counts = 1000
+        const counts = 100
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -218,7 +218,24 @@
       }
 
       mouseDown = (event) => {
+        if (event.which !== 1) {
+          return
+        }
+
         this.mouse.down(event)
+
+        if (event.shiftKey) {
+          this.mouse.setEvent('selection')
+          this.selection.x1 = this.mouse.coordinates.x1 / this.scale - this.viewport.x1
+          this.selection.y1 = this.mouse.coordinates.y1 / this.scale - this.viewport.y1
+          this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale
+          this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale
+          this.updateSelected()
+        } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
+          this.mouse.setEvent('element-drag')
+        } else {
+          this.mouse.setEvent('canvas-drag')
+        }
         this.ctx.canvas.focus()
         this.dirty = true
       }
@@ -234,7 +251,6 @@
         if (prevScale != this.scale) {
           const zoomX = (event.clientX - this.viewport.x1 * prevScale) / prevScale
           const zoomY = (event.clientY - this.viewport.y1 * prevScale) / prevScale
-
           this.viewport.x1 = (-zoomX * this.scale + event.clientX) / this.scale
           this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
           this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
@@ -245,16 +261,28 @@
       }
 
       mouseUp = (event) => {
-        if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-          this.updateSelected()
+        switch (this.mouse.currentEvent) {
+
+          case 'element-drag': {
+            break
+          }
+
+          default: {
+            if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
+              this.updateSelected()
+            }
+            break
+          }
         }
+
         this.mouse.up(event)
         this.dirty = true
       }
 
       mouseMove = (event) => {
         switch (this.mouse.currentEvent) {
-          case 'drag': {
+
+          case 'canvas-drag': {
             const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
             const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
             this.mouse.move(event)
@@ -264,6 +292,12 @@
             this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
             this.updateVisible()
             this.dirty = true
+            break
+          }
+
+          case 'element-drag': {
+            this.mouse.move(event)
+            console.log('draging selection')
             break
           }
 
@@ -281,15 +315,13 @@
       }
 
       updateSelected = () => {
-        const coords = new Rectangle(
-          (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1,
-          (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1,
-          (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale,
-          (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale,
-        )
+        this.selection.x1 = (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1
+        this.selection.y1 = (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1
+        this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale
+        this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale
         this.selected = {}
         this.visible.forEach((element) => {
-          if (element.insideRectangle(coords)) {
+          if (element.insideRectangle(this.selection)) {
             this.selected[element.toString()] = true
           }
         })
@@ -336,14 +368,20 @@
 
       drawSelextionBox = () => {
         if (this.mouse.currentEvent !== 'selection') {
-          return
+          this.ctx.strokeStyle = "black";
+          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1) * this.scale - 1.5, (this.selection.x2 - this.selection.x1) * this.scale + 3, (this.selection.y2 - this.selection.y1) * this.scale + 3);
+          this.ctx.strokeStyle = "white";
+          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 0.5, (this.viewport.y1 + this.selection.y1) * this.scale - 0.5, (this.selection.x2 - this.selection.x1) * this.scale + 1, (this.selection.y2 - this.selection.y1) * this.scale + 1);
+          this.ctx.fillStyle = "rgba(0,0,0,.2)"
+          this.ctx.fillRect((this.viewport.x1 + this.selection.x1) * this.scale, (this.viewport.y1 + this.selection.y1) * this.scale, (this.selection.x2 - this.selection.x1) * this.scale, (this.selection.y2 - this.selection.y1) * this.scale);
+        } else {
+          this.ctx.strokeStyle = "black";
+          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1) * this.scale - 1.5, (this.selection.x2 - this.selection.x1) * this.scale + 3, (this.selection.y2 - this.selection.y1) * this.scale + 3);
+          this.ctx.strokeStyle = "white";
+          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 0.5, (this.viewport.y1 + this.selection.y1) * this.scale - 0.5, (this.selection.x2 - this.selection.x1) * this.scale + 1, (this.selection.y2 - this.selection.y1) * this.scale + 1);
+          this.ctx.fillStyle = "rgba(0,0,0,.6)"
+          this.ctx.fillRect((this.viewport.x1 + this.selection.x1) * this.scale, (this.viewport.y1 + this.selection.y1) * this.scale, (this.selection.x2 - this.selection.x1) * this.scale, (this.selection.y2 - this.selection.y1) * this.scale);
         }
-        const xoffset = this.mouse.coordinates.x1 < this.mouse.coordinates.x2 ? -1.5 : 1.5
-        const yoffset = this.mouse.coordinates.y1 < this.mouse.coordinates.y2 ? -1.5 : 1.5
-        this.ctx.strokeStyle = "black";
-        this.ctx.strokeRect(this.mouse.coordinates.x1 + xoffset, this.mouse.coordinates.y1 + yoffset, this.mouse.coordinates.x2 - this.mouse.coordinates.x1 - 2*xoffset, this.mouse.coordinates.y2 - this.mouse.coordinates.y1 - 2*yoffset);
-        this.ctx.fillStyle = "rgba(0,0,0,.6)"
-        this.ctx.fillRect(this.mouse.coordinates.x1, this.mouse.coordinates.y1, this.mouse.coordinates.x2 - this.mouse.coordinates.x1, this.mouse.coordinates.y2 - this.mouse.coordinates.y1);
       }
 
       repaint = () => {
@@ -354,7 +392,7 @@
         this.drawBackground()
         this.drawGrid()
         this.visible.forEach((element) => {
-          element.draw(this)
+          element.draw(this, this.selected[element.toString()])
         })
         this.drawSelextionBox()
       }
