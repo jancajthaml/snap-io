@@ -23,14 +23,7 @@
 <body>
   <canvas id="mount" width="400" height="400" tabindex="0"></canvas>
   <script>
-
-    var fps = 240;
-    var now;
-    var then = Date.now();
-    var interval = 1000 / fps;
-    var delta;
-
-    var canvas = null
+    //var canvas = null
 
     class MouseFascade {
 
@@ -533,7 +526,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log('loaded')
-      canvas = new Canvas('mount');
+      const canvas = new Canvas('mount');
       canvas.resize();
       canvas.registerListeners();
 
