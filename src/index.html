@@ -130,8 +130,8 @@
         this.color = color
       }
 
-      drawSimple(canvas) {
-        if (canvas.selected[this.toString()]) {
+      drawSimple(canvas, selected) {
+        if (selected) {
           canvas.ctx.fillStyle = "black"
         } else {
           canvas.ctx.fillStyle = this.color
@@ -144,8 +144,8 @@
         canvas.ctx.fillRect(x, y, w, h);
       }
 
-      drawDetail(canvas) {
-        if (canvas.selected[this.toString()]) {
+      drawDetail(canvas, selected) {
+        if (selected) {
           canvas.ctx.fillStyle = "black"
           canvas.ctx.strokeStyle = "black"
         } else {
@@ -162,11 +162,11 @@
         canvas.ctx.strokeRect(x, y, w, h);
       }
 
-      draw(canvas) {
+      draw(canvas, selected) {
         if (canvas.scale <= 0.4) {
-          this.drawSimple(canvas)
+          this.drawSimple(canvas, selected)
         } else {
-          this.drawDetail(canvas)
+          this.drawDetail(canvas, selected)
         }
       }
     }
@@ -231,6 +231,8 @@
           this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale
           this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale
           this.updateSelected()
+        } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
+          this.mouse.setEvent('element-drag')
         } else {
           this.mouse.setEvent('canvas-drag')
         }
@@ -259,9 +261,20 @@
       }
 
       mouseUp = (event) => {
-        if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-          this.updateSelected()
+        switch (this.mouse.currentEvent) {
+
+          case 'element-drag': {
+            break
+          }
+
+          default: {
+            if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
+              this.updateSelected()
+            }
+            break
+          }
         }
+
         this.mouse.up(event)
         this.dirty = true
       }
@@ -279,6 +292,12 @@
             this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
             this.updateVisible()
             this.dirty = true
+            break
+          }
+
+          case 'element-drag': {
+            this.mouse.move(event)
+            console.log('draging selection')
             break
           }
 
@@ -373,7 +392,7 @@
         this.drawBackground()
         this.drawGrid()
         this.visible.forEach((element) => {
-          element.draw(this)
+          element.draw(this, this.selected[element.toString()])
         })
         this.drawSelextionBox()
       }
