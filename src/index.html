@@ -40,6 +40,21 @@
       }
 
       setEvent(event) {
+        switch (event) {
+          case 'selection': {
+            document.getElementById('mount').style.cursor = "default"
+            break
+          }
+          case 'canvas-drag':
+          case 'element-drag': {
+            document.getElementById('mount').style.cursor = "move"
+            break
+          }
+          default: {
+            document.getElementById('mount').style.cursor = "default"
+            break
+          }
+        }
         this.currentEvent = event
       }
 
@@ -56,7 +71,7 @@
       }
 
       up(event) {
-        this.currentEvent = null
+        this.setEvent(null)
       }
 
     }
@@ -254,13 +269,13 @@
         this.ctx.imageSmoothingEnabled = true;
 
         this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
-        this.selection = new Rectangle(0, 0, 0, 0)
+        this.selection = new Rectangle()
         this.scale = 1
         this.dirty = false
         this.mouse = new MouseFascade()
         this.elements = new ElementsFascade()
 
-        const counts = 10
+        const counts = 100
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
@@ -294,8 +309,9 @@
           return
         }
 
-        this.mouse.down(event)
+        //this.compressSelected()
 
+        this.mouse.down(event)
 
         if (event.shiftKey) {
           this.mouse.setEvent('selection')
@@ -307,13 +323,7 @@
         } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
           this.mouse.setEvent('element-drag')
         } else {
-          this.updateSelected()
-          this.compressSelected()
-          if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
-            this.mouse.setEvent('element-drag')
-          } else {
-            this.mouse.setEvent('canvas-drag')
-          }
+          this.mouse.setEvent('canvas-drag')
         }
 
         this.ctx.canvas.focus()
@@ -472,7 +482,7 @@
           this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1) * this.scale - 1.5, (this.selection.x2 - this.selection.x1) * this.scale + 3, (this.selection.y2 - this.selection.y1) * this.scale + 3);
           this.ctx.strokeStyle = "white";
           this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 0.5, (this.viewport.y1 + this.selection.y1) * this.scale - 0.5, (this.selection.x2 - this.selection.x1) * this.scale + 1, (this.selection.y2 - this.selection.y1) * this.scale + 1);
-          this.ctx.fillStyle = "rgba(0,0,0,.6)"
+          this.ctx.fillStyle = "rgba(0,0,0,.3)"
           this.ctx.fillRect((this.viewport.x1 + this.selection.x1) * this.scale, (this.viewport.y1 + this.selection.y1) * this.scale, (this.selection.x2 - this.selection.x1) * this.scale, (this.selection.y2 - this.selection.y1) * this.scale);
         }
       }
