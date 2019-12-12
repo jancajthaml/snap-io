@@ -111,11 +111,13 @@
         });
       }
 
-      updateSelected(selection) {
-        this.selected.forEach((element) => {
-          element.selected = false
-        })
-        this.selected = []
+      updateSelected(selection, clearPrevious) {
+        if (clearPrevious) {
+          this.selected.forEach((element) => {
+            element.selected = false
+          })
+          this.selected = []
+        }
         this.visible.forEach((element) => {
           if (element.insideRectangle(selection)) {
             this.selected.push(element)
@@ -274,16 +276,25 @@
       }
 
       registerListeners = () => {
+        document.addEventListener('contextmenu', this.contextMenu)
         document.addEventListener('mousedown', this.mouseDown)
         document.addEventListener('mouseup', this.mouseUp)
         this.ctx.canvas.addEventListener('blur', this.mouseUp)
         document.addEventListener('mousemove', this.mouseMove)
-        document.addEventListener('mousewheel', this.zoom, { passive: false })
+        document.addEventListener('mousewheel', this.mouseWheel, { passive: false })
         window.addEventListener('resize', this.resize)
       }
 
+      contextMenu = (event) => {
+        if (event.button === 0 && event.ctrlKey) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
+
       mouseDown = (event) => {
-        if (event.which !== 1) {
+        event.preventDefault()
+        if (event.button !== 0) {
           return
         }
 
@@ -295,7 +306,7 @@
           this.selection.y1 = this.mouse.coordinates.y1 / this.scale - this.viewport.y1
           this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale
           this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale
-          this.updateSelected()
+          this.updateSelected(true)
         } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
           this.mouse.setEvent('element-drag')
         } else {
@@ -306,7 +317,7 @@
         this.dirty = true
       }
 
-      zoom = (event) => {
+      mouseWheel = (event) => {
         event.preventDefault()
         const prevScale = this.scale
         if (event.wheelDelta > 0) {
@@ -327,13 +338,15 @@
       }
 
       mouseUp = (event) => {
+        if (this.mouse.currentEvent === null) {
+          return
+        }
         if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-          this.updateSelected()
+          this.updateSelected(!(event.metaKey || event.ctrlKey))
           this.compressSelected()
         } else if (this.mouse.currentEvent === 'selection') {
           this.compressSelected()
         }
-
         this.mouse.up(event)
         this.dirty = true
       }
@@ -369,7 +382,7 @@
 
           case 'selection': {
             this.mouse.move(event)
-            this.updateSelected()
+            this.updateSelected(true)
             this.dirty = true
             break
           }
@@ -380,12 +393,12 @@
         }
       }
 
-      updateSelected = () => {
+      updateSelected = (clearPrevious) => {
         this.selection.x1 = (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1
         this.selection.y1 = (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1
         this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale
         this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale
-        this.elements.updateSelected(this.selection)
+        this.elements.updateSelected(this.selection, clearPrevious)
       }
 
       compressSelected = () => {
