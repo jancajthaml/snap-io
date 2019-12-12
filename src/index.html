@@ -23,8 +23,6 @@
 <body>
   <canvas id="mount" width="400" height="400" tabindex="0"></canvas>
   <script>
-    //var canvas = null
-
     class MouseFascade {
 
       constructor() {
@@ -321,7 +319,7 @@
         event.preventDefault()
         const prevScale = this.scale
         if (event.wheelDelta > 0) {
-          this.scale = Math.max(this.scale / 1.03, 0.1)
+          this.scale = Math.max(this.scale / 1.03, 0.2)
         } else {
           this.scale = Math.min(this.scale * 1.03, 8)
         }
@@ -420,10 +418,10 @@
             y2 = element.y2
           }
         })
-        this.selection.x1 = x1 ? x1 - 2 * this.scale : x1
-        this.selection.y1 = y1 ? y1 - 2 * this.scale : y1
-        this.selection.x2 = x2 ? x2 + 2 * this.scale : x2
-        this.selection.y2 = y2 ? y2 + 2 * this.scale : y2
+        this.selection.x1 = x1
+        this.selection.y1 = y1
+        this.selection.x2 = x2
+        this.selection.y2 = y2
       }
 
       update = () => {
@@ -467,7 +465,7 @@
         if (this.mouse.currentEvent !== 'selection') {
           this.ctx.strokeStyle = "black";
           this.ctx.setLineDash([4 * this.scale, 4 * this.scale]);
-          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1) * this.scale - 1.5, (this.selection.x2 - this.selection.x1) * this.scale + 3, (this.selection.y2 - this.selection.y1) * this.scale + 3);
+          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1 - 2) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1 - 2) * this.scale - 1.5, (this.selection.x2 - this.selection.x1 + 4) * this.scale + 3, (this.selection.y2 - this.selection.y1 + 4) * this.scale + 3);
           this.ctx.setLineDash([]);
         } else {
           this.ctx.strokeStyle = "black";
@@ -512,31 +510,6 @@
       }
     }
 
-    /*
-    var fps = 5;
-    var now;
-    var then = Date.now();
-    var interval = 1000 / fps;
-    var delta;
-
-    function update() {
-      now = Date.now();
-      delta = now - then;
-      if (delta > interval) {
-        then = now - (delta % interval);
-        canvas.update()
-      }
-
-      //canvas.repaint()
-      requestAnimationFrame(update)
-    }
-
-    function draw() {
-      //canvas.update()
-      canvas.repaint()
-      requestAnimationFrame(draw)
-    }*/
-
     document.addEventListener("DOMContentLoaded", () => {
       console.log('loaded')
       const canvas = new Canvas('mount');
@@ -547,7 +520,6 @@
         canvas.update()
         canvas.draw()
       })
-      //const drawLoop = new Loop(10, canvas.draw)
 
       loop.start()
 
@@ -555,7 +527,7 @@
 
 
       (async function() {
-        const counts = 10 //500
+        const counts = 10
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
