@@ -23,14 +23,7 @@
 <body>
   <canvas id="mount" width="400" height="400" tabindex="0"></canvas>
   <script>
-
-    var fps = 60;
-    var now;
-    var then = Date.now();
-    var interval = 1000 / fps;
-    var delta;
-
-    var canvas = null
+    //var canvas = null
 
     class MouseFascade {
 
@@ -79,7 +72,7 @@
     class ElementsFascade {
 
       constructor() {
-        this.visible = [] // info this stores references to objects not copies
+        this.visible = []
         this.elements = []
         this.selected = []
       }
@@ -118,11 +111,13 @@
         });
       }
 
-      updateSelected(selection) {
-        this.selected.forEach((element) => {
-          element.selected = false
-        })
-        this.selected = []
+      updateSelected(selection, clearPrevious) {
+        if (clearPrevious) {
+          this.selected.forEach((element) => {
+            element.selected = false
+          })
+          this.selected = []
+        }
         this.visible.forEach((element) => {
           if (element.insideRectangle(selection)) {
             this.selected.push(element)
@@ -265,51 +260,43 @@
 
       constructor(id) {
         const element = document.getElementById(id);
-        this.ctx = element.getContext("2d", { alpha: false });
+        this.ctx = element.getContext("2d", {
+          alpha: false,
+          desynchronized: true,
+        });
         this.ctx.imageSmoothingEnabled = true;
 
         this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
         this.selection = new Rectangle()
         this.scale = 1
         this.dirty = false
+        this.update_visible = false
         this.mouse = new MouseFascade()
         this.elements = new ElementsFascade()
-
-        const counts = 100
-        for (let x = 0; x < counts; x++) {
-          for (let y = 0; y < counts; y++) {
-            let element
-            switch ((x+y) % 3) {
-              case 0:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "red")
-                break
-              case 1:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "green")
-                break
-              case 2:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
-                break
-            }
-            this.elements.add(element)
-          }
-        }
       }
 
       registerListeners = () => {
+        document.addEventListener('contextmenu', this.contextMenu)
         document.addEventListener('mousedown', this.mouseDown)
         document.addEventListener('mouseup', this.mouseUp)
         this.ctx.canvas.addEventListener('blur', this.mouseUp)
         document.addEventListener('mousemove', this.mouseMove)
-        document.addEventListener('mousewheel', this.zoom, { passive: false })
+        document.addEventListener('mousewheel', this.mouseWheel, { passive: false })
         window.addEventListener('resize', this.resize)
       }
 
+      contextMenu = (event) => {
+        if (event.button === 0 && event.ctrlKey) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
+
       mouseDown = (event) => {
-        if (event.which !== 1) {
+        event.preventDefault()
+        if (event.button !== 0) {
           return
         }
-
-        //this.compressSelected()
 
         this.mouse.down(event)
 
@@ -319,7 +306,7 @@
           this.selection.y1 = this.mouse.coordinates.y1 / this.scale - this.viewport.y1
           this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale
           this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale
-          this.updateSelected()
+          this.updateSelected(true)
         } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
           this.mouse.setEvent('element-drag')
         } else {
@@ -330,11 +317,11 @@
         this.dirty = true
       }
 
-      zoom = (event) => {
+      mouseWheel = (event) => {
         event.preventDefault()
         const prevScale = this.scale
         if (event.wheelDelta > 0) {
-          this.scale = Math.max(this.scale / 1.03, 0.2)
+          this.scale = Math.max(this.scale / 1.03, 0.1)
         } else {
           this.scale = Math.min(this.scale * 1.03, 8)
         }
@@ -345,19 +332,21 @@
           this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
           this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
           this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
-          this.updateVisible();
+          this.update_visible = true
           this.dirty = true
         }
       }
 
       mouseUp = (event) => {
+        if (this.mouse.currentEvent === null) {
+          return
+        }
         if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-          this.updateSelected()
+          this.updateSelected(!(event.metaKey || event.ctrlKey))
           this.compressSelected()
         } else if (this.mouse.currentEvent === 'selection') {
           this.compressSelected()
         }
-
         this.mouse.up(event)
         this.dirty = true
       }
@@ -373,7 +362,7 @@
             this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
             this.viewport.y1 += yDelta
             this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
-            this.updateVisible()
+            this.update_visible = true
             this.dirty = true
             break
           }
@@ -386,14 +375,14 @@
               element.translate(xDelta, yDelta)
             })
             this.selection.translate(xDelta, yDelta)
-            this.updateVisible()
+            this.update_visible = true
             this.dirty = true
             break
           }
 
           case 'selection': {
             this.mouse.move(event)
-            this.updateSelected()
+            this.updateSelected(true)
             this.dirty = true
             break
           }
@@ -404,12 +393,12 @@
         }
       }
 
-      updateSelected = () => {
+      updateSelected = (clearPrevious) => {
         this.selection.x1 = (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1
         this.selection.y1 = (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1
         this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale
         this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale
-        this.elements.updateSelected(this.selection)
+        this.elements.updateSelected(this.selection, clearPrevious)
       }
 
       compressSelected = () => {
@@ -431,21 +420,24 @@
             y2 = element.y2
           }
         })
-        this.selection.x1 = x1 - 2 * this.scale
-        this.selection.y1 = y1 - 2 * this.scale
-        this.selection.x2 = x2 + 2 * this.scale
-        this.selection.y2 = y2 + 2 * this.scale
+        this.selection.x1 = x1 ? x1 - 2 * this.scale : x1
+        this.selection.y1 = y1 ? y1 - 2 * this.scale : y1
+        this.selection.x2 = x2 ? x2 + 2 * this.scale : x2
+        this.selection.y2 = y2 ? y2 + 2 * this.scale : y2
       }
 
-      updateVisible = () => {
-        this.elements.updateVisible(canvas)
+      update = () => {
+        if (this.update_visible) {
+          this.elements.updateVisible(this)
+          this.update_visible = false
+        }
       }
 
       resize = () => {
         this.ctx.canvas.width  = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight;
         this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
-        this.updateVisible();
+        this.update_visible = true
         this.dirty = true;
       }
 
@@ -487,7 +479,7 @@
         }
       }
 
-      repaint = () => {
+      draw = () => {
         if (!this.dirty) {
           return
         }
@@ -501,22 +493,90 @@
       }
     }
 
-    function draw() {
-      requestAnimationFrame(draw);
+    class Loop {
+
+      constructor(callback) {
+        this.lastId
+        this.callback = callback
+      }
+
+      stop = () => {
+        if (this.lastId) {
+          cancelAnimationFrame(this.lastId)
+        }
+      }
+
+      start = () => {
+        this.callback()
+        this.lastId = requestAnimationFrame(this.start)
+      }
+    }
+
+    /*
+    var fps = 5;
+    var now;
+    var then = Date.now();
+    var interval = 1000 / fps;
+    var delta;
+
+    function update() {
       now = Date.now();
       delta = now - then;
       if (delta > interval) {
         then = now - (delta % interval);
-        canvas.repaint()
+        canvas.update()
       }
+
+      //canvas.repaint()
+      requestAnimationFrame(update)
     }
+
+    function draw() {
+      //canvas.update()
+      canvas.repaint()
+      requestAnimationFrame(draw)
+    }*/
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log('loaded')
-      canvas = new Canvas('mount');
+      const canvas = new Canvas('mount');
       canvas.resize();
       canvas.registerListeners();
-      draw();
+
+      const loop = new Loop(() => {
+        canvas.update()
+        canvas.draw()
+      })
+      //const drawLoop = new Loop(10, canvas.draw)
+
+      loop.start()
+
+      ;
+
+
+      (async function() {
+        const counts = 10 //500
+        for (let x = 0; x < counts; x++) {
+          for (let y = 0; y < counts; y++) {
+            let element
+            switch ((x+y) % 3) {
+              case 0:
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "red")
+                break
+              case 1:
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "green")
+                break
+              case 2:
+                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
+                break
+            }
+            //await new Promise(resolve => setTimeout(resolve, 10))
+            canvas.elements.add(element)
+            canvas.update_visible = true
+            canvas.dirty = true
+          }
+        }
+      }());
     })
   </script>
 </body>
