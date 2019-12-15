@@ -13,6 +13,9 @@
     #mount {
       position: relative;
       cursor: default;
+      background: blue;
+      width: 100%;
+      height: 100%;
     }
     canvas {
       position: absolute;
@@ -264,15 +267,29 @@
 
     class Layer {
 
-      constructor(id, opaque = true) {
+      constructor(id, type = '2d', opaque = true) {
         this.dirty = false
-        this.ctx = document.getElementById(id).getContext("2d", {
-          alpha: !opaque,
-          desynchronized: true,
-        });
-        this.width = this.ctx.canvas.width
-        this.height = this.ctx.canvas.height
-        this.ctx.imageSmoothingEnabled = false;
+        let options = {}
+        switch (type) {
+          case '2d': {
+            options = {
+              alpha: !opaque,
+            }
+            break
+          }
+          case 'webgl': {
+            options = {
+              alpha: !opaque,
+              depth: false,
+            }
+            break
+          }
+
+        }
+        const ctx = document.getElementById(id).getContext(type, options);
+        this.width = ctx.canvas.width
+        this.height = ctx.canvas.height
+        this.ctx = ctx
       }
 
       resize = (width, height) => {
@@ -305,18 +322,19 @@
         const p = 10 * canvas.scale
         const xOffset = (canvas.viewport.x1 * canvas.scale) % p
         const yOffset = (canvas.viewport.y1 * canvas.scale) % p
+        this.ctx.lineWidth = (canvas.scale / 3) + 0.2;
+
         this.ctx.beginPath();
-        for (var x = xOffset; x <= this.width + p; x += p) {
-          this.ctx.moveTo(0.5 + x, 0);
-          this.ctx.lineTo(0.5 + x, this.height);
+        for (var x = xOffset + 0.5; x <= this.width + p; x += p) {
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, this.height);
         }
-        for (var y = yOffset; y <= this.height + p; y += p) {
-          this.ctx.moveTo(0, 0.5 + y);
-          this.ctx.lineTo(this.width, 0.5 + y);
+        for (var y = yOffset + 0.5; y <= this.height + p; y += p) {
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(this.width, y);
         }
         this.ctx.strokeStyle = "#ccc";
         this.ctx.stroke();
-
         this.dirty = false
       }
     }
@@ -335,10 +353,10 @@
           this.ctx.strokeStyle = "black";
           this.ctx.setLineDash([4 * canvas.scale, 4 * canvas.scale]);
           this.ctx.strokeRect(
-            (canvas.viewport.x1 + canvas.selection.x1) * canvas.scale - 1.5,
-            (canvas.viewport.y1 + canvas.selection.y1) * canvas.scale - 1.5,
-            (canvas.selection.x2 - canvas.selection.x1) * canvas.scale + 3,
-            (canvas.selection.y2 - canvas.selection.y1) * canvas.scale + 3,
+            ((canvas.viewport.x1 + canvas.selection.x1 - 3) * canvas.scale) - 1,
+            ((canvas.viewport.y1 + canvas.selection.y1 - 3) * canvas.scale) - 1,
+            ((canvas.selection.x2 - canvas.selection.x1 + 6) * canvas.scale) + 2,
+            ((canvas.selection.y2 - canvas.selection.y1 + 6) * canvas.scale) + 2,
           );
           this.ctx.setLineDash([]);
         }
@@ -383,21 +401,18 @@
     }
 
     class Canvas {
-      //ctx = null
-      //layers = []
       grid_layer = null
       elements_layer = null
       overlay_layer = null
 
       constructor() {
-        this.grid_layer = new GridLayer('canvas_layer_0', true)
-        this.elements_layer = new ElementsLayer('canvas_layer_1', false)
-        this.overlay_layer = new OverlayLayer('canvas_layer_2', false)
+        this.grid_layer = new GridLayer('canvas_layer_0', '2d', true)
+        this.elements_layer = new ElementsLayer('canvas_layer_1', '2d', false)
+        this.overlay_layer = new OverlayLayer('canvas_layer_2', '2d', false)
         this.viewport = new Rectangle(0, 0, 1, 1)
         this.dimension = new Point(1, 1)
         this.selection = new Rectangle()
         this.scale = 1
-        //this.dirty = false
         this.update_visible = false
         this.mouse = new MouseFascade()
         this.elements = new ElementsFascade()
@@ -444,7 +459,6 @@
 
         this.elements_layer.dirty = true
         this.overlay_layer.dirty = true
-        //this.dirty = true
       }
 
       mouseWheel = (event) => {
@@ -481,8 +495,6 @@
           this.compressSelected()
         }
         this.mouse.up(event)
-        //this.dirty = true
-        //this.grid_layer.dirty = true
         this.elements_layer.dirty = true
         this.overlay_layer.dirty = true
       }
@@ -499,7 +511,6 @@
             this.viewport.y1 += yDelta
             this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
             this.update_visible = true
-            //this.dirty = true
             this.grid_layer.dirty = true
             this.elements_layer.dirty = true
             break
@@ -514,8 +525,6 @@
             })
             this.selection.translate(xDelta, yDelta)
             this.update_visible = true
-            //this.dirty = true
-            //this.grid_layer.dirty = true
             this.elements_layer.dirty = true
             break
           }
@@ -523,8 +532,6 @@
           case 'selection': {
             this.mouse.move(event)
             this.updateSelected(true)
-            //this.dirty = true
-            //this.grid_layer.dirty = true
             this.elements_layer.dirty = true
             this.overlay_layer.dirty = true
             break
