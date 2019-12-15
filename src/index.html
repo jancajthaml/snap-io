@@ -10,19 +10,28 @@
       height: 100%;
       margin: 0;
     }
+    #mount {
+      position: relative;
+      cursor: default;
+    }
     canvas {
+      position: absolute;
       box-sizing: border-box;
       backface-visibility: hidden;
+      image-rendering: optimizeSpeed;
       perspective: 1000;
-      cursor: default;
       transform: translateZ(0);
-
     }
   </style>
 </head>
 <body>
-  <canvas id="mount" width="400" height="400" tabindex="0"></canvas>
+  <div id="mount" tabindex="0">
+    <canvas id="canvas_layer_0" width="400" height="400"></canvas>
+    <canvas id="canvas_layer_1" width="400" height="400"></canvas>
+    <canvas id="canvas_layer_2" width="400" height="400"></canvas>
+  </div>
   <script>
+
     class MouseFascade {
 
       constructor() {
@@ -212,27 +221,27 @@
         this.selected = false
       }
 
-      drawSimple(canvas, selected) {
+      drawSimple(ctx, canvas, selected) {
         if (selected) {
-          canvas.ctx.fillStyle = "black"
+          ctx.fillStyle = "black"
         } else {
-          canvas.ctx.fillStyle = this.color
+          ctx.fillStyle = this.color
         }
         const x = (canvas.viewport.x1 + this.x1) * canvas.scale
         const y = (canvas.viewport.y1 + this.y1) * canvas.scale
         const w = (this.x2 - this.x1) * canvas.scale
         const h = (this.y2 - this.y1) * canvas.scale
 
-        canvas.ctx.fillRect(x, y, w, h);
+        ctx.fillRect(x, y, w, h);
       }
 
-      drawDetail(canvas, selected) {
+      drawDetail(ctx, canvas, selected) {
         if (selected) {
-          canvas.ctx.fillStyle = "black"
-          canvas.ctx.strokeStyle = "black"
+          ctx.fillStyle = "black"
+          ctx.strokeStyle = "black"
         } else {
-          canvas.ctx.fillStyle = this.color
-          canvas.ctx.strokeStyle = this.color
+          ctx.fillStyle = this.color
+          ctx.strokeStyle = this.color
         }
         const x = (canvas.viewport.x1 + this.x1) * canvas.scale
         const y = (canvas.viewport.y1 + this.y1) * canvas.scale
@@ -240,34 +249,155 @@
         const h = (this.y2 - this.y1) * canvas.scale
 
         const offset = 3 * canvas.scale
-        canvas.ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
-        canvas.ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
+        ctx.strokeRect(x, y, w, h);
       }
 
-      draw(canvas) {
+      draw(ctx, canvas) {
         if (canvas.scale <= 0.4) {
-          this.drawSimple(canvas, this.selected)
+          this.drawSimple(ctx, canvas, this.selected)
         } else {
-          this.drawDetail(canvas, this.selected)
+          this.drawDetail(ctx, canvas, this.selected)
         }
       }
     }
 
-    class Canvas {
-      ctx = null
+    class Layer {
 
-      constructor(id) {
-        const element = document.getElementById(id);
-        this.ctx = element.getContext("2d", {
-          alpha: false,
+      constructor(id, opaque = true) {
+        this.dirty = false
+        this.ctx = document.getElementById(id).getContext("2d", {
+          alpha: !opaque,
           desynchronized: true,
         });
-        this.ctx.imageSmoothingEnabled = true;
+        this.width = this.ctx.canvas.width
+        this.height = this.ctx.canvas.height
+        this.ctx.imageSmoothingEnabled = false;
+      }
 
-        this.viewport = new Rectangle(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+      resize = (width, height) => {
+        this.width = width
+        this.height = height
+
+        this.ctx.canvas.width = width
+        this.ctx.canvas.height = height
+
+        this.dirty = true
+      }
+
+      draw = (canvas) => {
+        if (!this.dirty) {
+          return
+        }
+        this.dirty = false
+      }
+    }
+
+    class GridLayer extends Layer {
+      draw = (canvas) => {
+        if (!this.dirty) {
+          return
+        }
+
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        const p = 10 * canvas.scale
+        const xOffset = (canvas.viewport.x1 * canvas.scale) % p
+        const yOffset = (canvas.viewport.y1 * canvas.scale) % p
+        this.ctx.beginPath();
+        for (var x = xOffset; x <= this.width + p; x += p) {
+          this.ctx.moveTo(0.5 + x, 0);
+          this.ctx.lineTo(0.5 + x, this.height);
+        }
+        for (var y = yOffset; y <= this.height + p; y += p) {
+          this.ctx.moveTo(0, 0.5 + y);
+          this.ctx.lineTo(this.width, 0.5 + y);
+        }
+        this.ctx.strokeStyle = "#ccc";
+        this.ctx.stroke();
+
+        this.dirty = false
+      }
+    }
+
+    class ElementsLayer extends Layer {
+      draw = (canvas) => {
+        if (!this.dirty) {
+          return
+        }
+        this.ctx.clearRect(0, 0, this.width, this.height)
+        canvas.elements.forEachVisible((element) => {
+          element.draw(this.ctx, canvas)
+        })
+
+        if (canvas.mouse.currentEvent !== 'selection') {
+          this.ctx.strokeStyle = "black";
+          this.ctx.setLineDash([4 * canvas.scale, 4 * canvas.scale]);
+          this.ctx.strokeRect(
+            (canvas.viewport.x1 + canvas.selection.x1) * canvas.scale - 1.5,
+            (canvas.viewport.y1 + canvas.selection.y1) * canvas.scale - 1.5,
+            (canvas.selection.x2 - canvas.selection.x1) * canvas.scale + 3,
+            (canvas.selection.y2 - canvas.selection.y1) * canvas.scale + 3,
+          );
+          this.ctx.setLineDash([]);
+        }
+        this.dirty = false
+      }
+    }
+
+    class OverlayLayer extends Layer {
+      draw = (canvas) => {
+        if (!this.dirty) {
+          return
+        }
+
+        this.ctx.clearRect(0, 0, this.width, this.height)
+
+        if (canvas.mouse.currentEvent === 'selection') {
+          this.ctx.strokeStyle = "black";
+          this.ctx.strokeRect(
+            (canvas.viewport.x1 + canvas.selection.x1) * canvas.scale - 1.5,
+            (canvas.viewport.y1 + canvas.selection.y1) * canvas.scale - 1.5,
+            (canvas.selection.x2 - canvas.selection.x1) * canvas.scale + 3,
+            (canvas.selection.y2 - canvas.selection.y1) * canvas.scale + 3,
+          );
+          this.ctx.strokeStyle = "white";
+          this.ctx.strokeRect(
+            (canvas.viewport.x1 + canvas.selection.x1) * canvas.scale - 0.5,
+            (canvas.viewport.y1 + canvas.selection.y1) * canvas.scale - 0.5,
+            (canvas.selection.x2 - canvas.selection.x1) * canvas.scale + 1,
+            (canvas.selection.y2 - canvas.selection.y1) * canvas.scale + 1,
+          );
+          this.ctx.fillStyle = "rgba(0,0,0,.3)"
+          this.ctx.fillRect(
+            (canvas.viewport.x1 + canvas.selection.x1) * canvas.scale,
+            (canvas.viewport.y1 + canvas.selection.y1) * canvas.scale,
+            (canvas.selection.x2 - canvas.selection.x1) * canvas.scale,
+            (canvas.selection.y2 - canvas.selection.y1) * canvas.scale,
+          );
+        }
+
+        this.dirty = false
+      }
+    }
+
+    class Canvas {
+      //ctx = null
+      //layers = []
+      grid_layer = null
+      elements_layer = null
+      overlay_layer = null
+
+      constructor() {
+        this.grid_layer = new GridLayer('canvas_layer_0', true)
+        this.elements_layer = new ElementsLayer('canvas_layer_1', false)
+        this.overlay_layer = new OverlayLayer('canvas_layer_2', false)
+        this.viewport = new Rectangle(0, 0, 1, 1)
+        this.dimension = new Point(1, 1)
         this.selection = new Rectangle()
         this.scale = 1
-        this.dirty = false
+        //this.dirty = false
         this.update_visible = false
         this.mouse = new MouseFascade()
         this.elements = new ElementsFascade()
@@ -277,7 +407,7 @@
         document.addEventListener('contextmenu', this.contextMenu)
         document.addEventListener('mousedown', this.mouseDown)
         document.addEventListener('mouseup', this.mouseUp)
-        this.ctx.canvas.addEventListener('blur', this.mouseUp)
+        document.getElementById('mount').addEventListener('blur', this.mouseUp)
         document.addEventListener('mousemove', this.mouseMove)
         document.addEventListener('mousewheel', this.mouseWheel, { passive: false })
         window.addEventListener('resize', this.resize)
@@ -310,9 +440,11 @@
         } else {
           this.mouse.setEvent('canvas-drag')
         }
+        document.getElementById('mount').focus()
 
-        this.ctx.canvas.focus()
-        this.dirty = true
+        this.elements_layer.dirty = true
+        this.overlay_layer.dirty = true
+        //this.dirty = true
       }
 
       mouseWheel = (event) => {
@@ -327,11 +459,14 @@
           const zoomX = (event.clientX - this.viewport.x1 * prevScale) / prevScale
           const zoomY = (event.clientY - this.viewport.y1 * prevScale) / prevScale
           this.viewport.x1 = (-zoomX * this.scale + event.clientX) / this.scale
-          this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
+          this.viewport.x2 = this.viewport.x1 + (this.dimension.x / this.scale)
           this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
-          this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
+          this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
           this.update_visible = true
-          this.dirty = true
+          //this.dirty = true
+
+          this.grid_layer.dirty = true
+          this.elements_layer.dirty = true
         }
       }
 
@@ -346,7 +481,10 @@
           this.compressSelected()
         }
         this.mouse.up(event)
-        this.dirty = true
+        //this.dirty = true
+        //this.grid_layer.dirty = true
+        this.elements_layer.dirty = true
+        this.overlay_layer.dirty = true
       }
 
       mouseMove = (event) => {
@@ -357,11 +495,13 @@
             const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
             this.mouse.move(event)
             this.viewport.x1 += xDelta
-            this.viewport.x2 = this.viewport.x1 + (this.ctx.canvas.width / this.scale)
+            this.viewport.x2 = this.viewport.x1 + (this.dimension.x / this.scale)
             this.viewport.y1 += yDelta
-            this.viewport.y2 = this.viewport.y1 + (this.ctx.canvas.height / this.scale)
+            this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
             this.update_visible = true
-            this.dirty = true
+            //this.dirty = true
+            this.grid_layer.dirty = true
+            this.elements_layer.dirty = true
             break
           }
 
@@ -374,14 +514,19 @@
             })
             this.selection.translate(xDelta, yDelta)
             this.update_visible = true
-            this.dirty = true
+            //this.dirty = true
+            //this.grid_layer.dirty = true
+            this.elements_layer.dirty = true
             break
           }
 
           case 'selection': {
             this.mouse.move(event)
             this.updateSelected(true)
-            this.dirty = true
+            //this.dirty = true
+            //this.grid_layer.dirty = true
+            this.elements_layer.dirty = true
+            this.overlay_layer.dirty = true
             break
           }
 
@@ -432,62 +577,21 @@
       }
 
       resize = () => {
-        this.ctx.canvas.width  = window.innerWidth;
-        this.ctx.canvas.height = window.innerHeight;
-        this.viewport.resize(this.ctx.canvas.width / this.scale, this.ctx.canvas.height / this.scale)
+        //this.layers.forEach((layer) => {
+        this.dimension.x = window.innerWidth
+        this.dimension.y = window.innerHeight
+        this.viewport.resize(this.dimension.x / this.scale, this.dimension.y / this.scale)
+        this.grid_layer.resize(this.dimension.x, this.dimension.y)
+        this.elements_layer.resize(this.dimension.x, this.dimension.y)
+        this.overlay_layer.resize(this.dimension.x, this.dimension.y)
+
         this.update_visible = true
-        this.dirty = true;
-      }
-
-      drawGrid = () => {
-        const p = 10 * this.scale
-        const xOffset = (this.viewport.x1 * this.scale) % p
-        const yOffset = (this.viewport.y1 * this.scale) % p
-        this.ctx.beginPath();
-        for (var x = xOffset; x <= this.ctx.canvas.width + p; x += p) {
-          this.ctx.moveTo(0.5 + x, 0);
-          this.ctx.lineTo(0.5 + x, this.ctx.canvas.height);
-        }
-        for (var y = yOffset; y <= this.ctx.canvas.height + p; y += p) {
-          this.ctx.moveTo(0, 0.5 + y);
-          this.ctx.lineTo(this.ctx.canvas.width, 0.5 + y);
-        }
-        this.ctx.strokeStyle = "#ccc";
-        this.ctx.stroke();
-      }
-
-      drawBackground = () => {
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-      }
-
-      drawSelextionBox = () => {
-        if (this.mouse.currentEvent !== 'selection') {
-          this.ctx.strokeStyle = "black";
-          this.ctx.setLineDash([4 * this.scale, 4 * this.scale]);
-          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1 - 2) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1 - 2) * this.scale - 1.5, (this.selection.x2 - this.selection.x1 + 4) * this.scale + 3, (this.selection.y2 - this.selection.y1 + 4) * this.scale + 3);
-          this.ctx.setLineDash([]);
-        } else {
-          this.ctx.strokeStyle = "black";
-          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 1.5, (this.viewport.y1 + this.selection.y1) * this.scale - 1.5, (this.selection.x2 - this.selection.x1) * this.scale + 3, (this.selection.y2 - this.selection.y1) * this.scale + 3);
-          this.ctx.strokeStyle = "white";
-          this.ctx.strokeRect((this.viewport.x1 + this.selection.x1) * this.scale - 0.5, (this.viewport.y1 + this.selection.y1) * this.scale - 0.5, (this.selection.x2 - this.selection.x1) * this.scale + 1, (this.selection.y2 - this.selection.y1) * this.scale + 1);
-          this.ctx.fillStyle = "rgba(0,0,0,.3)"
-          this.ctx.fillRect((this.viewport.x1 + this.selection.x1) * this.scale, (this.viewport.y1 + this.selection.y1) * this.scale, (this.selection.x2 - this.selection.x1) * this.scale, (this.selection.y2 - this.selection.y1) * this.scale);
-        }
       }
 
       draw = () => {
-        if (!this.dirty) {
-          return
-        }
-        this.dirty = false
-        this.drawBackground()
-        this.drawGrid()
-        this.elements.forEachVisible((element) => {
-          element.draw(this)
-        })
-        this.drawSelextionBox()
+        this.grid_layer.draw(this)
+        this.elements_layer.draw(this)
+        this.overlay_layer.draw(this)
       }
     }
 
@@ -511,8 +615,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      console.log('loaded')
-      const canvas = new Canvas('mount');
+      const canvas = new Canvas();
       canvas.resize();
       canvas.registerListeners();
 
@@ -542,10 +645,10 @@
                 element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
                 break
             }
-            //await new Promise(resolve => setTimeout(resolve, 10))
+            await new Promise(resolve => setTimeout(resolve, 10))
             canvas.elements.add(element)
             canvas.update_visible = true
-            canvas.dirty = true
+            canvas.elements_layer.dirty = true
           }
         }
       }());
