@@ -451,7 +451,7 @@
         event.preventDefault()
         const prevScale = this.scale
         if (event.wheelDelta > 0) {
-          this.scale = Math.max(this.scale / 1.03, 0.1)
+          this.scale = Math.max(this.scale / 1.03, 0.2)
         } else {
           this.scale = Math.min(this.scale * 1.03, 8)
         }
@@ -563,10 +563,10 @@
             y2 = element.y2
           }
         })
-        this.selection.x1 = x1 ? x1 - 2 * this.scale : x1
-        this.selection.y1 = y1 ? y1 - 2 * this.scale : y1
-        this.selection.x2 = x2 ? x2 + 2 * this.scale : x2
-        this.selection.y2 = y2 ? y2 + 2 * this.scale : y2
+        this.selection.x1 = x1
+        this.selection.y1 = y1
+        this.selection.x2 = x2
+        this.selection.y2 = y2
       }
 
       update = () => {
@@ -585,15 +585,7 @@
         this.elements_layer.resize(this.dimension.x, this.dimension.y)
         this.overlay_layer.resize(this.dimension.x, this.dimension.y)
 
-        //layer.resize(window.innerWidth, window.innerHeight)
-        //this.ctx.canvas.width  = window.innerWidth;
-        //this.ctx.canvas.height = window.innerHeight;
-
         this.update_visible = true
-        //this.dirty = true;
-        //this.grid_layer.dirty = true
-        //this.elements_layer.dirty = true
-        //})
       }
 
       draw = () => {
@@ -638,7 +630,7 @@
 
 
       (async function() {
-        const counts = 80
+        const counts = 10
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
