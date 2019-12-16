@@ -223,7 +223,7 @@
       }
 
       mouseDown = (canvas) => {
-        if (is_resizing) {
+        if (this.is_resizing) {
           return
         }
 
@@ -235,7 +235,7 @@
       }
 
       mouseMove = (canvas) => {
-        if (is_resizing) {
+        if (this.is_resizing) {
           return
         }
         this.updateSelected(canvas, true)
@@ -683,7 +683,7 @@
 
 
       (async function() {
-        const counts = 1
+        const counts = 10
         const xOffset = (window.innerWidth - 60) / 2
         const yOffset = (window.innerHeight - 60) / 2
 
