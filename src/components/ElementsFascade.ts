@@ -1,3 +1,4 @@
+import Engine from '../modules/Engine'
 
 class ElementsFascade {
 
@@ -27,10 +28,15 @@ class ElementsFascade {
     }
   }
 
-  updateVisible(canvas: any) {
+  updateVisible(engine: Engine) {
     this.visible = []
     this.elements.forEach((element) => {
-      if (element.visibleInCanvas(canvas)) {
+      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.x1) < 0
+      const outOfLeft = (engine.viewport.x1 + element.x2) < 0
+      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.y1) < 0
+      const outOfUp = (engine.viewport.y1 + element.y2) < 0
+
+      if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
         this.visible.push(element)
       }
     })
@@ -53,6 +59,7 @@ class ElementsFascade {
       this.selected = []
     }
     this.visible.forEach((element) => {
+
       if (element.insideRectangle(selection)) {
         this.selected.push(element)
         element.selected = true

@@ -29,6 +29,10 @@ class Rectangle {
     this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
   }
 
+  insideRectangle(rect: Rectangle) {
+    return !(this.x1 > rect.x2 || rect.x1 > this.x2 || this.y1 > rect.y2 || rect.y1 > this.y2)
+  }
+
   toString(): string {
     return this.repr
   }
