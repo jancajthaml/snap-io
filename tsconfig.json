@@ -32,6 +32,9 @@
       "src/*": [
         "src/*"
       ],
+      "atoms/*": [
+        "src/atoms/*"
+      ],
       "components/*": [
         "src/components/*"
       ],
