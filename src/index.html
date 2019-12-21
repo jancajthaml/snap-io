@@ -13,7 +13,7 @@
     #mount {
       position: relative;
       cursor: default;
-      background: blue;
+      background: white;
       width: 100%;
       height: 100%;
     }
@@ -216,6 +216,261 @@
       }
     }
 
+    class SelectionEntity extends Rectangle {
+      constructor() {
+        super(0, 0, 0, 0)
+        this.is_resizing = false
+        this.left_resizer = new Rectangle(0, 0, 0, 0)
+        this.right_resizer = new Rectangle(0, 0, 0, 0)
+        this.top_resizer = new Rectangle(0, 0, 0, 0)
+        this.bottom_resizer = new Rectangle(0, 0, 0, 0)
+      }
+
+      mouseDown = (canvas) => {
+        if (this.is_resizing) {
+          return
+        }
+
+        this.x1 = canvas.mouse.coordinates.x1 / canvas.scale - canvas.viewport.x1
+        this.y1 = canvas.mouse.coordinates.y1 / canvas.scale - canvas.viewport.y1
+        this.x2 = this.x1 + (canvas.mouse.coordinates.x2 - canvas.mouse.coordinates.x1) / canvas.scale
+        this.y2 = this.y1 + (canvas.mouse.coordinates.y2 - canvas.mouse.coordinates.y1) / canvas.scale
+        this.updateSelected(canvas, true)
+        this.updateResizers()
+      }
+
+      mouseUp = (canvas) => {
+        this.is_resizing = false
+      }
+
+      mouseMove = (canvas, xDelta, yDelta) => {
+        switch (this.is_resizing) {
+
+          case 'top': {
+            if (yDelta !== 0) {
+              canvas.elements.forEachSelected((element) => {
+                element.y1 += yDelta
+              })
+              this.y1 += yDelta
+              this.updateResizers()
+            }
+            break
+          }
+
+          case 'bottom': {
+            if (yDelta !== 0) {
+              canvas.elements.forEachSelected((element) => {
+                element.y2 += yDelta
+              })
+              this.y2 += yDelta
+              this.updateResizers()
+            }
+            break
+          }
+
+          case 'left': {
+            if (xDelta !== 0) {
+              canvas.elements.forEachSelected((element) => {
+                element.x1 += xDelta
+              })
+              this.x1 += xDelta
+              this.updateResizers()
+            }
+            break
+          }
+
+          case 'right': {
+            if (xDelta !== 0) {
+              canvas.elements.forEachSelected((element) => {
+                element.x2 += xDelta
+              })
+              this.x2 += xDelta
+              this.updateResizers()
+            }
+            break
+          }
+
+          default: {
+            this.updateSelected(canvas, true)
+            this.updateResizers()
+            break
+          }
+        }
+      }
+
+      updateSelected = (canvas, clearPrevious) => {
+        this.x1 = (canvas.mouse.coordinates.x1 > canvas.mouse.coordinates.x2 ? canvas.mouse.coordinates.x2 : canvas.mouse.coordinates.x1) / canvas.scale - canvas.viewport.x1
+        this.y1 = (canvas.mouse.coordinates.y1 > canvas.mouse.coordinates.y2 ? canvas.mouse.coordinates.y2 : canvas.mouse.coordinates.y1) / canvas.scale - canvas.viewport.y1
+        this.x2 = this.x1 + (canvas.mouse.coordinates.x1 > canvas.mouse.coordinates.x2 ? (canvas.mouse.coordinates.x1 - canvas.mouse.coordinates.x2) : (canvas.mouse.coordinates.x2 - canvas.mouse.coordinates.x1)) / canvas.scale
+        this.y2 = this.y1 + (canvas.mouse.coordinates.y1 > canvas.mouse.coordinates.y2 ? (canvas.mouse.coordinates.y1 - canvas.mouse.coordinates.y2) : (canvas.mouse.coordinates.y2 - canvas.mouse.coordinates.y1)) / canvas.scale
+
+        canvas.elements.updateSelected(this, clearPrevious)
+      }
+
+      updateResizers = () => {
+        if (this.x1 === undefined) {
+          return
+        }
+
+        const x = this.x1 - 3
+        const y = this.y1 - 3
+
+        const w = (this.x2 - this.x1 + 6)
+        const h = (this.y2 - this.y1 + 6)
+
+        const s = 8
+
+        this.top_resizer.x1 = x + w/2 - s/2
+        this.top_resizer.x2 = this.top_resizer.x1 + s
+        this.top_resizer.y1 = y - s/2
+        this.top_resizer.y2 = this.top_resizer.y1 + s
+
+        this.bottom_resizer.x1 = x + w/2 - s/2
+        this.bottom_resizer.x2 = this.bottom_resizer.x1 + s
+        this.bottom_resizer.y1 = y + h - s/2
+        this.bottom_resizer.y2 = this.bottom_resizer.y1 + s
+
+
+        this.left_resizer.x1 = x - s/2
+        this.left_resizer.x2 = this.left_resizer.x1 + s
+        this.left_resizer.y1 = y + h/2 - s/2
+        this.left_resizer.y2 = this.left_resizer.y1 + s
+
+
+        this.right_resizer.x1 = x + w - s/2
+        this.right_resizer.x2 = this.right_resizer.x1 + s
+        this.right_resizer.y1 = y + h/2 - s/2
+        this.right_resizer.y2 = this.right_resizer.y1 + s
+      }
+
+      translate = (x, y) => {
+        super.translate(x, y)
+
+        this.left_resizer.x1 += x
+        this.left_resizer.x2 += x
+        this.left_resizer.y1 += y
+        this.left_resizer.y2 += y
+
+        this.right_resizer.x1 += x
+        this.right_resizer.x2 += x
+        this.right_resizer.y1 += y
+        this.right_resizer.y2 += y
+
+        this.top_resizer.x1 += x
+        this.top_resizer.x2 += x
+        this.top_resizer.y1 += y
+        this.top_resizer.y2 += y
+
+        this.bottom_resizer.x1 += x
+        this.bottom_resizer.x2 += x
+        this.bottom_resizer.y1 += y
+        this.bottom_resizer.y2 += y
+      }
+
+      compressSelected = (canvas) => {
+        let x1 = undefined
+        let y1 = undefined
+        let x2 = undefined
+        let y2 = undefined
+        canvas.elements.forEachSelected((element) => {
+          if (x1 === undefined || x1 > element.x1) {
+            x1 = element.x1
+          }
+          if (y1 === undefined || y1 > element.y1) {
+            y1 = element.y1
+          }
+          if (x2 === undefined || x2 < element.x2) {
+            x2 = element.x2
+          }
+          if (y2 === undefined || y2 < element.y2) {
+            y2 = element.y2
+          }
+        })
+        this.x1 = x1
+        this.y1 = y1
+        this.x2 = x2
+        this.y2 = y2
+      }
+
+      selectionCapture = (point) => {
+        return point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
+      }
+
+      resizerCapture = (point) => {
+        const left_capture = point.x >= this.left_resizer.x1 && point.x <= this.left_resizer.x2 && point.y >= this.left_resizer.y1 && point.y <= this.left_resizer.y2;
+        if (left_capture) {
+          this.is_resizing = 'left'
+          return true
+        }
+        const right_capture = point.x >= this.right_resizer.x1 && point.x <= this.right_resizer.x2 && point.y >= this.right_resizer.y1 && point.y <= this.right_resizer.y2;
+        if (right_capture) {
+          this.is_resizing = 'right'
+          return true
+        }
+        const bottom_capture = point.x >= this.bottom_resizer.x1 && point.x <= this.bottom_resizer.x2 && point.y >= this.bottom_resizer.y1 && point.y <= this.bottom_resizer.y2;
+        if (bottom_capture) {
+          this.is_resizing = 'bottom'
+          return true
+        }
+        const top_capture = point.x >= this.top_resizer.x1 && point.x <= this.top_resizer.x2 && point.y >= this.top_resizer.y1 && point.y <= this.top_resizer.y2;
+        if (top_capture) {
+          this.is_resizing = 'top'
+          return true
+        }
+
+        return false
+      }
+
+      draw(ctx, canvas) {
+        if (canvas.mouse.currentEvent === 'selection') {
+          return
+        }
+
+        if (this.x1 === undefined) {
+          return
+        }
+
+        ctx.strokeStyle = "black";
+        ctx.setLineDash([4 * canvas.scale, 4 * canvas.scale]);
+        const x = (canvas.viewport.x1 + this.x1 - 3) * canvas.scale
+        const y = (canvas.viewport.y1 + this.y1 - 3) * canvas.scale
+        const w = (this.x2 - this.x1 + 6) * canvas.scale
+        const h = (this.y2 - this.y1 + 6) * canvas.scale
+        ctx.strokeRect(x, y, w, h);
+        ctx.setLineDash([]);
+
+        [
+          [this.top_resizer, 'top'],
+          [this.bottom_resizer, 'bottom'],
+          [this.left_resizer, 'left'],
+          [this.right_resizer, 'right'],
+        ].forEach(([resizer, position]) => {
+          if (this.is_resizing === position) {
+            ctx.fillRect(
+              (canvas.viewport.x1 + resizer.x1) * canvas.scale,
+              (canvas.viewport.y1 + resizer.y1) * canvas.scale,
+              (resizer.x2 - resizer.x1) * canvas.scale,
+              (resizer.y2 - resizer.y1) * canvas.scale,
+            )
+          } else {
+            ctx.clearRect(
+              (canvas.viewport.x1 + resizer.x1) * canvas.scale,
+              (canvas.viewport.y1 + resizer.y1) * canvas.scale,
+              (resizer.x2 - resizer.x1) * canvas.scale,
+              (resizer.y2 - resizer.y1) * canvas.scale,
+            )
+            ctx.strokeRect(
+              (canvas.viewport.x1 + resizer.x1) * canvas.scale,
+              (canvas.viewport.y1 + resizer.y1) * canvas.scale,
+              (resizer.x2 - resizer.x1) * canvas.scale,
+              (resizer.y2 - resizer.y1) * canvas.scale,
+            )
+          }
+        })
+
+      }
+    }
+
     class RectangleEntity extends Rectangle {
 
       constructor(x, y, w, h, color) {
@@ -348,18 +603,7 @@
         canvas.elements.forEachVisible((element) => {
           element.draw(this.ctx, canvas)
         })
-
-        if (canvas.mouse.currentEvent !== 'selection') {
-          this.ctx.strokeStyle = "black";
-          this.ctx.setLineDash([4 * canvas.scale, 4 * canvas.scale]);
-          this.ctx.strokeRect(
-            ((canvas.viewport.x1 + canvas.selection.x1 - 3) * canvas.scale) - 1,
-            ((canvas.viewport.y1 + canvas.selection.y1 - 3) * canvas.scale) - 1,
-            ((canvas.selection.x2 - canvas.selection.x1 + 6) * canvas.scale) + 2,
-            ((canvas.selection.y2 - canvas.selection.y1 + 6) * canvas.scale) + 2,
-          );
-          this.ctx.setLineDash([]);
-        }
+        canvas.selection.draw(this.ctx, canvas)
         this.dirty = false
       }
     }
@@ -411,7 +655,7 @@
         this.overlay_layer = new OverlayLayer('canvas_layer_2', '2d', false)
         this.viewport = new Rectangle(0, 0, 1, 1)
         this.dimension = new Point(1, 1)
-        this.selection = new Rectangle()
+        this.selection = new SelectionEntity()
         this.scale = 1
         this.update_visible = false
         this.mouse = new MouseFascade()
@@ -442,16 +686,15 @@
         }
 
         this.mouse.down(event)
+        const pointOfClick = new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1)
 
         if (event.shiftKey) {
           this.mouse.setEvent('selection')
-          this.selection.x1 = this.mouse.coordinates.x1 / this.scale - this.viewport.x1
-          this.selection.y1 = this.mouse.coordinates.y1 / this.scale - this.viewport.y1
-          this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x2 - this.mouse.coordinates.x1) / this.scale
-          this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y2 - this.mouse.coordinates.y1) / this.scale
-          this.updateSelected(true)
-        } else if (this.selection.intersectsPoint(new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1))) {
+          this.selection.mouseDown(this)
+        } else if (this.selection.selectionCapture(pointOfClick)) {
           this.mouse.setEvent('element-drag')
+        } else if (this.selection.resizerCapture(pointOfClick)) {
+          this.mouse.setEvent('element-resize')
         } else {
           this.mouse.setEvent('canvas-drag')
         }
@@ -477,8 +720,6 @@
           this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
           this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
           this.update_visible = true
-          //this.dirty = true
-
           this.grid_layer.dirty = true
           this.elements_layer.dirty = true
         }
@@ -488,11 +729,15 @@
         if (this.mouse.currentEvent === null) {
           return
         }
-        if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
-          this.updateSelected(!(event.metaKey || event.ctrlKey))
-          this.compressSelected()
+        if (this.mouse.currentEvent === 'element-resize') {
+          this.selection.mouseUp()
+        } else if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
+          this.selection.updateSelected(this, !(event.metaKey || event.ctrlKey))
+          this.selection.compressSelected(this)
+          this.selection.updateResizers()
         } else if (this.mouse.currentEvent === 'selection') {
-          this.compressSelected()
+          this.selection.compressSelected(this)
+          this.selection.updateResizers()
         }
         this.mouse.up(event)
         this.elements_layer.dirty = true
@@ -529,9 +774,18 @@
             break
           }
 
+          case 'element-resize': {
+            const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
+            const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
+            this.mouse.move(event)
+            this.selection.mouseMove(this, xDelta, yDelta)
+            this.elements_layer.dirty = true
+            break
+          }
+
           case 'selection': {
             this.mouse.move(event)
-            this.updateSelected(true)
+            this.selection.mouseMove(this)
             this.elements_layer.dirty = true
             this.overlay_layer.dirty = true
             break
@@ -543,39 +797,6 @@
         }
       }
 
-      updateSelected = (clearPrevious) => {
-        this.selection.x1 = (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? this.mouse.coordinates.x2 : this.mouse.coordinates.x1) / this.scale - this.viewport.x1
-        this.selection.y1 = (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? this.mouse.coordinates.y2 : this.mouse.coordinates.y1) / this.scale - this.viewport.y1
-        this.selection.x2 = this.selection.x1 + (this.mouse.coordinates.x1 > this.mouse.coordinates.x2 ? (this.mouse.coordinates.x1 - this.mouse.coordinates.x2) : (this.mouse.coordinates.x2 - this.mouse.coordinates.x1)) / this.scale
-        this.selection.y2 = this.selection.y1 + (this.mouse.coordinates.y1 > this.mouse.coordinates.y2 ? (this.mouse.coordinates.y1 - this.mouse.coordinates.y2) : (this.mouse.coordinates.y2 - this.mouse.coordinates.y1)) / this.scale
-        this.elements.updateSelected(this.selection, clearPrevious)
-      }
-
-      compressSelected = () => {
-        let x1 = undefined
-        let y1 = undefined
-        let x2 = undefined
-        let y2 = undefined
-        this.elements.forEachSelected((element) => {
-          if (x1 === undefined || x1 > element.x1) {
-            x1 = element.x1
-          }
-          if (y1 === undefined || y1 > element.y1) {
-            y1 = element.y1
-          }
-          if (x2 === undefined || x2 < element.x2) {
-            x2 = element.x2
-          }
-          if (y2 === undefined || y2 < element.y2) {
-            y2 = element.y2
-          }
-        })
-        this.selection.x1 = x1
-        this.selection.y1 = y1
-        this.selection.x2 = x2
-        this.selection.y2 = y2
-      }
-
       update = () => {
         if (this.update_visible) {
           this.elements.updateVisible(this)
@@ -584,7 +805,6 @@
       }
 
       resize = () => {
-        //this.layers.forEach((layer) => {
         this.dimension.x = window.innerWidth
         this.dimension.y = window.innerHeight
         this.viewport.resize(this.dimension.x / this.scale, this.dimension.y / this.scale)
@@ -637,22 +857,26 @@
 
 
       (async function() {
+        const size = 60
         const counts = 10
+        const xOffset = (window.innerWidth - size) / 2
+        const yOffset = (window.innerHeight - size) / 2
+
         for (let x = 0; x < counts; x++) {
           for (let y = 0; y < counts; y++) {
             let element
             switch ((x+y) % 3) {
               case 0:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "red")
+                element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "red")
                 break
               case 1:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "green")
+                element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "green")
                 break
               case 2:
-                element = new RectangleEntity(10 + (x*60), 10 + (y*60), 50, 50, "blue")
+                element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "blue")
                 break
             }
-            await new Promise(resolve => setTimeout(resolve, 10))
+            //await new Promise(resolve => setTimeout(resolve, 10))
             canvas.elements.add(element)
             canvas.update_visible = true
             canvas.elements_layer.dirty = true
