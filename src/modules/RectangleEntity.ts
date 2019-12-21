@@ -2,13 +2,16 @@ import Rectangle from '../atoms/Rectangle'
 
 class RectangleEntity extends Rectangle {
 
-  constructor(x, y, w, h, color) {
+  color: string;
+  selected: boolean;
+
+  constructor(x: number, y: number, w: number, h: number, color: string) {
     super(x,y,w,h)
     this.color = color
     this.selected = false
   }
 
-  drawSimple(ctx, canvas, selected) {
+  drawSimple(ctx: CanvasRenderingContext2D, canvas: any, selected: boolean) {
     if (selected) {
       ctx.fillStyle = "black"
     } else {
@@ -22,7 +25,7 @@ class RectangleEntity extends Rectangle {
     ctx.fillRect(x, y, w, h);
   }
 
-  drawDetail(ctx, canvas, selected) {
+  drawDetail(ctx: CanvasRenderingContext2D, canvas: any, selected: boolean) {
     if (selected) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
@@ -40,7 +43,7 @@ class RectangleEntity extends Rectangle {
     ctx.strokeRect(x, y, w, h);
   }
 
-  draw(ctx, canvas) {
+  draw(ctx: CanvasRenderingContext2D, canvas: any) {
     if (canvas.scale <= 0.4) {
       this.drawSimple(ctx, canvas, this.selected)
     } else {

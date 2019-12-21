@@ -7,11 +7,11 @@ class Rectangle {
   y2: number;
   private repr: string;
 
-  constructor(x: number, y: number, w: number, h: number) {
+  constructor(x?: number, y?: number, w?: number, h?: number) {
     this.x1 = x || 0
     this.y1 = y || 0
-    this.x2 = (x + w) || 0
-    this.y2 = (y + h) || 0
+    this.x2 = this.x1 + (w || 0)
+    this.y2 = this.y1 + (h || 0)
     this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
   }
 

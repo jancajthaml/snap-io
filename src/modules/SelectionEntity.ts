@@ -1,16 +1,24 @@
 import Rectangle from '../atoms/Rectangle'
+import Point from '../atoms/Point'
 
 class SelectionEntity extends Rectangle {
+
+  is_resizing?: string;
+  left_resizer: Rectangle;
+  right_resizer: Rectangle;
+  top_resizer: Rectangle;
+  bottom_resizer: Rectangle;
+
   constructor() {
     super()
-    this.is_resizing = false
+    this.is_resizing = undefined
     this.left_resizer = new Rectangle()
     this.right_resizer = new Rectangle()
     this.top_resizer = new Rectangle()
     this.bottom_resizer = new Rectangle()
   }
 
-  mouseDown = (canvas) => {
+  mouseDown = (canvas: any) => {
     if (this.is_resizing) {
       return
     }
@@ -23,16 +31,16 @@ class SelectionEntity extends Rectangle {
     this.updateResizers()
   }
 
-  mouseUp = (canvas) => {
-    this.is_resizing = false
+  mouseUp = () => {
+    this.is_resizing = undefined
   }
 
-  mouseMove = (canvas, xDelta, yDelta) => {
+  mouseMove = (canvas: any, xDelta: number, yDelta: number) => {
     switch (this.is_resizing) {
 
       case 'top': {
         if (yDelta !== 0) {
-          canvas.elements.forEachSelected((element) => {
+          canvas.elements.forEachSelected((element: any) => {
             element.y1 += yDelta
           })
           this.y1 += yDelta
@@ -43,7 +51,7 @@ class SelectionEntity extends Rectangle {
 
       case 'bottom': {
         if (yDelta !== 0) {
-          canvas.elements.forEachSelected((element) => {
+          canvas.elements.forEachSelected((element: any) => {
             element.y2 += yDelta
           })
           this.y2 += yDelta
@@ -54,7 +62,7 @@ class SelectionEntity extends Rectangle {
 
       case 'left': {
         if (xDelta !== 0) {
-          canvas.elements.forEachSelected((element) => {
+          canvas.elements.forEachSelected((element: any) => {
             element.x1 += xDelta
           })
           this.x1 += xDelta
@@ -65,7 +73,7 @@ class SelectionEntity extends Rectangle {
 
       case 'right': {
         if (xDelta !== 0) {
-          canvas.elements.forEachSelected((element) => {
+          canvas.elements.forEachSelected((element: any) => {
             element.x2 += xDelta
           })
           this.x2 += xDelta
@@ -82,7 +90,7 @@ class SelectionEntity extends Rectangle {
     }
   }
 
-  updateSelected = (canvas, clearPrevious) => {
+  updateSelected = (canvas: any, clearPrevious: boolean) => {
     this.x1 = (canvas.mouse.coordinates.x1 > canvas.mouse.coordinates.x2 ? canvas.mouse.coordinates.x2 : canvas.mouse.coordinates.x1) / canvas.scale - canvas.viewport.x1
     this.y1 = (canvas.mouse.coordinates.y1 > canvas.mouse.coordinates.y2 ? canvas.mouse.coordinates.y2 : canvas.mouse.coordinates.y1) / canvas.scale - canvas.viewport.y1
     this.x2 = this.x1 + (canvas.mouse.coordinates.x1 > canvas.mouse.coordinates.x2 ? (canvas.mouse.coordinates.x1 - canvas.mouse.coordinates.x2) : (canvas.mouse.coordinates.x2 - canvas.mouse.coordinates.x1)) / canvas.scale
@@ -127,7 +135,7 @@ class SelectionEntity extends Rectangle {
     this.right_resizer.y2 = this.right_resizer.y1 + s
   }
 
-  translate = (x, y) => {
+  translate = (x: number, y: number) => {
     super.translate(x, y)
 
     this.left_resizer.x1 += x
@@ -151,12 +159,12 @@ class SelectionEntity extends Rectangle {
     this.bottom_resizer.y2 += y
   }
 
-  compressSelected = (canvas) => {
-    let x1 = undefined
-    let y1 = undefined
-    let x2 = undefined
-    let y2 = undefined
-    canvas.elements.forEachSelected((element) => {
+  compressSelected = (canvas: any) => {
+    let x1: number | undefined = undefined
+    let y1: number | undefined = undefined
+    let x2: number | undefined = undefined
+    let y2: number | undefined = undefined
+    canvas.elements.forEachSelected((element: any) => {
       if (x1 === undefined || x1 > element.x1) {
         x1 = element.x1
       }
@@ -170,17 +178,17 @@ class SelectionEntity extends Rectangle {
         y2 = element.y2
       }
     })
-    this.x1 = x1
-    this.y1 = y1
-    this.x2 = x2
-    this.y2 = y2
+    this.x1 = x1 || 0
+    this.y1 = y1 || 0
+    this.x2 = x2 || 0
+    this.y2 = y2 || 0
   }
 
-  selectionCapture = (point) => {
+  selectionCapture = (point: Point) => {
     return point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
   }
 
-  resizerCapture = (point) => {
+  resizerCapture = (point: Point) => {
     const left_capture = point.x >= this.left_resizer.x1 && point.x <= this.left_resizer.x2 && point.y >= this.left_resizer.y1 && point.y <= this.left_resizer.y2;
     if (left_capture) {
       this.is_resizing = 'left'
@@ -205,7 +213,7 @@ class SelectionEntity extends Rectangle {
     return false
   }
 
-  draw(ctx, canvas) {
+  draw(ctx: CanvasRenderingContext2D, canvas: any) {
     if (canvas.mouse.currentEvent === 'selection') {
       return
     }
@@ -231,23 +239,23 @@ class SelectionEntity extends Rectangle {
     ].forEach(([resizer, position]) => {
       if (this.is_resizing === position) {
         ctx.fillRect(
-          (canvas.viewport.x1 + resizer.x1) * canvas.scale,
-          (canvas.viewport.y1 + resizer.y1) * canvas.scale,
-          (resizer.x2 - resizer.x1) * canvas.scale,
-          (resizer.y2 - resizer.y1) * canvas.scale,
+          (canvas.viewport.x1 + (resizer as Rectangle).x1) * canvas.scale,
+          (canvas.viewport.y1 + (resizer as Rectangle).y1) * canvas.scale,
+          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * canvas.scale,
+          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * canvas.scale,
         )
       } else {
         ctx.clearRect(
-          (canvas.viewport.x1 + resizer.x1) * canvas.scale,
-          (canvas.viewport.y1 + resizer.y1) * canvas.scale,
-          (resizer.x2 - resizer.x1) * canvas.scale,
-          (resizer.y2 - resizer.y1) * canvas.scale,
+          (canvas.viewport.x1 + (resizer as Rectangle).x1) * canvas.scale,
+          (canvas.viewport.y1 + (resizer as Rectangle).y1) * canvas.scale,
+          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * canvas.scale,
+          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * canvas.scale,
         )
         ctx.strokeRect(
-          (canvas.viewport.x1 + resizer.x1) * canvas.scale,
-          (canvas.viewport.y1 + resizer.y1) * canvas.scale,
-          (resizer.x2 - resizer.x1) * canvas.scale,
-          (resizer.y2 - resizer.y1) * canvas.scale,
+          (canvas.viewport.x1 + (resizer as Rectangle).x1) * canvas.scale,
+          (canvas.viewport.y1 + (resizer as Rectangle).y1) * canvas.scale,
+          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * canvas.scale,
+          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * canvas.scale,
         )
       }
     })
