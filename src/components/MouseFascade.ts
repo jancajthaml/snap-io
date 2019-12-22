@@ -7,7 +7,7 @@ class MouseFascade {
   coordinates: Rectangle;
 
   constructor() {
-    this.coordinates = new Rectangle(0, 0, 0, 0)
+    this.coordinates = new Rectangle()
   }
 
   setEvent(event: string | undefined) {

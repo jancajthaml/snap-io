@@ -1,4 +1,5 @@
 import Engine from '../modules/Engine'
+import Rectangle from '../atoms/Rectangle'
 
 class ElementsFascade {
 
@@ -35,7 +36,6 @@ class ElementsFascade {
       const outOfLeft = (engine.viewport.x1 + element.x2) < 0
       const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.y1) < 0
       const outOfUp = (engine.viewport.y1 + element.y2) < 0
-
       if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
         this.visible.push(element)
       }
@@ -51,7 +51,7 @@ class ElementsFascade {
     });
   }
 
-  updateSelected(selection: any, clearPrevious: boolean) {
+  updateSelected(selection: Rectangle, clearPrevious: boolean) {
     if (clearPrevious) {
       this.selected.forEach((element) => {
         element.selected = false
@@ -59,7 +59,6 @@ class ElementsFascade {
       this.selected = []
     }
     this.visible.forEach((element) => {
-
       if (element.insideRectangle(selection)) {
         this.selected.push(element)
         element.selected = true

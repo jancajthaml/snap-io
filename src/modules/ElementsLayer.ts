@@ -1,16 +1,17 @@
 import Layer from '../components/Layer'
+import Engine from './Engine'
 
 class ElementsLayer extends Layer {
-  draw = (canvas: any) => {
+  draw = (engine: Engine) => {
     if (!this.dirty) {
       return
     }
     const ctx = (this.ctx as CanvasRenderingContext2D)
     ctx.clearRect(0, 0, this.width, this.height)
-    canvas.elements.forEachVisible((element: any) => {
-      element.draw(ctx, canvas)
+    engine.elements.forEachVisible((element: any) => {
+      element.draw(ctx, engine)
     })
-    canvas.selection.draw(ctx, canvas)
+    engine.selection.draw(ctx, engine)
     this.dirty = false
   }
 }

@@ -1,7 +1,8 @@
 import Layer from '../components/Layer'
+import Engine from './Engine'
 
 class GridLayer extends Layer {
-  draw = (canvas: any) => {
+  draw = (engine: Engine) => {
     if (!this.dirty) {
       return
     }
@@ -10,10 +11,10 @@ class GridLayer extends Layer {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, this.width, this.height);
 
-    const p = 10 * canvas.scale
-    const xOffset = (canvas.viewport.x1 * canvas.scale) % p
-    const yOffset = (canvas.viewport.y1 * canvas.scale) % p
-    ctx.lineWidth = (canvas.scale / 3) + 0.2;
+    const p = 10 * engine.scale
+    const xOffset = (engine.viewport.x1 * engine.scale) % p
+    const yOffset = (engine.viewport.y1 * engine.scale) % p
+    ctx.lineWidth = (engine.scale / 3) + 0.2;
 
     ctx.beginPath();
     for (let x = xOffset + 0.5; x <= this.width + p; x += p) {

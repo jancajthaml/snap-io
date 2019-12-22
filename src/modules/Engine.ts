@@ -172,10 +172,11 @@ class Engine {
   }
 
   update = () => {
-    if (this.update_visible) {
-      this.elements.updateVisible(this)
-      this.update_visible = false
+    if (!this.update_visible) {
+      return
     }
+    this.elements.updateVisible(this)
+    this.update_visible = false
   }
 
   resize = () => {

@@ -1,4 +1,5 @@
 import Rectangle from '../atoms/Rectangle'
+import Engine from './Engine'
 
 class RectangleEntity extends Rectangle {
 
@@ -11,21 +12,21 @@ class RectangleEntity extends Rectangle {
     this.selected = false
   }
 
-  drawSimple(ctx: CanvasRenderingContext2D, canvas: any, selected: boolean) {
+  drawSimple(ctx: CanvasRenderingContext2D, engine: Engine, selected: boolean) {
     if (selected) {
       ctx.fillStyle = "black"
     } else {
       ctx.fillStyle = this.color
     }
-    const x = (canvas.viewport.x1 + this.x1) * canvas.scale
-    const y = (canvas.viewport.y1 + this.y1) * canvas.scale
-    const w = (this.x2 - this.x1) * canvas.scale
-    const h = (this.y2 - this.y1) * canvas.scale
+    const x = (engine.viewport.x1 + this.x1) * engine.scale
+    const y = (engine.viewport.y1 + this.y1) * engine.scale
+    const w = (this.x2 - this.x1) * engine.scale
+    const h = (this.y2 - this.y1) * engine.scale
 
     ctx.fillRect(x, y, w, h);
   }
 
-  drawDetail(ctx: CanvasRenderingContext2D, canvas: any, selected: boolean) {
+  drawDetail(ctx: CanvasRenderingContext2D, engine: Engine, selected: boolean) {
     if (selected) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
@@ -33,21 +34,21 @@ class RectangleEntity extends Rectangle {
       ctx.fillStyle = this.color
       ctx.strokeStyle = this.color
     }
-    const x = (canvas.viewport.x1 + this.x1) * canvas.scale
-    const y = (canvas.viewport.y1 + this.y1) * canvas.scale
-    const w = (this.x2 - this.x1) * canvas.scale
-    const h = (this.y2 - this.y1) * canvas.scale
+    const x = (engine.viewport.x1 + this.x1) * engine.scale
+    const y = (engine.viewport.y1 + this.y1) * engine.scale
+    const w = (this.x2 - this.x1) * engine.scale
+    const h = (this.y2 - this.y1) * engine.scale
 
-    const offset = 3 * canvas.scale
+    const offset = 3 * engine.scale
     ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
     ctx.strokeRect(x, y, w, h);
   }
 
-  draw(ctx: CanvasRenderingContext2D, canvas: any) {
-    if (canvas.scale <= 0.4) {
-      this.drawSimple(ctx, canvas, this.selected)
+  draw(ctx: CanvasRenderingContext2D, engine: Engine) {
+    if (engine.scale <= 0.4) {
+      this.drawSimple(ctx, engine, this.selected)
     } else {
-      this.drawDetail(ctx, canvas, this.selected)
+      this.drawDetail(ctx, engine, this.selected)
     }
   }
 }
