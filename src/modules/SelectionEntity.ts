@@ -350,15 +350,15 @@ class SelectionEntity extends Rectangle {
       } else {
         ctx.clearRect(
           (engine.viewport.x1 + resizer.x1) * engine.scale,
-          (engine.viewport.y1 + (resizer as Rectangle).y1) * engine.scale,
-          (resizer.x2 - (resizer as Rectangle).x1) * engine.scale,
-          (resizer.y2 - (resizer as Rectangle).y1) * engine.scale,
+          (engine.viewport.y1 + resizer.y1) * engine.scale,
+          (resizer.x2 - resizer.x1) * engine.scale,
+          (resizer.y2 - resizer.y1) * engine.scale,
         )
         ctx.strokeRect(
-          (engine.viewport.x1 + (resizer as Rectangle).x1) * engine.scale,
-          (engine.viewport.y1 + (resizer as Rectangle).y1) * engine.scale,
-          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * engine.scale,
-          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * engine.scale,
+          (engine.viewport.x1 + resizer.x1) * engine.scale,
+          (engine.viewport.y1 + resizer.y1) * engine.scale,
+          (resizer.x2 - resizer.x1) * engine.scale,
+          (resizer.y2 - resizer.y1) * engine.scale,
         )
       }
     })
