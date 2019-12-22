@@ -27,7 +27,7 @@ class SelectionEntity extends Rectangle {
   constructor() {
     super()
     this.is_resizing = undefined
-    this.L_resizer = new ResizerHandle('top')
+    this.L_resizer = new ResizerHandle('left')
     this.TL_resizer = new ResizerHandle('top-left')
     this.BL_resizer = new ResizerHandle('bottom-left')
     this.R_resizer = new ResizerHandle('right')
@@ -109,8 +109,13 @@ class SelectionEntity extends Rectangle {
 
       case this.BR_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+          element.x1 += xDelta * x_percentage
+          element.x2 += xDelta * (w_percentage + x_percentage)
           element.y2 += yDelta
-          element.x2 += xDelta
         })
         this.y2 += yDelta
         this.x2 += xDelta
@@ -129,7 +134,12 @@ class SelectionEntity extends Rectangle {
 
       case this.R_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.x2 += xDelta
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+          element.x1 += xDelta * x_percentage
+          element.x2 += xDelta * (w_percentage + x_percentage)
         })
         this.x2 += xDelta
         this.updateResizers()
