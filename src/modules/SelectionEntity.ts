@@ -2,30 +2,39 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import Engine from './Engine'
 
+class ResizerHandle extends Rectangle {
+  name: string;
+
+  constructor(name: string) {
+    super()
+    this.name = name
+  }
+}
+
 class SelectionEntity extends Rectangle {
 
   is_resizing?: string;
 
-  L_resizer: Rectangle;
-  TL_resizer: Rectangle;
-  BL_resizer: Rectangle;
-  R_resizer: Rectangle;
-  TR_resizer: Rectangle;
-  BR_resizer: Rectangle;
-  T_resizer: Rectangle;
-  B_resizer: Rectangle;
+  L_resizer: ResizerHandle;
+  TL_resizer: ResizerHandle;
+  BL_resizer: ResizerHandle;
+  R_resizer: ResizerHandle;
+  TR_resizer: ResizerHandle;
+  BR_resizer: ResizerHandle;
+  T_resizer: ResizerHandle;
+  B_resizer: ResizerHandle;
 
   constructor() {
     super()
     this.is_resizing = undefined
-    this.L_resizer = new Rectangle()
-    this.TL_resizer = new Rectangle()
-    this.BL_resizer = new Rectangle()
-    this.R_resizer = new Rectangle()
-    this.TR_resizer = new Rectangle()
-    this.BR_resizer = new Rectangle()
-    this.T_resizer = new Rectangle()
-    this.B_resizer = new Rectangle()
+    this.L_resizer = new ResizerHandle('top')
+    this.TL_resizer = new ResizerHandle('top-left')
+    this.BL_resizer = new ResizerHandle('bottom-left')
+    this.R_resizer = new ResizerHandle('right')
+    this.TR_resizer = new ResizerHandle('top-right')
+    this.BR_resizer = new ResizerHandle('bottom-right')
+    this.T_resizer = new ResizerHandle('top')
+    this.B_resizer = new ResizerHandle('bottom')
   }
 
   mouseDown = (engine: Engine) => {
@@ -47,7 +56,7 @@ class SelectionEntity extends Rectangle {
   mouseMove = (engine: Engine, xDelta: number, yDelta: number) => {
     switch (this.is_resizing) {
 
-      case 'top': {
+      case this.T_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y1 += yDelta
         })
@@ -56,7 +65,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'top-left': {
+      case this.TL_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y1 += yDelta
           element.x1 += xDelta
@@ -67,7 +76,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'top-right': {
+      case this.TR_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y1 += yDelta
           element.x2 += xDelta
@@ -78,7 +87,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'bottom': {
+      case this.B_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y2 += yDelta
         })
@@ -87,7 +96,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'bottom-left': {
+      case this.BL_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y2 += yDelta
           element.x1 += xDelta
@@ -98,7 +107,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'bottom-right': {
+      case this.BR_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.y2 += yDelta
           element.x2 += xDelta
@@ -109,7 +118,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'left': {
+      case this.L_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.x1 += xDelta
         })
@@ -118,7 +127,7 @@ class SelectionEntity extends Rectangle {
         break
       }
 
-      case 'right': {
+      case this.R_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           element.x2 += xDelta
         })
@@ -284,45 +293,19 @@ class SelectionEntity extends Rectangle {
 
   resizerCapture = (point: Point) => {
     const data = [
-      {
-        coord: this.T_resizer,
-        name: 'top',
-      },
-      {
-        coord: this.L_resizer,
-        name: 'left',
-      },
-      {
-        coord: this.TL_resizer,
-        name: 'top-left',
-      },
-      {
-        coord: this.B_resizer,
-        name: 'bottom',
-      },
-      {
-        coord: this.BL_resizer,
-        name: 'bottom-left',
-      },
-      {
-        coord: this.R_resizer,
-        name: 'right',
-      },
-      {
-        coord: this.TR_resizer,
-        name: 'top-right',
-      },
-      {
-        coord: this.BR_resizer,
-        name: 'bottom-right',
-      },
-    ]
+      this.T_resizer,
+      this.L_resizer,
+      this.TL_resizer,
+      this.B_resizer,
+      this.BL_resizer,
+      this.R_resizer,
+      this.TR_resizer,
+      this.BR_resizer,
+    ] as ResizerHandle[]
 
-    for (const item of data) {
-      const resizer: Rectangle = item.coord
-      const position: string = item.name
+    for (const resizer of data) {
       if (point.x >= resizer.x1 && point.x <= resizer.x2 && point.y >= resizer.y1 && point.y <= resizer.y2) {
-        this.is_resizing = position
+        this.is_resizing = resizer.name
         return true
       }
     }
@@ -348,28 +331,28 @@ class SelectionEntity extends Rectangle {
     ctx.setLineDash([]);
 
     [
-      [this.T_resizer, 'top'],
-      [this.L_resizer, 'left'],
-      [this.TL_resizer, 'top-left'],
-      [this.B_resizer, 'bottom'],
-      [this.BL_resizer, 'bottom-left'],
-      [this.R_resizer, 'right'],
-      [this.TR_resizer, 'top-right'],
-      [this.BR_resizer, 'bottom-right'],
-    ].forEach(([resizer, position]) => {
-      if (this.is_resizing === position) {
+      this.T_resizer,
+      this.L_resizer,
+      this.TL_resizer,
+      this.B_resizer,
+      this.BL_resizer,
+      this.R_resizer,
+      this.TR_resizer,
+      this.BR_resizer,
+    ].forEach((resizer: ResizerHandle) => {
+      if (this.is_resizing === resizer.name) {
         ctx.fillRect(
-          (engine.viewport.x1 + (resizer as Rectangle).x1) * engine.scale,
-          (engine.viewport.y1 + (resizer as Rectangle).y1) * engine.scale,
-          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * engine.scale,
-          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * engine.scale,
+          (engine.viewport.x1 + resizer.x1) * engine.scale,
+          (engine.viewport.y1 + resizer.y1) * engine.scale,
+          (resizer.x2 - resizer.x1) * engine.scale,
+          (resizer.y2 - resizer.y1) * engine.scale,
         )
       } else {
         ctx.clearRect(
-          (engine.viewport.x1 + (resizer as Rectangle).x1) * engine.scale,
+          (engine.viewport.x1 + resizer.x1) * engine.scale,
           (engine.viewport.y1 + (resizer as Rectangle).y1) * engine.scale,
-          ((resizer as Rectangle).x2 - (resizer as Rectangle).x1) * engine.scale,
-          ((resizer as Rectangle).y2 - (resizer as Rectangle).y1) * engine.scale,
+          (resizer.x2 - (resizer as Rectangle).x1) * engine.scale,
+          (resizer.y2 - (resizer as Rectangle).y1) * engine.scale,
         )
         ctx.strokeRect(
           (engine.viewport.x1 + (resizer as Rectangle).x1) * engine.scale,
