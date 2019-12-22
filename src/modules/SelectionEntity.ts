@@ -78,8 +78,13 @@ class SelectionEntity extends Rectangle {
 
       case this.TR_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+          element.x1 += xDelta * x_percentage
+          element.x2 += xDelta * (w_percentage + x_percentage)
           element.y1 += yDelta
-          element.x2 += xDelta
         })
         this.y1 += yDelta
         this.x2 += xDelta
@@ -231,45 +236,20 @@ class SelectionEntity extends Rectangle {
   translate = (x: number, y: number) => {
     super.translate(x, y)
 
-    this.L_resizer.x1 += x
-    this.L_resizer.x2 += x
-    this.L_resizer.y1 += y
-    this.L_resizer.y2 += y
+    const data = [
+      this.T_resizer,
+      this.L_resizer,
+      this.TL_resizer,
+      this.B_resizer,
+      this.BL_resizer,
+      this.R_resizer,
+      this.TR_resizer,
+      this.BR_resizer,
+    ] as ResizerHandle[]
 
-    this.TL_resizer.x1 += x
-    this.TL_resizer.x2 += x
-    this.TL_resizer.y1 += y
-    this.TL_resizer.y2 += y
-
-    this.BL_resizer.x1 += x
-    this.BL_resizer.x2 += x
-    this.BL_resizer.y1 += y
-    this.BL_resizer.y2 += y
-
-    this.R_resizer.x1 += x
-    this.R_resizer.x2 += x
-    this.R_resizer.y1 += y
-    this.R_resizer.y2 += y
-
-    this.TR_resizer.x1 += x
-    this.TR_resizer.x2 += x
-    this.TR_resizer.y1 += y
-    this.TR_resizer.y2 += y
-
-    this.BR_resizer.x1 += x
-    this.BR_resizer.x2 += x
-    this.BR_resizer.y1 += y
-    this.BR_resizer.y2 += y
-
-    this.T_resizer.x1 += x
-    this.T_resizer.x2 += x
-    this.T_resizer.y1 += y
-    this.T_resizer.y2 += y
-
-    this.B_resizer.x1 += x
-    this.B_resizer.x2 += x
-    this.B_resizer.y1 += y
-    this.B_resizer.y2 += y
+    data.forEach((resizer: ResizerHandle) => {
+      resizer.translate(x, y)
+    })
   }
 
   compressSelected = (engine: Engine) => {
