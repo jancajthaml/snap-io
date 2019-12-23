@@ -20,7 +20,6 @@ function getPlugins(production) {
         'NODE_ENV': production ? `"production"` : `"development"`,
       },
     }),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/src\/lib\/locale/),
     new webpack.ProgressPlugin(),
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ['**/*'],
@@ -68,8 +67,7 @@ function getPlugins(production) {
       useTypescriptIncrementalApi: false,
       measureCompilationTime: true,
       reportFiles: [
-        `${path.resolve(__dirname, 'src')}/**/*.{ts,tsx}`,
-        `!${path.resolve(__dirname, 'src')}/skip.ts`,
+        'src/**/*.{ts,tsx}',
       ],
     }),
     new HTMLInlineCSSWebpackPlugin(),
@@ -132,14 +130,11 @@ module.exports = function(env = {}, args = {}) {
       ],
       extensions: [
         '.js',
+        '.ts',
         '.jsx',
-        '.sass',
-        '.scss',
+        '.tsx',
         '.css',
-        '.json',
-        '.react.js',
-        '.web.js',
-        '.web.jsx',
+        '.json'
       ],
       alias: {
         'react-dom': production ? 'react-dom' : '@hot-loader/react-dom',
