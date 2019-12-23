@@ -30,16 +30,23 @@ class MouseFascade {
     this.currentEvent = event
   }
 
+  normalized(event: MouseEvent) {
+    return {
+      x: event.clientX - (event.target as HTMLElement).offsetLeft,
+      y: event.clientY - (event.target as HTMLElement).offsetTop
+    }
+  }
+
   down(event: MouseEvent) {
-    this.coordinates.x1 = event.clientX
-    this.coordinates.y1 = event.clientY
-    this.coordinates.x2 = event.clientX
-    this.coordinates.y2 = event.clientY
+    this.coordinates.x1 = (event.clientX - (event.target as HTMLElement).offsetLeft)
+    this.coordinates.y1 = (event.clientY - (event.target as HTMLElement).offsetTop)
+    this.coordinates.x2 = (event.clientX - (event.target as HTMLElement).offsetLeft)
+    this.coordinates.y2 = (event.clientY - (event.target as HTMLElement).offsetTop)
   }
 
   move(event: MouseEvent) {
-    this.coordinates.x2 = event.clientX
-    this.coordinates.y2 = event.clientY
+    this.coordinates.x2 = (event.clientX - (event.target as HTMLElement).offsetLeft)
+    this.coordinates.y2 = (event.clientY - (event.target as HTMLElement).offsetTop)
   }
 
   up() {

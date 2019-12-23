@@ -7,10 +7,19 @@ interface IProps {
   engine: Engine;
 }
 
-class GridLayer extends React.PureComponent<IProps> {
+class Composition extends React.PureComponent<IProps> {
+
+  resize = (width: number, height: number) => {
+    const engine = this.props.engine
+    engine.dimension.x = width
+    engine.dimension.y = height
+    engine.viewport.resize(engine.dimension.x / engine.scale, engine.dimension.y / engine.scale)
+    engine.elements.updateVisible(engine)
+  }
 
   draw = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
+
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -30,17 +39,26 @@ class GridLayer extends React.PureComponent<IProps> {
     }
     ctx.strokeStyle = "#ccc";
     ctx.stroke();
+
+    ctx.lineWidth = 1
+
+    engine.elements.forEachVisible((element: any) => {
+      element.draw(ctx, engine)
+    })
+    engine.selection.drawSelectedBox(ctx, engine)
+    engine.selection.drawSelectionBox(ctx, engine)
   }
 
   render() {
     return (
       <Canvas
-        name="grid"
+        name="composition"
         opaque={false}
         draw={this.draw}
+        resize={this.resize}
       />
     )
   }
 }
 
-export default GridLayer
+export default Composition

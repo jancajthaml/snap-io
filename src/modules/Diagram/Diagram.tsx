@@ -1,43 +1,37 @@
 import React, { useEffect } from 'react';
 
-import Loop from '../Loop'
+//import Loop from '../Loop'
 import Engine from '../Engine'
-import GridLayer from '../GridLayer'
-import OverlayLayer from '../OverlayLayer'
-import ElementsLayer from '../ElementsLayer'
+//import GridLayer from '../GridLayer'
+//import OverlayLayer from '../OverlayLayer'
+import Composition from '../Composition'
 
 const Diagram = () => {
   const engine = new Engine();
+  /*
   const loop = new Loop(() => {
     engine.update()
     engine.draw()
   })
+  */
 
   useEffect(() => {
     //console.log('diagram mount')
     engine.resize();
     engine.randomPopulate();
     engine.registerListeners();
-    loop.start()
+    //loop.start()
     return () => {
       //console.log('diagram unmount')
-      loop.stop();
+      //loop.stop();
       engine.unregisterListeners();
     }
   }, [])
 
   return (
-    <React.Fragment>
-      <GridLayer
-        engine={engine}
-      />
-      <OverlayLayer
-        engine={engine}
-      />
-      <ElementsLayer
-        engine={engine}
-      />
-    </React.Fragment>
+    <Composition
+      engine={engine}
+    />
   )
 }
 

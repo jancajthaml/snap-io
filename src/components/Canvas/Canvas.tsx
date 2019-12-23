@@ -1,27 +1,30 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 
 interface IProps {
   name: string;
   opaque?: boolean;
   draw: (ctx: CanvasRenderingContext2D) => void;
+  resize: (width: number, height: number) => void;
 }
 
 const Canvas = (props: IProps) => {
-  const [ctx, setContext] = useState<CanvasRenderingContext2D | null>(null)
-  const [dirty, setDirty] = useState<boolean>(true)
   const ref = useRef<HTMLCanvasElement | null>(null)
+  const loop = useRef<number>(0)
+  const dirty = useRef<boolean>(true)
+  const ctx = useRef<CanvasRenderingContext2D | null>(null)
 
   const update = () => {
-    setDirty(true)
+    dirty.current = true
   }
 
   const resize = () => {
     if (ref.current === null) {
       return
     }
-    ref.current.width = window.innerWidth
-    ref.current.height = window.innerHeight
-    setDirty(true)
+    ref.current.width = (ref.current.parentElement as HTMLElement).clientWidth
+    ref.current.height = (ref.current.parentElement as HTMLElement).clientHeight
+    props.resize(ref.current.width, ref.current.height)
+    dirty.current = true
   }
 
   const removeListeners = () => {
@@ -35,29 +38,28 @@ const Canvas = (props: IProps) => {
   }
 
   useEffect(() => {
-    if (!dirty || ctx == null) {
-      return
-    }
-    props.draw(ctx as CanvasRenderingContext2D)
-    setDirty(false)
-  }, [dirty, ctx])
-
-  useEffect(() => {
     if (!ref) {
       return
     }
-    setContext((ref.current as HTMLCanvasElement).getContext('2d', {
+    ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
       alpha: props.opaque === undefined ? true : !props.opaque,
     }))
-    if (ref.current !== null) {
-      ref.current.width = window.innerWidth
-      ref.current.height = window.innerHeight
-    }
+    resize()
   }, [ref])
+
+  const delayedRepaint = useCallback(() => {
+    if (dirty.current && ctx.current != null) {
+      props.draw(ctx.current as CanvasRenderingContext2D)
+      dirty.current = false
+    }
+    loop.current = requestAnimationFrame(delayedRepaint);
+  }, [])
 
   useEffect(() => {
     addListeners()
+    loop.current = requestAnimationFrame(delayedRepaint)
     return () => {
+      cancelAnimationFrame(loop.current)
       removeListeners()
     }
   }, [])
