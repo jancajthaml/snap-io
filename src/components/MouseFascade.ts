@@ -11,7 +11,7 @@ class MouseFascade {
     this.coordinates = new Rectangle()
   }
 
-  setEvent(event: string | undefined) {
+  setEvent = (event: string | undefined) => {
     switch (event) {
       case MODE_SELECTION: {
         (document.getElementById(MOUNT_NODE) as HTMLElement).style.cursor = "default"
@@ -37,19 +37,21 @@ class MouseFascade {
     }
   }
 
-  down(event: MouseEvent) {
-    this.coordinates.x1 = (event.clientX - (event.target as HTMLElement).offsetLeft)
-    this.coordinates.y1 = (event.clientY - (event.target as HTMLElement).offsetTop)
-    this.coordinates.x2 = (event.clientX - (event.target as HTMLElement).offsetLeft)
-    this.coordinates.y2 = (event.clientY - (event.target as HTMLElement).offsetTop)
+  down = (event: MouseEvent) => {
+    const e = this.normalized(event)
+    this.coordinates.x1 = e.x
+    this.coordinates.y1 = e.y
+    this.coordinates.x2 = e.x
+    this.coordinates.y2 = e.y
   }
 
-  move(event: MouseEvent) {
-    this.coordinates.x2 = (event.clientX - (event.target as HTMLElement).offsetLeft)
-    this.coordinates.y2 = (event.clientY - (event.target as HTMLElement).offsetTop)
+  move = (event: MouseEvent) => {
+    const e = this.normalized(event)
+    this.coordinates.x2 = e.x
+    this.coordinates.y2 = e.y
   }
 
-  up() {
+  up = () => {
     this.setEvent(undefined)
   }
 

@@ -183,9 +183,9 @@ class Engine {
 
     (async function() {
       const size = 60
-      const counts = 200
-      const xOffset = (window.innerWidth - size) / 2
-      const yOffset = (window.innerHeight - size) / 2
+      const counts = 10
+      const xOffset = 10
+      const yOffset = 10
 
       for (let x = 0; x < counts; x++) {
         for (let y = 0; y < counts; y++) {
@@ -202,10 +202,12 @@ class Engine {
               break
           }
           self.elements.add(element)
+          await new Promise(resolve => setTimeout(resolve, 100))
+          self.elements.updateVisible(self)
+          window.dispatchEvent(new Event('canvas-update-composition'));
         }
       }
-      self.elements.updateVisible(self)
-      window.dispatchEvent(new Event('canvas-update-composition'));
+
     }());
   }
 }
