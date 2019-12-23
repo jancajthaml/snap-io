@@ -1,15 +1,24 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import Layout from './modules/Layout'
+import { MOUNT_NODE } from './global/constants'
+
+ReactDOM.render(<Layout />, document.getElementById(MOUNT_NODE))
+
+/*
 import Loop from './modules/Loop'
 import RectangleEntity from './modules/RectangleEntity'
 import Engine from './modules/Engine'
 
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = new Engine();
-  canvas.resize();
-  canvas.registerListeners();
+  const engine = new Engine();
+  engine.resize();
+  engine.registerListeners();
 
   const loop = new Loop(() => {
-    canvas.update()
-    canvas.draw()
+    engine.update()
+    engine.draw()
   })
 
   loop.start()
@@ -44,3 +53,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }());
 })
+*/

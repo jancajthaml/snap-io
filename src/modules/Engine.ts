@@ -1,6 +1,6 @@
-import GridLayer from './GridLayer'
-import ElementsLayer from './ElementsLayer'
-import OverlayLayer from './OverlayLayer'
+//import GridLayer from './GridLayer'
+//import ElementsLayer from './ElementsLayer'
+//import OverlayLayer from './OverlayLayer'
 import SelectionEntity from './SelectionEntity'
 import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
@@ -9,9 +9,15 @@ import ElementsFascade from '../components/ElementsFascade'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 
 class Engine {
-  grid_layer: GridLayer
+  grid_layer_dirty: boolean //GridLayer
+
+  elements_layer_dirty: boolean
+  overlay_layer_dirty: boolean
+  /*
   elements_layer: ElementsLayer
   overlay_layer: OverlayLayer
+  */
+
   viewport: Rectangle;
   dimension: Point;
   selection: SelectionEntity;
@@ -21,9 +27,12 @@ class Engine {
   elements: ElementsFascade;
 
   constructor() {
-    this.grid_layer = new GridLayer(document.getElementById('canvas_layer_0') as HTMLCanvasElement, '2d', true)
-    this.elements_layer = new ElementsLayer(document.getElementById('canvas_layer_1') as HTMLCanvasElement, '2d', false)
-    this.overlay_layer = new OverlayLayer(document.getElementById('canvas_layer_2') as HTMLCanvasElement, '2d', false)
+    this.grid_layer_dirty = false;
+    this.elements_layer_dirty = false;
+    this.overlay_layer_dirty = false;
+    //this.grid_layer = new GridLayer(document.getElementById('canvas_layer_0') as HTMLCanvasElement, '2d', true)
+    //this.elements_layer = new ElementsLayer(document.getElementById('canvas_layer_1') as HTMLCanvasElement, '2d', false)
+    //this.overlay_layer = new OverlayLayer(document.getElementById('canvas_layer_2') as HTMLCanvasElement, '2d', false)
     this.viewport = new Rectangle(0, 0, 1, 1)
     this.dimension = new Point(1, 1)
     this.selection = new SelectionEntity()
@@ -31,6 +40,18 @@ class Engine {
     this.update_visible = false
     this.mouse = new MouseFascade()
     this.elements = new ElementsFascade()
+  }
+
+  unregisterListeners = () => {
+    document.removeEventListener('contextmenu', this.contextMenu)
+    document.removeEventListener('mousedown', this.mouseDown)
+    document.removeEventListener('mouseup', this.mouseUp)
+    document.removeEventListener('mousemove', this.mouseMove)
+    document.removeEventListener('wheel', this.mouseWheel)
+    window.removeEventListener('resize', this.resize)
+
+    const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
+    rootElement.removeEventListener('blur', this.mouseUp)
   }
 
   registerListeners = () => {
@@ -74,8 +95,8 @@ class Engine {
     const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
     rootElement.focus()
 
-    this.elements_layer.dirty = true
-    this.overlay_layer.dirty = true
+    this.elements_layer_dirty = true
+    this.overlay_layer_dirty = true
   }
 
   mouseWheel = (event: WheelEvent) => {
@@ -94,8 +115,8 @@ class Engine {
       this.viewport.y1 = (-zoomY * this.scale + event.clientY) / this.scale
       this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
       this.update_visible = true
-      this.grid_layer.dirty = true
-      this.elements_layer.dirty = true
+      this.grid_layer_dirty = true
+      this.elements_layer_dirty = true
     }
   }
 
@@ -114,8 +135,8 @@ class Engine {
       this.selection.updateResizers()
     }
     this.mouse.up()
-    this.elements_layer.dirty = true
-    this.overlay_layer.dirty = true
+    this.elements_layer_dirty = true
+    this.overlay_layer_dirty = true
   }
 
   mouseMove = (event: MouseEvent) => {
@@ -130,8 +151,8 @@ class Engine {
         this.viewport.y1 += yDelta
         this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
         this.update_visible = true
-        this.grid_layer.dirty = true
-        this.elements_layer.dirty = true
+        this.grid_layer_dirty = true
+        this.elements_layer_dirty = true
         break
       }
 
@@ -144,7 +165,7 @@ class Engine {
         })
         this.selection.translate(xDelta, yDelta)
         this.update_visible = true
-        this.elements_layer.dirty = true
+        this.elements_layer_dirty = true
         break
       }
 
@@ -153,15 +174,15 @@ class Engine {
         const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
         this.mouse.move(event)
         this.selection.mouseMove(this, xDelta, yDelta)
-        this.elements_layer.dirty = true
+        this.elements_layer_dirty = true
         break
       }
 
       case MODE_SELECTION: {
         this.mouse.move(event)
         this.selection.mouseMove(this, 0, 0)
-        this.elements_layer.dirty = true
-        this.overlay_layer.dirty = true
+        this.elements_layer_dirty = true
+        this.overlay_layer_dirty = true
         break
       }
 
@@ -180,20 +201,25 @@ class Engine {
   }
 
   resize = () => {
+    console.log('resizing...')
     this.dimension.x = window.innerWidth
     this.dimension.y = window.innerHeight
     this.viewport.resize(this.dimension.x / this.scale, this.dimension.y / this.scale)
-    this.grid_layer.resize(this.dimension.x, this.dimension.y)
-    this.elements_layer.resize(this.dimension.x, this.dimension.y)
-    this.overlay_layer.resize(this.dimension.x, this.dimension.y)
+    //this.grid_layer.resize(this.dimension.x, this.dimension.y)
+    //this.elements_layer.resize(this.dimension.x, this.dimension.y)
+    //this.overlay_layer.resize(this.dimension.x, this.dimension.y)
 
     this.update_visible = true
   }
 
   draw = () => {
-    this.grid_layer.draw(this)
-    this.elements_layer.draw(this)
-    this.overlay_layer.draw(this)
+    if (this.grid_layer_dirty) {
+      window.dispatchEvent(new Event('canvas-update-grid'));
+      this.grid_layer_dirty = false
+    }
+    //this.grid_layer.draw(this)
+    //this.elements_layer.draw(this)
+    //this.overlay_layer.draw(this)
   }
 }
 
