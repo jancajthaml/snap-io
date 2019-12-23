@@ -1,5 +1,6 @@
 import { MOUNT_NODE } from '../global/constants'
 import Rectangle from '../atoms/Rectangle'
+import { MODE_SELECTION, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 
 class MouseFascade {
 
@@ -12,12 +13,12 @@ class MouseFascade {
 
   setEvent(event: string | undefined) {
     switch (event) {
-      case 'selection': {
+      case MODE_SELECTION: {
         (document.getElementById(MOUNT_NODE) as HTMLElement).style.cursor = "default"
         break
       }
-      case 'canvas-drag':
-      case 'element-drag': {
+      case MODE_TRANSLATE:
+      case MODE_SCENE_TRANSLATE: {
         (document.getElementById(MOUNT_NODE) as HTMLElement).style.cursor = "move"
         break
       }

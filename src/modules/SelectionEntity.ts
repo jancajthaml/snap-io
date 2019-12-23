@@ -1,6 +1,7 @@
 import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import Engine from './Engine'
+import { MODE_SELECTION } from '../global/constants'
 
 const RESIZER_SIZE = 10 as const
 
@@ -56,14 +57,95 @@ class SelectionEntity extends Rectangle {
   }
 
   mouseMove = (engine: Engine, xDelta: number, yDelta: number) => {
+
+    if (this.is_resizing === undefined) {
+      this.updateSelected(engine, true)
+      this.updateResizers()
+      return
+    }
+
+    let normalizedResizing: string | undefined = undefined
+    //const overflowY = this.y1 + yDelta >= this.y2// - 10
+    //const overflowX = this.x1 + xDelta >= this.x2// - 10
+
     switch (this.is_resizing) {
 
       case this.T_resizer.name: {
+        if (yDelta != 0) {
+          normalizedResizing = this.T_resizer.name
+        }
+        break
+      }
+      case this.TL_resizer.name: {
+        if (yDelta != 0 && xDelta != 0) {
+          normalizedResizing = this.TL_resizer.name
+        } else if (yDelta != 0) {
+          normalizedResizing = this.T_resizer.name
+        } else if (xDelta != 0) {
+          normalizedResizing = this.L_resizer.name
+        }
+        break
+      }
+      case this.TR_resizer.name: {
+        if (yDelta != 0 && xDelta != 0) {
+          normalizedResizing = this.TR_resizer.name
+        } else if (yDelta != 0) {
+          normalizedResizing = this.T_resizer.name
+        } else if (xDelta != 0) {
+          normalizedResizing = this.R_resizer.name
+        }
+        break
+      }
+      case this.B_resizer.name: {
+        if (yDelta != 0) {
+          normalizedResizing = this.B_resizer.name
+        }
+        break
+      }
+      case this.BL_resizer.name: {
+        if (yDelta != 0 && xDelta != 0) {
+          normalizedResizing = this.BL_resizer.name
+        } else if (yDelta != 0) {
+          normalizedResizing = this.B_resizer.name
+        } else if (xDelta != 0) {
+          normalizedResizing = this.L_resizer.name
+        }
+        break
+      }
+      case this.BR_resizer.name: {
+        if (yDelta != 0 && xDelta != 0) {
+          normalizedResizing = this.BR_resizer.name
+        } else if (yDelta != 0) {
+          normalizedResizing = this.B_resizer.name
+        } else if (xDelta != 0) {
+          normalizedResizing = this.R_resizer.name
+        }
+        break
+      }
+      case this.L_resizer.name: {
+        if (xDelta != 0) {
+          normalizedResizing = this.L_resizer.name
+        }
+        break
+      }
+      case this.R_resizer.name: {
+        if (xDelta != 0) {
+          normalizedResizing = this.R_resizer.name
+        }
+        break
+      }
+    }
+
+    switch (normalizedResizing) {
+
+      case this.T_resizer.name: {
+        const sel_h = (this.y2 - this.y1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_h = (this.y2 - this.y1)
           const ele_h = (element.y2 - element.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.y1 - this.y1) / sel_h
+
           element.y1 += yDelta * (1-y_percentage)
           element.y2 += yDelta * (1-(h_percentage + y_percentage))
         })
@@ -73,13 +155,15 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.TL_resizer.name: {
+
+        const sel_w = (this.x2 - this.x1)
+        const sel_h = (this.y2 - this.y1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_w = (this.x2 - this.x1)
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
 
-          const sel_h = (this.y2 - this.y1)
           const ele_h = (element.y2 - element.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.y1 - this.y1) / sel_h
@@ -97,13 +181,14 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.TR_resizer.name: {
+        const sel_w = (this.x2 - this.x1)
+        const sel_h = (this.y2 - this.y1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_w = (this.x2 - this.x1)
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
 
-          const sel_h = (this.y2 - this.y1)
           const ele_h = (element.y2 - element.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.y1 - this.y1) / sel_h
@@ -120,11 +205,13 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.B_resizer.name: {
+        const sel_h = (this.y2 - this.y1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_h = (this.y2 - this.y1)
           const ele_h = (element.y2 - element.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.y1 - this.y1) / sel_h
+
           element.y1 += yDelta * y_percentage
           element.y2 += yDelta * (h_percentage + y_percentage)
         })
@@ -134,16 +221,18 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.BL_resizer.name: {
+        const sel_h = (this.y2 - this.y1)
+        const sel_w = (this.x2 - this.x1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_h = (this.y2 - this.y1)
           const ele_h = (element.y2 - element.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.y1 - this.y1) / sel_h
 
-          const sel_w = (this.x2 - this.x1)
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
+
           element.x1 += xDelta * (1-x_percentage)
           element.x2 += xDelta * (1-(w_percentage + x_percentage))
           element.y1 += yDelta * y_percentage
@@ -156,15 +245,18 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.BR_resizer.name: {
+        const sel_w = (this.x2 - this.x1)
+        const sel_h = (this.y2 - this.y1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_w = (this.x2 - this.x1)
-          const sel_h = (this.y2 - this.y1)
-          const ele_w = (element.x2 - element.x1)
           const ele_h = (element.y2 - element.y1)
-          const w_percentage = ele_w / sel_w
           const h_percentage = ele_h / sel_h
-          const x_percentage = (element.x1 - this.x1) / sel_w
           const y_percentage = (element.y1 - this.y1) / sel_h
+
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+
           element.x1 += xDelta * x_percentage
           element.x2 += xDelta * (w_percentage + x_percentage)
           element.y1 += yDelta * y_percentage
@@ -177,11 +269,13 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.L_resizer.name: {
+        const sel_w = (this.x2 - this.x1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_w = (this.x2 - this.x1)
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
+
           element.x1 += xDelta * (1-x_percentage)
           element.x2 += xDelta * (1-(w_percentage + x_percentage))
         })
@@ -191,11 +285,13 @@ class SelectionEntity extends Rectangle {
       }
 
       case this.R_resizer.name: {
+        const sel_w = (this.x2 - this.x1)
+
         engine.elements.forEachSelected((element: any) => {
-          const sel_w = (this.x2 - this.x1)
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
+
           element.x1 += xDelta * x_percentage
           element.x2 += xDelta * (w_percentage + x_percentage)
         })
@@ -205,8 +301,6 @@ class SelectionEntity extends Rectangle {
       }
 
       default: {
-        this.updateSelected(engine, true)
-        this.updateResizers()
         break
       }
     }
@@ -233,16 +327,11 @@ class SelectionEntity extends Rectangle {
   }
 
   updateResizers = () => {
-    if (this.x1 === undefined) {
-      return
-    }
-
     const x = this.x1 - 3
     const y = this.y1 - 3
 
     const w = (this.x2 - this.x1 + 6)
     const h = (this.y2 - this.y1 + 6)
-
 
     this.T_resizer.x1 = x + w/2 - RESIZER_SIZE/2
     this.T_resizer.x2 = this.T_resizer.x1 + RESIZER_SIZE
@@ -364,12 +453,41 @@ class SelectionEntity extends Rectangle {
     return false
   }
 
-  draw(ctx: CanvasRenderingContext2D, engine: Engine) {
-    if (engine.mouse.currentEvent === 'selection') {
+  drawSelectionBox(ctx: CanvasRenderingContext2D, engine: Engine) {
+    if (engine.mouse.currentEvent !== MODE_SELECTION) {
       return
     }
 
-    if (this.x1 === undefined) {
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(
+      (engine.viewport.x1 + engine.selection.x1) * engine.scale - 1.5,
+      (engine.viewport.y1 + engine.selection.y1) * engine.scale - 1.5,
+      (engine.selection.x2 - engine.selection.x1) * engine.scale + 3,
+      (engine.selection.y2 - engine.selection.y1) * engine.scale + 3,
+    );
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(
+      (engine.viewport.x1 + engine.selection.x1) * engine.scale - 0.5,
+      (engine.viewport.y1 + engine.selection.y1) * engine.scale - 0.5,
+      (engine.selection.x2 - engine.selection.x1) * engine.scale + 1,
+      (engine.selection.y2 - engine.selection.y1) * engine.scale + 1,
+    );
+    ctx.fillStyle = "rgba(0,0,0,.3)"
+    ctx.fillRect(
+      (engine.viewport.x1 + engine.selection.x1) * engine.scale,
+      (engine.viewport.y1 + engine.selection.y1) * engine.scale,
+      (engine.selection.x2 - engine.selection.x1) * engine.scale,
+      (engine.selection.y2 - engine.selection.y1) * engine.scale,
+    );
+
+  }
+
+  drawSelectedBox(ctx: CanvasRenderingContext2D, engine: Engine) {
+    if (engine.mouse.currentEvent === MODE_SELECTION) {
+      return
+    }
+
+    if (this.x1 === this.x2 || this.y1 === this.y2) {
       return
     }
 

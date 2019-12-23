@@ -11,7 +11,7 @@ class ElementsLayer extends Layer {
     engine.elements.forEachVisible((element: any) => {
       element.draw(ctx, engine)
     })
-    engine.selection.draw(ctx, engine)
+    engine.selection.drawSelectedBox(ctx, engine)
     this.dirty = false
   }
 }

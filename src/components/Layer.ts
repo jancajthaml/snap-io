@@ -32,7 +32,7 @@ class Layer {
         break
       }
       default: {
-        throw new TypeError(`unsupported type ${type}`)
+        throw new TypeError(`unsupported RenderingContext ${type}`)
       }
     }
     this.width = this.ctx.canvas.width

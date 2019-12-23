@@ -6,7 +6,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
 import ElementsFascade from '../components/ElementsFascade'
-import { MOUNT_NODE } from '../global/constants'
+import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 
 class Engine {
   grid_layer: GridLayer
@@ -62,14 +62,14 @@ class Engine {
     const pointOfClick = new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1)
 
     if (event.shiftKey) {
-      this.mouse.setEvent('selection')
+      this.mouse.setEvent(MODE_SELECTION)
       this.selection.mouseDown(this)
     } else if (this.selection.selectionCapture(pointOfClick)) {
-      this.mouse.setEvent('element-drag')
+      this.mouse.setEvent(MODE_TRANSLATE)
     } else if (this.selection.resizerCapture(this, pointOfClick)) {
-      this.mouse.setEvent('element-resize')
+      this.mouse.setEvent(MODE_RESIZE)
     } else {
-      this.mouse.setEvent('canvas-drag')
+      this.mouse.setEvent(MODE_SCENE_TRANSLATE)
     }
     const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
     rootElement.focus()
@@ -103,13 +103,13 @@ class Engine {
     if (this.mouse.currentEvent === null) {
       return
     }
-    if (this.mouse.currentEvent === 'element-resize') {
+    if (this.mouse.currentEvent === MODE_RESIZE) {
       this.selection.mouseUp()
     } else if (this.mouse.coordinates.x1 === this.mouse.coordinates.x2 && this.mouse.coordinates.y1 === this.mouse.coordinates.y2) {
       this.selection.updateSelected(this, !((event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey))
       this.selection.compressSelected(this)
       this.selection.updateResizers()
-    } else if (this.mouse.currentEvent === 'selection') {
+    } else if (this.mouse.currentEvent === MODE_SELECTION) {
       this.selection.compressSelected(this)
       this.selection.updateResizers()
     }
@@ -121,7 +121,7 @@ class Engine {
   mouseMove = (event: MouseEvent) => {
     switch (this.mouse.currentEvent) {
 
-      case 'canvas-drag': {
+      case MODE_SCENE_TRANSLATE: {
         const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
         const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
         this.mouse.move(event)
@@ -135,7 +135,7 @@ class Engine {
         break
       }
 
-      case 'element-drag': {
+      case MODE_TRANSLATE: {
         const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
         const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
         this.mouse.move(event)
@@ -148,7 +148,7 @@ class Engine {
         break
       }
 
-      case 'element-resize': {
+      case MODE_RESIZE: {
         const xDelta = (event.clientX - this.mouse.coordinates.x2) / this.scale
         const yDelta = (event.clientY - this.mouse.coordinates.y2) / this.scale
         this.mouse.move(event)
@@ -157,7 +157,7 @@ class Engine {
         break
       }
 
-      case 'selection': {
+      case MODE_SELECTION: {
         this.mouse.move(event)
         this.selection.mouseMove(this, 0, 0)
         this.elements_layer.dirty = true
