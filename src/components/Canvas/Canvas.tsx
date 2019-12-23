@@ -15,19 +15,29 @@ const Canvas = (props: IProps) => {
     setDirty(true)
   }
 
+  const resize = () => {
+    if (ref.current === null) {
+      return
+    }
+    ref.current.width = window.innerWidth
+    ref.current.height = window.innerHeight
+    setDirty(true)
+  }
+
   const removeListeners = () => {
     window.removeEventListener(`canvas-update-${props.name}`, update)
+    window.removeEventListener(`canvas-resize-${props.name}`, resize)
   }
 
   const addListeners = () => {
     window.addEventListener(`canvas-update-${props.name}`, update)
+    window.addEventListener(`canvas-resize-${props.name}`, resize)
   }
 
   useEffect(() => {
     if (!dirty || ctx == null) {
       return
     }
-    console.log('canvas drawing')
     props.draw(ctx as CanvasRenderingContext2D)
     setDirty(false)
   }, [dirty, ctx])
@@ -39,7 +49,7 @@ const Canvas = (props: IProps) => {
     setContext((ref.current as HTMLCanvasElement).getContext('2d', {
       alpha: props.opaque === undefined ? true : !props.opaque,
     }))
-    if (ref.current !== null && ref.current.parentElement !== null) {
+    if (ref.current !== null) {
       ref.current.width = window.innerWidth
       ref.current.height = window.innerHeight
     }

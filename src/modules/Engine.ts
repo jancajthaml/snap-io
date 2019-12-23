@@ -6,6 +6,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
 import ElementsFascade from '../components/ElementsFascade'
+import RectangleEntity from './RectangleEntity'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 
 class Engine {
@@ -205,10 +206,7 @@ class Engine {
     this.dimension.x = window.innerWidth
     this.dimension.y = window.innerHeight
     this.viewport.resize(this.dimension.x / this.scale, this.dimension.y / this.scale)
-    //this.grid_layer.resize(this.dimension.x, this.dimension.y)
-    //this.elements_layer.resize(this.dimension.x, this.dimension.y)
-    //this.overlay_layer.resize(this.dimension.x, this.dimension.y)
-
+    window.dispatchEvent(new Event('canvas-resize-grid'));
     this.update_visible = true
   }
 
@@ -217,9 +215,46 @@ class Engine {
       window.dispatchEvent(new Event('canvas-update-grid'));
       this.grid_layer_dirty = false
     }
-    //this.grid_layer.draw(this)
-    //this.elements_layer.draw(this)
-    //this.overlay_layer.draw(this)
+    if (this.overlay_layer_dirty) {
+      window.dispatchEvent(new Event('canvas-update-selection'));
+      this.overlay_layer_dirty = false
+    }
+    if (this.elements_layer_dirty) {
+      window.dispatchEvent(new Event('canvas-update-elements'));
+      this.elements_layer_dirty = false
+    }
+  }
+
+  randomPopulate = () => {
+    const self = this as Engine
+
+    (async function() {
+      const size = 60
+      const counts = 10
+      const xOffset = (window.innerWidth - size) / 2
+      const yOffset = (window.innerHeight - size) / 2
+
+      for (let x = 0; x < counts; x++) {
+        for (let y = 0; y < counts; y++) {
+          let element
+          switch ((x+y) % 3) {
+            case 0:
+              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "red")
+              break
+            case 1:
+              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "green")
+              break
+            case 2:
+              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "blue")
+              break
+          }
+          await new Promise(resolve => setTimeout(resolve, 10))
+          self.elements.add(element)
+          self.update_visible = true
+          self.elements_layer_dirty = true
+        }
+      }
+    }());
   }
 }
 

@@ -7,17 +7,7 @@ interface IProps {
   engine: Engine;
 }
 
-interface IState {
-}
-
-class GridLayer extends React.Component<IProps, IState> {
-
-  state: IState;
-
-  constructor(props: IProps) {
-    super(props)
-    this.state = {}
-  }
+class GridLayer extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
