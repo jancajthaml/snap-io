@@ -7,17 +7,18 @@ const Diagram = () => {
   const engine = new Engine();
 
   useEffect(() => {
-    engine.randomPopulate();
-    engine.registerListeners();
+    engine.randomPopulate();  // FIXME debug
+    engine.addListeners();
     return () => {
-      engine.unregisterListeners();
+      engine.removeListeners();
     }
   }, [])
 
   return (
-    <Composition
-      engine={engine}
-    />
+    <Composition engine={engine}>
+      <div />
+      <span />
+    </Composition>
   )
 }
 

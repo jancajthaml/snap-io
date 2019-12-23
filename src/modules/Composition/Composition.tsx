@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import Canvas from '../../components/Canvas'
 import Engine from '../Engine'
 
 interface IProps {
   engine: Engine;
+  children?: ReactNode;
 }
 
 class Composition extends React.PureComponent<IProps> {
@@ -56,7 +57,9 @@ class Composition extends React.PureComponent<IProps> {
         opaque={false}
         draw={this.draw}
         resize={this.resize}
-      />
+      >
+        {this.props.children}
+      </Canvas>
     )
   }
 }

@@ -25,7 +25,7 @@ class Engine {
     this.elements = new ElementsFascade()
   }
 
-  unregisterListeners = () => {
+  removeListeners = () => {
     document.removeEventListener('contextmenu', this.contextMenu)
     document.removeEventListener('mousedown', this.mouseDown)
     document.removeEventListener('mouseup', this.mouseUp)
@@ -37,7 +37,7 @@ class Engine {
     rootElement.removeEventListener('blur', this.mouseUp)
   }
 
-  registerListeners = () => {
+  addListeners = () => {
     document.addEventListener('contextmenu', this.contextMenu)
     document.addEventListener('mousedown', this.mouseDown)
     document.addEventListener('mouseup', this.mouseUp)

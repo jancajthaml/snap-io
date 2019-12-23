@@ -10,7 +10,7 @@ interface IProps {
 
 const Canvas = (props: IProps) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
-  const loop = useRef<number>(0)
+  const animationRef = useRef<number>(0)
   const dirty = useRef<boolean>(true)
   const ctx = useRef<CanvasRenderingContext2D | null>(null)
 
@@ -53,14 +53,14 @@ const Canvas = (props: IProps) => {
       props.draw(ctx.current as CanvasRenderingContext2D)
       dirty.current = false
     }
-    loop.current = requestAnimationFrame(delayedRepaint);
+    animationRef.current = requestAnimationFrame(delayedRepaint);
   }, [])
 
   useEffect(() => {
     addListeners()
-    loop.current = requestAnimationFrame(delayedRepaint)
+    animationRef.current = requestAnimationFrame(delayedRepaint)
     return () => {
-      cancelAnimationFrame(loop.current)
+      cancelAnimationFrame(animationRef.current)
       removeListeners()
     }
   }, [])
