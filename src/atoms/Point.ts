@@ -11,6 +11,10 @@ class Point {
     this.repr = `P${this.x}|${this.y}`
   }
 
+  multiply(factor: number) {
+    return new Point(this.x * factor, this.y * factor)
+  }
+
   toString(): string {
     return this.repr
   }

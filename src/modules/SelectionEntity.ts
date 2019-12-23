@@ -2,6 +2,8 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import Engine from './Engine'
 
+const RESIZER_SIZE = 10 as const
+
 class ResizerHandle extends Rectangle {
   name: string;
 
@@ -58,7 +60,12 @@ class SelectionEntity extends Rectangle {
 
       case this.T_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.y1 += yDelta
+          const sel_h = (this.y2 - this.y1)
+          const ele_h = (element.y2 - element.y1)
+          const h_percentage = ele_h / sel_h
+          const y_percentage = (element.y1 - this.y1) / sel_h
+          element.y1 += yDelta * (1-y_percentage)
+          element.y2 += yDelta * (1-(h_percentage + y_percentage))
         })
         this.y1 += yDelta
         this.updateResizers()
@@ -67,8 +74,21 @@ class SelectionEntity extends Rectangle {
 
       case this.TL_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.y1 += yDelta
-          element.x1 += xDelta
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+
+          const sel_h = (this.y2 - this.y1)
+          const ele_h = (element.y2 - element.y1)
+          const h_percentage = ele_h / sel_h
+          const y_percentage = (element.y1 - this.y1) / sel_h
+
+          element.x1 += xDelta * (1-x_percentage)
+          element.x2 += xDelta * (1-(w_percentage + x_percentage))
+          element.y1 += yDelta * (1-y_percentage)
+          element.y2 += yDelta * (1-(h_percentage + y_percentage))
+
         })
         this.y1 += yDelta
         this.x1 += xDelta
@@ -82,9 +102,16 @@ class SelectionEntity extends Rectangle {
           const ele_w = (element.x2 - element.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.x1 - this.x1) / sel_w
+
+          const sel_h = (this.y2 - this.y1)
+          const ele_h = (element.y2 - element.y1)
+          const h_percentage = ele_h / sel_h
+          const y_percentage = (element.y1 - this.y1) / sel_h
+
           element.x1 += xDelta * x_percentage
           element.x2 += xDelta * (w_percentage + x_percentage)
-          element.y1 += yDelta
+          element.y1 += yDelta * (1-y_percentage)
+          element.y2 += yDelta * (1-(h_percentage + y_percentage))
         })
         this.y1 += yDelta
         this.x2 += xDelta
@@ -94,7 +121,12 @@ class SelectionEntity extends Rectangle {
 
       case this.B_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.y2 += yDelta
+          const sel_h = (this.y2 - this.y1)
+          const ele_h = (element.y2 - element.y1)
+          const h_percentage = ele_h / sel_h
+          const y_percentage = (element.y1 - this.y1) / sel_h
+          element.y1 += yDelta * y_percentage
+          element.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.updateResizers()
@@ -103,8 +135,19 @@ class SelectionEntity extends Rectangle {
 
       case this.BL_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.y2 += yDelta
-          element.x1 += xDelta
+          const sel_h = (this.y2 - this.y1)
+          const ele_h = (element.y2 - element.y1)
+          const h_percentage = ele_h / sel_h
+          const y_percentage = (element.y1 - this.y1) / sel_h
+
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+          element.x1 += xDelta * (1-x_percentage)
+          element.x2 += xDelta * (1-(w_percentage + x_percentage))
+          element.y1 += yDelta * y_percentage
+          element.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.x1 += xDelta
@@ -115,12 +158,17 @@ class SelectionEntity extends Rectangle {
       case this.BR_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
           const sel_w = (this.x2 - this.x1)
+          const sel_h = (this.y2 - this.y1)
           const ele_w = (element.x2 - element.x1)
+          const ele_h = (element.y2 - element.y1)
           const w_percentage = ele_w / sel_w
+          const h_percentage = ele_h / sel_h
           const x_percentage = (element.x1 - this.x1) / sel_w
+          const y_percentage = (element.y1 - this.y1) / sel_h
           element.x1 += xDelta * x_percentage
           element.x2 += xDelta * (w_percentage + x_percentage)
-          element.y2 += yDelta
+          element.y1 += yDelta * y_percentage
+          element.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.x2 += xDelta
@@ -130,7 +178,12 @@ class SelectionEntity extends Rectangle {
 
       case this.L_resizer.name: {
         engine.elements.forEachSelected((element: any) => {
-          element.x1 += xDelta
+          const sel_w = (this.x2 - this.x1)
+          const ele_w = (element.x2 - element.x1)
+          const w_percentage = ele_w / sel_w
+          const x_percentage = (element.x1 - this.x1) / sel_w
+          element.x1 += xDelta * (1-x_percentage)
+          element.x2 += xDelta * (1-(w_percentage + x_percentage))
         })
         this.x1 += xDelta
         this.updateResizers()
@@ -190,47 +243,46 @@ class SelectionEntity extends Rectangle {
     const w = (this.x2 - this.x1 + 6)
     const h = (this.y2 - this.y1 + 6)
 
-    const s = 8
 
-    this.T_resizer.x1 = x + w/2 - s/2
-    this.T_resizer.x2 = this.T_resizer.x1 + s
-    this.T_resizer.y1 = y - s/2
-    this.T_resizer.y2 = this.T_resizer.y1 + s
+    this.T_resizer.x1 = x + w/2 - RESIZER_SIZE/2
+    this.T_resizer.x2 = this.T_resizer.x1 + RESIZER_SIZE
+    this.T_resizer.y1 = y - RESIZER_SIZE/2
+    this.T_resizer.y2 = this.T_resizer.y1 + RESIZER_SIZE
 
-    this.TL_resizer.x1 = x - s/2
-    this.TL_resizer.x2 = this.TL_resizer.x1 + s
-    this.TL_resizer.y1 = y - s/2
-    this.TL_resizer.y2 = this.TL_resizer.y1 + s
+    this.TL_resizer.x1 = x - RESIZER_SIZE/2
+    this.TL_resizer.x2 = this.TL_resizer.x1 + RESIZER_SIZE
+    this.TL_resizer.y1 = y - RESIZER_SIZE/2
+    this.TL_resizer.y2 = this.TL_resizer.y1 + RESIZER_SIZE
 
-    this.B_resizer.x1 = x + w/2 - s/2
-    this.B_resizer.x2 = this.B_resizer.x1 + s
-    this.B_resizer.y1 = y + h - s/2
-    this.B_resizer.y2 = this.B_resizer.y1 + s
+    this.B_resizer.x1 = x + w/2 - RESIZER_SIZE/2
+    this.B_resizer.x2 = this.B_resizer.x1 + RESIZER_SIZE
+    this.B_resizer.y1 = y + h - RESIZER_SIZE/2
+    this.B_resizer.y2 = this.B_resizer.y1 + RESIZER_SIZE
 
-    this.BL_resizer.x1 = x - s/2
-    this.BL_resizer.x2 = this.BL_resizer.x1 + s
-    this.BL_resizer.y1 = y + h - s/2
-    this.BL_resizer.y2 = this.BL_resizer.y1 + s
+    this.BL_resizer.x1 = x - RESIZER_SIZE/2
+    this.BL_resizer.x2 = this.BL_resizer.x1 + RESIZER_SIZE
+    this.BL_resizer.y1 = y + h - RESIZER_SIZE/2
+    this.BL_resizer.y2 = this.BL_resizer.y1 + RESIZER_SIZE
 
-    this.L_resizer.x1 = x - s/2
-    this.L_resizer.x2 = this.L_resizer.x1 + s
-    this.L_resizer.y1 = y + h/2 - s/2
-    this.L_resizer.y2 = this.L_resizer.y1 + s
+    this.L_resizer.x1 = x - RESIZER_SIZE/2
+    this.L_resizer.x2 = this.L_resizer.x1 + RESIZER_SIZE
+    this.L_resizer.y1 = y + h/2 - RESIZER_SIZE/2
+    this.L_resizer.y2 = this.L_resizer.y1 + RESIZER_SIZE
 
-    this.R_resizer.x1 = x + w - s/2
-    this.R_resizer.x2 = this.R_resizer.x1 + s
-    this.R_resizer.y1 = y + h/2 - s/2
-    this.R_resizer.y2 = this.R_resizer.y1 + s
+    this.R_resizer.x1 = x + w - RESIZER_SIZE/2
+    this.R_resizer.x2 = this.R_resizer.x1 + RESIZER_SIZE
+    this.R_resizer.y1 = y + h/2 - RESIZER_SIZE/2
+    this.R_resizer.y2 = this.R_resizer.y1 + RESIZER_SIZE
 
-    this.TR_resizer.x1 = x + w - s/2
-    this.TR_resizer.x2 = this.TR_resizer.x1 + s
-    this.TR_resizer.y1 = y - s/2
-    this.TR_resizer.y2 = this.TR_resizer.y1 + s
+    this.TR_resizer.x1 = x + w - RESIZER_SIZE/2
+    this.TR_resizer.x2 = this.TR_resizer.x1 + RESIZER_SIZE
+    this.TR_resizer.y1 = y - RESIZER_SIZE/2
+    this.TR_resizer.y2 = this.TR_resizer.y1 + RESIZER_SIZE
 
-    this.BR_resizer.x1 = x + w - s/2
-    this.BR_resizer.x2 = this.BR_resizer.x1 + s
-    this.BR_resizer.y1 = y + h - s/2
-    this.BR_resizer.y2 = this.BR_resizer.y1 + s
+    this.BR_resizer.x1 = x + w - RESIZER_SIZE/2
+    this.BR_resizer.x2 = this.BR_resizer.x1 + RESIZER_SIZE
+    this.BR_resizer.y1 = y + h - RESIZER_SIZE/2
+    this.BR_resizer.y2 = this.BR_resizer.y1 + RESIZER_SIZE
   }
 
   translate = (x: number, y: number) => {
@@ -281,7 +333,7 @@ class SelectionEntity extends Rectangle {
     return point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
   }
 
-  resizerCapture = (point: Point) => {
+  resizerCapture = (engine: Engine, point: Point) => {
     const data = [
       this.T_resizer,
       this.L_resizer,
@@ -293,8 +345,18 @@ class SelectionEntity extends Rectangle {
       this.BR_resizer,
     ] as ResizerHandle[]
 
+    const pointScaled = point.multiply(engine.scale)
+
     for (const resizer of data) {
-      if (point.x >= resizer.x1 && point.x <= resizer.x2 && point.y >= resizer.y1 && point.y <= resizer.y2) {
+      const w = (resizer.x2 - resizer.x1) * engine.scale
+      const h = (resizer.y2 - resizer.y1) * engine.scale
+
+      const x1 = (resizer.x1 * engine.scale) + (w - RESIZER_SIZE)/2
+      const y1 = (resizer.y1 * engine.scale) + (h - RESIZER_SIZE)/2
+      const x2 = x1 + (resizer.x2 - resizer.x1)
+      const y2 = y1 + (resizer.y2 - resizer.y1)
+
+      if (pointScaled.x >= x1 && pointScaled.x <= x2 && pointScaled.y >= y1 && pointScaled.y <= y2) {
         this.is_resizing = resizer.name
         return true
       }
@@ -313,6 +375,7 @@ class SelectionEntity extends Rectangle {
 
     ctx.strokeStyle = "black";
     ctx.setLineDash([4 * engine.scale, 4 * engine.scale]);
+
     const x = (engine.viewport.x1 + this.x1 - 3) * engine.scale
     const y = (engine.viewport.y1 + this.y1 - 3) * engine.scale
     const w = (this.x2 - this.x1 + 6) * engine.scale
@@ -330,25 +393,29 @@ class SelectionEntity extends Rectangle {
       this.TR_resizer,
       this.BR_resizer,
     ].forEach((resizer: ResizerHandle) => {
+      const w = (resizer.x2 - resizer.x1) * engine.scale
+      const h = (resizer.y2 - resizer.y1) * engine.scale
+
       if (this.is_resizing === resizer.name) {
         ctx.fillRect(
-          (engine.viewport.x1 + resizer.x1) * engine.scale,
-          (engine.viewport.y1 + resizer.y1) * engine.scale,
-          (resizer.x2 - resizer.x1) * engine.scale,
-          (resizer.y2 - resizer.y1) * engine.scale,
+          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          (resizer.x2 - resizer.x1),
+          (resizer.y2 - resizer.y1),
         )
       } else {
         ctx.clearRect(
-          (engine.viewport.x1 + resizer.x1) * engine.scale,
-          (engine.viewport.y1 + resizer.y1) * engine.scale,
-          (resizer.x2 - resizer.x1) * engine.scale,
-          (resizer.y2 - resizer.y1) * engine.scale,
+          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          (resizer.x2 - resizer.x1),
+          (resizer.y2 - resizer.y1),
         )
+
         ctx.strokeRect(
-          (engine.viewport.x1 + resizer.x1) * engine.scale,
-          (engine.viewport.y1 + resizer.y1) * engine.scale,
-          (resizer.x2 - resizer.x1) * engine.scale,
-          (resizer.y2 - resizer.y1) * engine.scale,
+          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          (resizer.x2 - resizer.x1),
+          (resizer.y2 - resizer.y1),
         )
       }
     })

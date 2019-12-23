@@ -66,7 +66,7 @@ class Engine {
       this.selection.mouseDown(this)
     } else if (this.selection.selectionCapture(pointOfClick)) {
       this.mouse.setEvent('element-drag')
-    } else if (this.selection.resizerCapture(pointOfClick)) {
+    } else if (this.selection.resizerCapture(this, pointOfClick)) {
       this.mouse.setEvent('element-resize')
     } else {
       this.mouse.setEvent('canvas-drag')
