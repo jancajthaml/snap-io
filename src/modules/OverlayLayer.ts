@@ -6,9 +6,7 @@ class OverlayLayer extends Layer {
     if (!this.dirty) {
       return
     }
-
     const ctx = (this.ctx as CanvasRenderingContext2D)
-
     ctx.clearRect(0, 0, this.width, this.height)
 
     engine.selection.drawSelectionBox(ctx, engine)
