@@ -142,12 +142,12 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          element.y1 += yDelta * (1-y_percentage)
-          element.y2 += yDelta * (1-(h_percentage + y_percentage))
+          element.bounds.y1 += yDelta * (1-y_percentage)
+          element.bounds.y2 += yDelta * (1-(h_percentage + y_percentage))
         })
         this.y1 += yDelta
         this.updateResizers()
@@ -160,18 +160,18 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          element.x1 += xDelta * (1-x_percentage)
-          element.x2 += xDelta * (1-(w_percentage + x_percentage))
-          element.y1 += yDelta * (1-y_percentage)
-          element.y2 += yDelta * (1-(h_percentage + y_percentage))
+          element.bounds.x1 += xDelta * (1-x_percentage)
+          element.bounds.x2 += xDelta * (1-(w_percentage + x_percentage))
+          element.bounds.y1 += yDelta * (1-y_percentage)
+          element.bounds.y2 += yDelta * (1-(h_percentage + y_percentage))
 
         })
         this.y1 += yDelta
@@ -185,18 +185,18 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          element.x1 += xDelta * x_percentage
-          element.x2 += xDelta * (w_percentage + x_percentage)
-          element.y1 += yDelta * (1-y_percentage)
-          element.y2 += yDelta * (1-(h_percentage + y_percentage))
+          element.bounds.x1 += xDelta * x_percentage
+          element.bounds.x2 += xDelta * (w_percentage + x_percentage)
+          element.bounds.y1 += yDelta * (1-y_percentage)
+          element.bounds.y2 += yDelta * (1-(h_percentage + y_percentage))
         })
         this.y1 += yDelta
         this.x2 += xDelta
@@ -208,12 +208,12 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          element.y1 += yDelta * y_percentage
-          element.y2 += yDelta * (h_percentage + y_percentage)
+          element.bounds.y1 += yDelta * y_percentage
+          element.bounds.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.updateResizers()
@@ -225,18 +225,18 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          element.x1 += xDelta * (1-x_percentage)
-          element.x2 += xDelta * (1-(w_percentage + x_percentage))
-          element.y1 += yDelta * y_percentage
-          element.y2 += yDelta * (h_percentage + y_percentage)
+          element.bounds.x1 += xDelta * (1-x_percentage)
+          element.bounds.x2 += xDelta * (1-(w_percentage + x_percentage))
+          element.bounds.y1 += yDelta * y_percentage
+          element.bounds.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.x1 += xDelta
@@ -249,18 +249,18 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_h = (element.y2 - element.y1)
+          const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
-          const y_percentage = (element.y1 - this.y1) / sel_h
+          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
 
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          element.x1 += xDelta * x_percentage
-          element.x2 += xDelta * (w_percentage + x_percentage)
-          element.y1 += yDelta * y_percentage
-          element.y2 += yDelta * (h_percentage + y_percentage)
+          element.bounds.x1 += xDelta * x_percentage
+          element.bounds.x2 += xDelta * (w_percentage + x_percentage)
+          element.bounds.y1 += yDelta * y_percentage
+          element.bounds.y2 += yDelta * (h_percentage + y_percentage)
         })
         this.y2 += yDelta
         this.x2 += xDelta
@@ -272,12 +272,12 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          element.x1 += xDelta * (1-x_percentage)
-          element.x2 += xDelta * (1-(w_percentage + x_percentage))
+          element.bounds.x1 += xDelta * (1-x_percentage)
+          element.bounds.x2 += xDelta * (1-(w_percentage + x_percentage))
         })
         this.x1 += xDelta
         this.updateResizers()
@@ -288,12 +288,12 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
 
         engine.elements.forEachSelected((element: any) => {
-          const ele_w = (element.x2 - element.x1)
+          const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
-          const x_percentage = (element.x1 - this.x1) / sel_w
+          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
 
-          element.x1 += xDelta * x_percentage
-          element.x2 += xDelta * (w_percentage + x_percentage)
+          element.bounds.x1 += xDelta * x_percentage
+          element.bounds.x2 += xDelta * (w_percentage + x_percentage)
         })
         this.x2 += xDelta
         this.updateResizers()
@@ -399,17 +399,17 @@ class SelectionEntity extends Rectangle {
     let x2: number | undefined = undefined
     let y2: number | undefined = undefined
     engine.elements.forEachSelected((element: any) => {
-      if (x1 === undefined || x1 > element.x1) {
-        x1 = element.x1
+      if (x1 === undefined || x1 > element.bounds.x1) {
+        x1 = element.bounds.x1
       }
-      if (y1 === undefined || y1 > element.y1) {
-        y1 = element.y1
+      if (y1 === undefined || y1 > element.bounds.y1) {
+        y1 = element.bounds.y1
       }
-      if (x2 === undefined || x2 < element.x2) {
-        x2 = element.x2
+      if (x2 === undefined || x2 < element.bounds.x2) {
+        x2 = element.bounds.x2
       }
-      if (y2 === undefined || y2 < element.y2) {
-        y2 = element.y2
+      if (y2 === undefined || y2 < element.bounds.y2) {
+        y2 = element.bounds.y2
       }
     })
     this.x1 = x1 || 0
@@ -492,6 +492,7 @@ class SelectionEntity extends Rectangle {
     }
 
     ctx.strokeStyle = "black";
+    ctx.fillStyle = "black";
     ctx.setLineDash([4 * engine.scale, 4 * engine.scale]);
 
     const x = (engine.viewport.x1 + this.x1 - 3) * engine.scale

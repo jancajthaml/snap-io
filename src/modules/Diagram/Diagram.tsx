@@ -20,8 +20,8 @@ const Diagram = () => {
         <BoxEntity
           key={idx}
           engine={engine}
-          x={10 + (idx*70)}
-          y={20}
+          x={10 + ((idx%10)*70)}
+          y={20 + (Math.floor(idx/10)*70)}
           width={60}
           height={60}
           color="red"

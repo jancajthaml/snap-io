@@ -68,7 +68,7 @@ class ElementsFascade {
       if (element.bounds.insideRectangle(selection)) {
         this.selected.push(element)
         //element.selected = true
-        console.log('element', element, 'is now selected')
+        //console.log('element', element, 'is now selected')
       }
     })
     this.visible.sort(function(x, y) {
