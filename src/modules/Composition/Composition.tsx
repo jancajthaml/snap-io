@@ -52,14 +52,15 @@ class Composition extends React.PureComponent<IProps> {
 
   render() {
     return (
-      <Canvas
-        name="composition"
-        opaque={false}
-        draw={this.draw}
-        resize={this.resize}
-      >
+      <React.Fragment>
+        <Canvas
+          name="composition"
+          opaque={false}
+          draw={this.draw}
+          resize={this.resize}
+        />
         {this.props.children}
-      </Canvas>
+      </React.Fragment>
     )
   }
 }

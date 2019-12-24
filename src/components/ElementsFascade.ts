@@ -17,6 +17,12 @@ class ElementsFascade {
     this.elements.push(element)
   }
 
+  remove(element: any) {
+    this.elements = this.elements.filter(function(value) {
+      return value !== element
+    });
+  }
+
   forEachVisible(callback: (element: any) => void) {
     for (let i = 0; i < this.visible.length; i++) {
       callback(this.visible[i])

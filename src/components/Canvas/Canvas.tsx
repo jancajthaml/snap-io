@@ -1,9 +1,8 @@
-import React, { useEffect, useCallback, useRef, ReactNode } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 
 interface IProps {
   name: string;
   opaque?: boolean;
-  children?: ReactNode;
   draw: (ctx: CanvasRenderingContext2D) => void;
   resize: (width: number, height: number) => void;
 }
@@ -64,10 +63,6 @@ const Canvas = (props: IProps) => {
       removeListeners()
     }
   }, [])
-
-  useEffect(() => {
-    console.log('canvas has following children', props.children)
-  }, [props.children])
 
   return (
     <canvas ref={ref} />

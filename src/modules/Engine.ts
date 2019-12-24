@@ -178,6 +178,14 @@ class Engine {
     window.dispatchEvent(new Event('canvas-resize-composition'));
   }
 
+  addEntity = (entity: any) => {
+    this.elements.add(entity)
+  }
+
+  removeEntity = (entity: any) => {
+    this.elements.remove(entity)
+  }
+
   randomPopulate = () => {
     const self = this as Engine
 
