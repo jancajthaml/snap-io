@@ -2,7 +2,7 @@ import React from 'react'
 
 //import Canvas from '../../components/Canvas'
 import Engine from '../Engine'
-//import Rectangle from '../../atoms/Rectangle'
+import Rectangle from '../../atoms/Rectangle'
 
 interface IProps {
   engine: Engine;
@@ -16,17 +16,24 @@ interface IProps {
 
 class BoxEntity extends React.PureComponent<IProps> {
 
+  bounds: Rectangle;
+
+  constructor(props: IProps) {
+    super(props)
+    this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
+  }
+
   componentDidMount() {
-    console.log('BoxEntity unmount - register to engine')
+    console.log('BoxEntity - add to engine')
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
-    console.log('BoxEntity unmount - deregister from engine')
+    console.log('BoxEntity - remove from engine')
     this.props.engine.removeEntity(this)
   }
 
-  draw = (ctx: CanvasRenderingContext2D) => {
+  drawSimple = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
 
     if (this.props.selected) {
@@ -34,12 +41,42 @@ class BoxEntity extends React.PureComponent<IProps> {
     } else {
       ctx.fillStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.props.x) * engine.scale
-    const y = (engine.viewport.y1 + this.props.y) * engine.scale
-    const w = this.props.width * engine.scale
-    const h = this.props.height * engine.scale
+    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
+    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
+    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
+    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
 
     ctx.fillRect(x, y, w, h);
+  }
+
+  drawDetail = (ctx: CanvasRenderingContext2D) => {
+    const engine = this.props.engine
+
+    if (this.props.selected) {
+      ctx.fillStyle = "black"
+      ctx.strokeStyle = "black"
+    } else {
+      ctx.fillStyle = this.props.color
+      ctx.strokeStyle = this.props.color
+    }
+    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
+    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
+    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
+    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
+
+    const offset = 3 * engine.scale
+    ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
+    ctx.strokeRect(x, y, w, h);
+  }
+
+  draw = (ctx: CanvasRenderingContext2D) => {
+    const engine = this.props.engine
+
+    if (engine.scale <= 0.4) {
+      this.drawSimple(ctx)
+    } else {
+      this.drawDetail(ctx)
+    }
   }
 
   render() {

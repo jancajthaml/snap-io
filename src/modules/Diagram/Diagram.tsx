@@ -8,7 +8,6 @@ const Diagram = () => {
   const engine = new Engine();
 
   useEffect(() => {
-    //engine.randomPopulate();  // FIXME debug
     engine.addListeners();
     return () => {
       engine.removeListeners();
@@ -17,14 +16,17 @@ const Diagram = () => {
 
   return (
     <Composition engine={engine}>
-      <BoxEntity
-        engine={engine}
-        x={10}
-        y={20}
-        width={60}
-        height={60}
-        color="orange"
-      />
+      {Array.from(Array(100).keys()).map((idx) => (
+        <BoxEntity
+          key={idx}
+          engine={engine}
+          x={10 + (idx*70)}
+          y={20}
+          width={60}
+          height={60}
+          color="red"
+        />
+      ))}
     </Composition>
   )
 }

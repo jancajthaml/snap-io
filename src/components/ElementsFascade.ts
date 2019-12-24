@@ -38,10 +38,10 @@ class ElementsFascade {
   updateVisible(engine: Engine) {
     this.visible = []
     this.elements.forEach((element) => {
-      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.x1) < 0
-      const outOfLeft = (engine.viewport.x1 + element.x2) < 0
-      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.y1) < 0
-      const outOfUp = (engine.viewport.y1 + element.y2) < 0
+      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.bounds.x1) < 0
+      const outOfLeft = (engine.viewport.x1 + element.bounds.x2) < 0
+      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.bounds.y1) < 0
+      const outOfUp = (engine.viewport.y1 + element.bounds.y2) < 0
       if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
         this.visible.push(element)
       }
@@ -59,15 +59,16 @@ class ElementsFascade {
 
   updateSelected(selection: Rectangle, clearPrevious: boolean) {
     if (clearPrevious) {
-      this.selected.forEach((element) => {
-        element.selected = false
-      })
+      //this.selected.forEach((element) => {
+        //element.selected = false
+      //})
       this.selected = []
     }
     this.visible.forEach((element) => {
-      if (element.insideRectangle(selection)) {
+      if (element.bounds.insideRectangle(selection)) {
         this.selected.push(element)
-        element.selected = true
+        //element.selected = true
+        console.log('element', element, 'is now selected')
       }
     })
     this.visible.sort(function(x, y) {

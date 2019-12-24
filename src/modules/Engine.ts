@@ -3,7 +3,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
 import ElementsFascade from '../components/ElementsFascade'
-import RectangleEntity from './RectangleEntity'
+//import RectangleEntity from './RectangleEntity'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 
 class Engine {
@@ -143,7 +143,7 @@ class Engine {
         const yDelta = (e.y - this.mouse.coordinates.y2) / this.scale
         this.mouse.move(event)
         this.elements.forEachSelected((element) => {
-          element.translate(xDelta, yDelta)
+          element.bounds.translate(xDelta, yDelta)
         })
         this.selection.translate(xDelta, yDelta)
         this.elements.updateVisible(this)
@@ -180,44 +180,15 @@ class Engine {
 
   addEntity = (entity: any) => {
     this.elements.add(entity)
+    this.elements.updateVisible(this)
   }
 
   removeEntity = (entity: any) => {
     this.elements.remove(entity)
+    this.elements.updateVisible(this)
+    //window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
-  randomPopulate = () => {
-    const self = this as Engine
-
-    (async function() {
-      const size = 60
-      const counts = 10
-      const xOffset = 10
-      const yOffset = 10
-
-      for (let x = 0; x < counts; x++) {
-        for (let y = 0; y < counts; y++) {
-          let element
-          switch ((x+y) % 3) {
-            case 0:
-              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "red")
-              break
-            case 1:
-              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "green")
-              break
-            case 2:
-              element = new RectangleEntity(xOffset + (x*size), yOffset + (y*size), size-10, size-10, "blue")
-              break
-          }
-          self.elements.add(element)
-          await new Promise(resolve => setTimeout(resolve, 100))
-          self.elements.updateVisible(self)
-          window.dispatchEvent(new Event('canvas-update-composition'));
-        }
-      }
-
-    }());
-  }
 }
 
 export default Engine
