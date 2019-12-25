@@ -1,28 +1,31 @@
 import SelectionEntity from './SelectionEntity'
-import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
 import ElementsFascade from '../components/ElementsFascade'
-//import RectangleEntity from './RectangleEntity'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
+import { IReduxStore } from '../store'
+import { getViewport } from './Diagram/selectors'
+import { setViewPort } from './Diagram/actions'
 
 class Engine {
-  viewport: Rectangle;
   dimension: Point;
   selection: SelectionEntity;
-  scale: number;
   update_visible: boolean;
   mouse: MouseFascade;
   elements: ElementsFascade;
+  store: IReduxStore;
 
-  constructor() {
-    this.viewport = new Rectangle(0, 0, 1, 1)
+  constructor(store: IReduxStore) {
     this.dimension = new Point(1, 1)
     this.selection = new SelectionEntity()
-    this.scale = 1
     this.update_visible = false
     this.mouse = new MouseFascade()
     this.elements = new ElementsFascade()
+    this.store = store
+  }
+
+  get viewport() {
+    return getViewport(this.store.getState())
   }
 
   cleanup = () => {
@@ -35,7 +38,7 @@ class Engine {
     document.removeEventListener('mouseup', this.mouseUp)
     document.removeEventListener('mousemove', this.mouseMove)
     document.removeEventListener('wheel', this.mouseWheel)
-    window.removeEventListener('resize', this.resize)
+    window.removeEventListener('resize', this.onResize)
 
     const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
     rootElement.removeEventListener('blur', this.mouseUp)
@@ -47,7 +50,7 @@ class Engine {
     document.addEventListener('mouseup', this.mouseUp)
     document.addEventListener('mousemove', this.mouseMove)
     document.addEventListener('wheel', this.mouseWheel, { passive: false })
-    window.addEventListener('resize', this.resize)
+    window.addEventListener('resize', this.onResize)
 
     const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
     rootElement.addEventListener('blur', this.mouseUp)
@@ -67,7 +70,7 @@ class Engine {
     }
 
     this.mouse.down(event)
-    const pointOfClick = new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1)
+    const pointOfClick = new Point(this.mouse.coordinates.x1 / this.viewport.z - this.viewport.x1, this.mouse.coordinates.y1 / this.viewport.z - this.viewport.y1)
 
     // FIXME if resizing switch in mode where resizing respects aspect ration
     // FIXME decide if resising based on whenever there is resizer selection
@@ -90,20 +93,28 @@ class Engine {
 
   mouseWheel = (event: WheelEvent) => {
     event.preventDefault()
-    const prevScale = this.scale
+
+    const prevScale = this.viewport.z
+    let nextScale = this.viewport.z
     if (event.deltaY > 0) {
-      this.scale = Math.max(this.scale / 1.03, 0.2)
+      nextScale = Math.max(prevScale / 1.03, 0.2)
     } else {
-      this.scale = Math.min(this.scale * 1.03, 8)
+      nextScale = Math.min(prevScale * 1.03, 8)
     }
-    if (prevScale != this.scale) {
+    if (prevScale != nextScale) {
       const e = this.mouse.normalized(event)
       const zoomX = (e.x - this.viewport.x1 * prevScale) / prevScale
       const zoomY = (e.y - this.viewport.y1 * prevScale) / prevScale
-      this.viewport.x1 = (-zoomX * this.scale + e.x) / this.scale
-      this.viewport.x2 = this.viewport.x1 + (this.dimension.x / this.scale)
-      this.viewport.y1 = (-zoomY * this.scale + e.y) / this.scale
-      this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
+
+      const nextViewPort = this.viewport.copy()
+      nextViewPort.x1 = (-zoomX * nextScale + e.x) / nextScale
+      nextViewPort.x2 = nextViewPort.x1 + (this.dimension.x / nextScale)
+      nextViewPort.y1 = (-zoomY * nextScale + e.y) / nextScale
+      nextViewPort.y2 = nextViewPort.y1 + (this.dimension.y / nextScale)
+      nextViewPort.z = nextScale
+
+      this.store.dispatch(setViewPort(nextViewPort))
+
       this.elements.updateVisible(this)
       window.dispatchEvent(new Event('canvas-update-composition'));
     }
@@ -132,13 +143,18 @@ class Engine {
 
       case MODE_SCENE_TRANSLATE: {
         const e = this.mouse.normalized(event)
-        const xDelta = (e.x - this.mouse.coordinates.x2) / this.scale
-        const yDelta = (e.y - this.mouse.coordinates.y2) / this.scale
+        const xDelta = (e.x - this.mouse.coordinates.x2) / this.viewport.z
+        const yDelta = (e.y - this.mouse.coordinates.y2) / this.viewport.z
         this.mouse.move(event)
-        this.viewport.x1 += xDelta
-        this.viewport.x2 = this.viewport.x1 + (this.dimension.x / this.scale)
-        this.viewport.y1 += yDelta
-        this.viewport.y2 = this.viewport.y1 + (this.dimension.y / this.scale)
+
+        const nextViewPort = this.viewport.copy()
+        nextViewPort.x1 += xDelta
+        nextViewPort.x2 = nextViewPort.x1 + (this.dimension.x / nextViewPort.z)
+        nextViewPort.y1 += yDelta
+        nextViewPort.y2 = nextViewPort.y1 + (this.dimension.y / nextViewPort.z)
+
+        this.store.dispatch(setViewPort(nextViewPort))
+
         this.elements.updateVisible(this)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
@@ -146,8 +162,8 @@ class Engine {
 
       case MODE_TRANSLATE: {
         const e = this.mouse.normalized(event)
-        const xDelta = (e.x - this.mouse.coordinates.x2) / this.scale
-        const yDelta = (e.y - this.mouse.coordinates.y2) / this.scale
+        const xDelta = (e.x - this.mouse.coordinates.x2) / this.viewport.z
+        const yDelta = (e.y - this.mouse.coordinates.y2) / this.viewport.z
         this.mouse.move(event)
         this.elements.forEachSelected((element) => {
           element.bounds.translate(xDelta, yDelta)
@@ -159,8 +175,8 @@ class Engine {
 
       case MODE_RESIZE: {
         const e = this.mouse.normalized(event)
-        const xDelta = (e.x - this.mouse.coordinates.x2) / this.scale
-        const yDelta = (e.y - this.mouse.coordinates.y2) / this.scale
+        const xDelta = (e.x - this.mouse.coordinates.x2) / this.viewport.z
+        const yDelta = (e.y - this.mouse.coordinates.y2) / this.viewport.z
         this.mouse.move(event)
         this.selection.mouseMove(this, xDelta, yDelta)
         window.dispatchEvent(new Event('canvas-update-composition'));
@@ -180,7 +196,17 @@ class Engine {
     }
   }
 
-  resize = () => {
+  resize = (width: number, height: number) => {
+    this.dimension.x = width
+    this.dimension.y = height
+
+    const nextViewPort = this.viewport.copy()
+    nextViewPort.resize(width, height)
+    this.store.dispatch(setViewPort(nextViewPort))
+    this.elements.updateVisible(this)
+  }
+
+  onResize = () => {
     window.dispatchEvent(new Event('canvas-resize-composition'));
   }
 
@@ -192,7 +218,6 @@ class Engine {
   removeEntity = (entity: any) => {
     this.elements.remove(entity)
     this.elements.updateVisible(this)
-    //window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
 }

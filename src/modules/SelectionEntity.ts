@@ -44,10 +44,10 @@ class SelectionEntity extends Rectangle {
     if (this.is_resizing) {
       return
     }
-    this.x1 = engine.mouse.coordinates.x1 / engine.scale - engine.viewport.x1
-    this.y1 = engine.mouse.coordinates.y1 / engine.scale - engine.viewport.y1
-    this.x2 = this.x1 + (engine.mouse.coordinates.x2 - engine.mouse.coordinates.x1) / engine.scale
-    this.y2 = this.y1 + (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1) / engine.scale
+    this.x1 = engine.mouse.coordinates.x1 / engine.viewport.z - engine.viewport.x1
+    this.y1 = engine.mouse.coordinates.y1 / engine.viewport.z - engine.viewport.y1
+    this.x2 = this.x1 + (engine.mouse.coordinates.x2 - engine.mouse.coordinates.x1) / engine.viewport.z
+    this.y2 = this.y1 + (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1) / engine.viewport.z
     this.updateSelected(engine, true)
     this.updateResizers()
   }
@@ -309,20 +309,20 @@ class SelectionEntity extends Rectangle {
   updateSelected = (engine: Engine, clearPrevious: boolean) => {
     this.x1 = (engine.mouse.coordinates.x1 > engine.mouse.coordinates.x2
       ? engine.mouse.coordinates.x2
-      : engine.mouse.coordinates.x1) / engine.scale - engine.viewport.x1
+      : engine.mouse.coordinates.x1) / engine.viewport.z - engine.viewport.x1
     this.y1 = (engine.mouse.coordinates.y1 > engine.mouse.coordinates.y2
       ? engine.mouse.coordinates.y2
-      : engine.mouse.coordinates.y1) / engine.scale - engine.viewport.y1
+      : engine.mouse.coordinates.y1) / engine.viewport.z - engine.viewport.y1
     this.x2 = this.x1 + (
       engine.mouse.coordinates.x1 > engine.mouse.coordinates.x2
         ? (engine.mouse.coordinates.x1 - engine.mouse.coordinates.x2)
         : (engine.mouse.coordinates.x2 - engine.mouse.coordinates.x1)
-      ) / engine.scale
+      ) / engine.viewport.z
     this.y2 = this.y1 + (
       engine.mouse.coordinates.y1 > engine.mouse.coordinates.y2
         ? (engine.mouse.coordinates.y1 - engine.mouse.coordinates.y2)
         : (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1)
-      ) / engine.scale
+      ) / engine.viewport.z
     engine.elements.updateSelected(this, clearPrevious)
   }
 
@@ -434,14 +434,14 @@ class SelectionEntity extends Rectangle {
       this.BR_resizer,
     ] as ResizerHandle[]
 
-    const pointScaled = point.multiply(engine.scale)
+    const pointScaled = point.multiply(engine.viewport.z)
 
     for (const resizer of data) {
-      const w = (resizer.x2 - resizer.x1) * engine.scale
-      const h = (resizer.y2 - resizer.y1) * engine.scale
+      const w = (resizer.x2 - resizer.x1) * engine.viewport.z
+      const h = (resizer.y2 - resizer.y1) * engine.viewport.z
 
-      const x1 = (resizer.x1 * engine.scale) + (w - RESIZER_SIZE)/2
-      const y1 = (resizer.y1 * engine.scale) + (h - RESIZER_SIZE)/2
+      const x1 = (resizer.x1 * engine.viewport.z) + (w - RESIZER_SIZE)/2
+      const y1 = (resizer.y1 * engine.viewport.z) + (h - RESIZER_SIZE)/2
       const x2 = x1 + (resizer.x2 - resizer.x1)
       const y2 = y1 + (resizer.y2 - resizer.y1)
 
@@ -460,24 +460,24 @@ class SelectionEntity extends Rectangle {
 
     ctx.strokeStyle = "black";
     ctx.strokeRect(
-      (engine.viewport.x1 + engine.selection.x1) * engine.scale - 1.5,
-      (engine.viewport.y1 + engine.selection.y1) * engine.scale - 1.5,
-      (engine.selection.x2 - engine.selection.x1) * engine.scale + 3,
-      (engine.selection.y2 - engine.selection.y1) * engine.scale + 3,
+      (engine.viewport.x1 + engine.selection.x1) * engine.viewport.z - 1.5,
+      (engine.viewport.y1 + engine.selection.y1) * engine.viewport.z - 1.5,
+      (engine.selection.x2 - engine.selection.x1) * engine.viewport.z + 3,
+      (engine.selection.y2 - engine.selection.y1) * engine.viewport.z + 3,
     );
     ctx.strokeStyle = "white";
     ctx.strokeRect(
-      (engine.viewport.x1 + engine.selection.x1) * engine.scale - 0.5,
-      (engine.viewport.y1 + engine.selection.y1) * engine.scale - 0.5,
-      (engine.selection.x2 - engine.selection.x1) * engine.scale + 1,
-      (engine.selection.y2 - engine.selection.y1) * engine.scale + 1,
+      (engine.viewport.x1 + engine.selection.x1) * engine.viewport.z - 0.5,
+      (engine.viewport.y1 + engine.selection.y1) * engine.viewport.z - 0.5,
+      (engine.selection.x2 - engine.selection.x1) * engine.viewport.z + 1,
+      (engine.selection.y2 - engine.selection.y1) * engine.viewport.z + 1,
     );
     ctx.fillStyle = "rgba(0,0,0,.3)"
     ctx.fillRect(
-      (engine.viewport.x1 + engine.selection.x1) * engine.scale,
-      (engine.viewport.y1 + engine.selection.y1) * engine.scale,
-      (engine.selection.x2 - engine.selection.x1) * engine.scale,
-      (engine.selection.y2 - engine.selection.y1) * engine.scale,
+      (engine.viewport.x1 + engine.selection.x1) * engine.viewport.z,
+      (engine.viewport.y1 + engine.selection.y1) * engine.viewport.z,
+      (engine.selection.x2 - engine.selection.x1) * engine.viewport.z,
+      (engine.selection.y2 - engine.selection.y1) * engine.viewport.z,
     );
 
   }
@@ -493,12 +493,12 @@ class SelectionEntity extends Rectangle {
 
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
-    ctx.setLineDash([4 * engine.scale, 4 * engine.scale]);
+    ctx.setLineDash([4 * engine.viewport.z, 4 * engine.viewport.z]);
 
-    const x = (engine.viewport.x1 + this.x1 - 3) * engine.scale
-    const y = (engine.viewport.y1 + this.y1 - 3) * engine.scale
-    const w = (this.x2 - this.x1 + 6) * engine.scale
-    const h = (this.y2 - this.y1 + 6) * engine.scale
+    const x = (engine.viewport.x1 + this.x1 - 3) * engine.viewport.z
+    const y = (engine.viewport.y1 + this.y1 - 3) * engine.viewport.z
+    const w = (this.x2 - this.x1 + 6) * engine.viewport.z
+    const h = (this.y2 - this.y1 + 6) * engine.viewport.z
     ctx.strokeRect(x, y, w, h);
     ctx.setLineDash([]);
 
@@ -512,27 +512,27 @@ class SelectionEntity extends Rectangle {
       this.TR_resizer,
       this.BR_resizer,
     ].forEach((resizer: ResizerHandle) => {
-      const w = (resizer.x2 - resizer.x1) * engine.scale
-      const h = (resizer.y2 - resizer.y1) * engine.scale
+      const w = (resizer.x2 - resizer.x1) * engine.viewport.z
+      const h = (resizer.y2 - resizer.y1) * engine.viewport.z
 
       if (this.is_resizing === resizer.name) {
         ctx.fillRect(
-          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
-          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          ((engine.viewport.x1 + resizer.x1) * engine.viewport.z) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.viewport.z) + (h - RESIZER_SIZE)/2,
           (resizer.x2 - resizer.x1),
           (resizer.y2 - resizer.y1),
         )
       } else {
         ctx.clearRect(
-          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
-          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          ((engine.viewport.x1 + resizer.x1) * engine.viewport.z) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.viewport.z) + (h - RESIZER_SIZE)/2,
           (resizer.x2 - resizer.x1),
           (resizer.y2 - resizer.y1),
         )
 
         ctx.strokeRect(
-          ((engine.viewport.x1 + resizer.x1) * engine.scale) + (w - RESIZER_SIZE)/2,
-          ((engine.viewport.y1 + resizer.y1) * engine.scale) + (h - RESIZER_SIZE)/2,
+          ((engine.viewport.x1 + resizer.x1) * engine.viewport.z) + (w - RESIZER_SIZE)/2,
+          ((engine.viewport.y1 + resizer.y1) * engine.viewport.z) + (h - RESIZER_SIZE)/2,
           (resizer.x2 - resizer.x1),
           (resizer.y2 - resizer.y1),
         )

@@ -13,7 +13,7 @@ class Rectangle {
     this.y1 = y || 0
     this.x2 = this.x1 + (w || 0)
     this.y2 = this.y1 + (h || 0)
-    this.z = 0
+    this.z = 1
     this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
   }
 
@@ -21,6 +21,17 @@ class Rectangle {
     this.x2 = this.x1 + w
     this.y2 = this.y1 + h
     this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
+  }
+
+  copy(): Rectangle {
+    const clone = new Rectangle()
+    clone.x1 = this.x1
+    clone.x2 = this.x2
+    clone.y1 = this.y1
+    clone.y2 = this.y2
+    clone.z = this.z
+    clone.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
+    return clone
   }
 
   translate(x: number, y: number): void {

@@ -1,8 +1,14 @@
 
-export const foo = () => ({
-  type: 'foo',
-  payload: {},
+import Rectangle from '../../atoms/Rectangle'
+
+import { SET_VIEWPORT } from './constants'
+
+export const setViewPort = (viewport: Rectangle) => ({
+  type: SET_VIEWPORT,
+  payload: {
+    viewport,
+  },
 }) as const
 
 export type IAction =
-  | ReturnType<typeof foo>
+  | ReturnType<typeof setViewPort>

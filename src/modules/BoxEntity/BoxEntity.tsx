@@ -41,10 +41,10 @@ class BoxEntity extends React.PureComponent<IProps> {
     } else {
       ctx.fillStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
+    const x = (engine.viewport.x1 + this.bounds.x1) * engine.viewport.z
+    const y = (engine.viewport.y1 + this.bounds.y1) * engine.viewport.z
+    const w = (this.bounds.x2 - this.bounds.x1) * engine.viewport.z
+    const h = (this.bounds.y2 - this.bounds.y1) * engine.viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
@@ -59,12 +59,12 @@ class BoxEntity extends React.PureComponent<IProps> {
       ctx.fillStyle = this.props.color
       ctx.strokeStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
+    const x = (engine.viewport.x1 + this.bounds.x1) * engine.viewport.z
+    const y = (engine.viewport.y1 + this.bounds.y1) * engine.viewport.z
+    const w = (this.bounds.x2 - this.bounds.x1) * engine.viewport.z
+    const h = (this.bounds.y2 - this.bounds.y1) * engine.viewport.z
 
-    const offset = 3 * engine.scale
+    const offset = 3 * engine.viewport.z
     ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
     ctx.strokeRect(x, y, w, h);
   }
@@ -72,7 +72,7 @@ class BoxEntity extends React.PureComponent<IProps> {
   draw = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
 
-    if (engine.scale <= 0.4) {
+    if (engine.viewport.z <= 0.4) {
       this.drawSimple(ctx)
     } else {
       this.drawDetail(ctx)

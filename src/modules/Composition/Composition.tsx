@@ -11,11 +11,7 @@ interface IProps {
 class Composition extends React.PureComponent<IProps> {
 
   resize = (width: number, height: number) => {
-    const engine = this.props.engine
-    engine.dimension.x = width
-    engine.dimension.y = height
-    engine.viewport.resize(engine.dimension.x / engine.scale, engine.dimension.y / engine.scale)
-    engine.elements.updateVisible(engine)
+    this.props.engine.resize(width, height)
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
@@ -24,10 +20,10 @@ class Composition extends React.PureComponent<IProps> {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    const p = 10 * engine.scale
-    const xOffset = (engine.viewport.x1 * engine.scale) % p
-    const yOffset = (engine.viewport.y1 * engine.scale) % p
-    ctx.lineWidth = (engine.scale / 3) + 0.2;
+    const p = 10 * engine.viewport.z
+    const xOffset = (engine.viewport.x1 * engine.viewport.z) % p
+    const yOffset = (engine.viewport.y1 * engine.viewport.z) % p
+    ctx.lineWidth = (engine.viewport.z / 3) + 0.2;
 
     ctx.beginPath();
     for (let x = xOffset + 0.5; x <= ctx.canvas.width + p; x += p) {

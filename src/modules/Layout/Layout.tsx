@@ -1,4 +1,5 @@
 import React from 'react'
+import { ReactReduxContext } from 'react-redux'
 
 import Diagram from '../Diagram'
 import DebugPanel from '../DebugPanel'
@@ -29,7 +30,9 @@ const Layout = () => (
           flex: 1,
         }}
       >
-        <Diagram />
+        <ReactReduxContext.Consumer>
+          {({ store }) => <Diagram store={store} />}
+        </ReactReduxContext.Consumer>
       </div>
     </div>
   </Providers>

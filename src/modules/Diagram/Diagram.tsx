@@ -4,8 +4,14 @@ import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../BoxEntity'
 
-const Diagram = () => {
-  const engine = new Engine();
+import { IReduxStore } from '../../store'
+
+interface IProps {
+  store: IReduxStore;
+}
+
+const Diagram = (props: IProps) => {
+  const engine = new Engine(props.store);
 
   useEffect(() => {
     engine.addListeners();
