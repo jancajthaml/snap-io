@@ -20,6 +20,8 @@ class Composition extends React.PureComponent<IProps> {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+    // FIXME get from state
+
     const p = 10 * engine.viewport.z
     const xOffset = (engine.viewport.x1 * engine.viewport.z) % p
     const yOffset = (engine.viewport.y1 * engine.viewport.z) % p
@@ -39,9 +41,12 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
+    // FIXME get from state
     engine.visible.forEach((element: any) => {
       element.draw(ctx, engine)
     })
+
+    // FIXME do this better e.g. with a entity
     engine.selection.drawSelectedBox(ctx, engine)
     engine.selection.drawSelectionBox(ctx, engine)
   }
