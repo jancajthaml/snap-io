@@ -1,31 +1,40 @@
+import Rectangle from '../atoms/Rectangle'
 import SelectionEntity from './SelectionEntity'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
-import ElementsFascade from '../components/ElementsFascade'
+//import ElementsFascade from '../components/ElementsFascade'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
-import { getViewport } from './Diagram/selectors'
-import { setViewPort } from './Diagram/actions'
+import { getViewport, getElements, getSelected, getVisible } from './Diagram/selectors'
+import { setViewPort, updateSelection, addElement, removeElement } from './Diagram/actions'
 
 class Engine {
   dimension: Point;
   selection: SelectionEntity;
-  update_visible: boolean;
   mouse: MouseFascade;
-  elements: ElementsFascade;
   store: IReduxStore;
 
   constructor(store: IReduxStore) {
     this.dimension = new Point(1, 1)
     this.selection = new SelectionEntity()
-    this.update_visible = false
     this.mouse = new MouseFascade()
-    this.elements = new ElementsFascade()
     this.store = store
   }
 
   get viewport() {
     return getViewport(this.store.getState())
+  }
+
+  get visible() {
+    return getVisible(this.store.getState())
+  }
+
+  get elements() {
+    return getElements(this.store.getState())
+  }
+
+  get selected() {
+    return getSelected(this.store.getState())
   }
 
   cleanup = () => {
@@ -114,8 +123,9 @@ class Engine {
       nextViewPort.z = nextScale
 
       this.store.dispatch(setViewPort(nextViewPort))
+      //this.store.dispatch(updateVisible())
 
-      this.elements.updateVisible(nextViewPort)
+      //this.elements.updateVisible(nextViewPort)
       window.dispatchEvent(new Event('canvas-update-composition'));
     }
   }
@@ -155,7 +165,6 @@ class Engine {
 
         this.store.dispatch(setViewPort(nextViewPort))
 
-        this.elements.updateVisible(nextViewPort)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -165,7 +174,7 @@ class Engine {
         const xDelta = (e.x - this.mouse.coordinates.x2) / this.viewport.z
         const yDelta = (e.y - this.mouse.coordinates.y2) / this.viewport.z
         this.mouse.move(event)
-        this.elements.forEachSelected((element) => {
+        this.selected.forEach((element) => {
           element.bounds.translate(xDelta, yDelta)
         })
         this.selection.translate(xDelta, yDelta)
@@ -203,8 +212,10 @@ class Engine {
     const nextViewPort = this.viewport.copy()
     nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
     this.store.dispatch(setViewPort(nextViewPort))
+  }
 
-    this.elements.updateVisible(nextViewPort)
+  updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
+    this.store.dispatch(updateSelection(selection, clearPrevious))
   }
 
   onResize = () => {
@@ -212,13 +223,11 @@ class Engine {
   }
 
   addEntity = (entity: any) => {
-    this.elements.add(entity)
-    this.elements.updateVisible(this.viewport)
+    this.store.dispatch(addElement(entity))
   }
 
   removeEntity = (entity: any) => {
-    this.elements.remove(entity)
-    this.elements.updateVisible(this.viewport)
+    this.store.dispatch(removeElement(entity))
   }
 
 }

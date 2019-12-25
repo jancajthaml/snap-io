@@ -141,7 +141,7 @@ class SelectionEntity extends Rectangle {
       case this.T_resizer.name: {
         const sel_h = (this.y2 - this.y1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.bounds.y1 - this.y1) / sel_h
@@ -159,7 +159,7 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
         const sel_h = (this.y2 - this.y1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.bounds.x1 - this.x1) / sel_w
@@ -184,7 +184,7 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
         const sel_h = (this.y2 - this.y1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.bounds.x1 - this.x1) / sel_w
@@ -207,7 +207,7 @@ class SelectionEntity extends Rectangle {
       case this.B_resizer.name: {
         const sel_h = (this.y2 - this.y1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.bounds.y1 - this.y1) / sel_h
@@ -224,7 +224,7 @@ class SelectionEntity extends Rectangle {
         const sel_h = (this.y2 - this.y1)
         const sel_w = (this.x2 - this.x1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.bounds.y1 - this.y1) / sel_h
@@ -248,7 +248,7 @@ class SelectionEntity extends Rectangle {
         const sel_w = (this.x2 - this.x1)
         const sel_h = (this.y2 - this.y1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
           const h_percentage = ele_h / sel_h
           const y_percentage = (element.bounds.y1 - this.y1) / sel_h
@@ -271,7 +271,7 @@ class SelectionEntity extends Rectangle {
       case this.L_resizer.name: {
         const sel_w = (this.x2 - this.x1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.bounds.x1 - this.x1) / sel_w
@@ -287,7 +287,7 @@ class SelectionEntity extends Rectangle {
       case this.R_resizer.name: {
         const sel_w = (this.x2 - this.x1)
 
-        engine.elements.forEachSelected((element: any) => {
+        engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
           const w_percentage = ele_w / sel_w
           const x_percentage = (element.bounds.x1 - this.x1) / sel_w
@@ -323,7 +323,9 @@ class SelectionEntity extends Rectangle {
         ? (engine.mouse.coordinates.y1 - engine.mouse.coordinates.y2)
         : (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1)
       ) / engine.viewport.z
-    engine.elements.updateSelected(this, clearPrevious)
+
+
+    engine.updateSelected(this, clearPrevious)
   }
 
   updateResizers = () => {
@@ -398,7 +400,7 @@ class SelectionEntity extends Rectangle {
     let y1: number | undefined = undefined
     let x2: number | undefined = undefined
     let y2: number | undefined = undefined
-    engine.elements.forEachSelected((element: any) => {
+    engine.selected.forEach((element: any) => {
       if (x1 === undefined || x1 > element.bounds.x1) {
         x1 = element.bounds.x1
       }

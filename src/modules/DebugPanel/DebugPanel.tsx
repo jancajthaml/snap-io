@@ -2,11 +2,14 @@ import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { getViewport } from '../Diagram/selectors'
+import { getViewport, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
 
 interface IProps {
   viewport: Rectangle;
+  visible: any[];
+  elements: any[];
+  selected: any[];
 }
 
 const DebugPanel = (props: IProps) => {
@@ -39,12 +42,29 @@ const DebugPanel = (props: IProps) => {
           </li>
         </ul>
       </p>
+      <p>
+        <h5>elements</h5>
+        <ul>
+          <li>
+          {`elements: ${props.elements.length}`}
+          </li>
+          <li>
+          {`visible: ${props.visible.length}`}
+          </li>
+          <li>
+          {`selected: ${props.selected.length}`}
+          </li>
+        </ul>
+      </p>
     </div>
   )
 }
 
 const mapStateToProps = (state: IRootReduxState) => ({
   viewport: getViewport(state),
+  visible: getVisible(state),
+  elements: getElements(state),
+  selected: getSelected(state),
 })
 
 const mapDispatchToProps = {

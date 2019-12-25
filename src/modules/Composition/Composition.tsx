@@ -39,7 +39,7 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    engine.elements.forEachVisible((element: any) => {
+    engine.visible.forEach((element: any) => {
       element.draw(ctx, engine)
     })
     engine.selection.drawSelectedBox(ctx, engine)
