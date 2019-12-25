@@ -1,4 +1,3 @@
-import Engine from '../modules/Engine'
 import Rectangle from '../atoms/Rectangle'
 
 class ElementsFascade {
@@ -35,13 +34,13 @@ class ElementsFascade {
     }
   }
 
-  updateVisible(engine: Engine) {
+  updateVisible = (viewport: Rectangle) => {
     this.visible = []
     this.elements.forEach((element) => {
-      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.bounds.x1) < 0
-      const outOfLeft = (engine.viewport.x1 + element.bounds.x2) < 0
-      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.bounds.y1) < 0
-      const outOfUp = (engine.viewport.y1 + element.bounds.y2) < 0
+      const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.bounds.x1) < 0
+      const outOfLeft = (viewport.x1 + element.bounds.x2) < 0
+      const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.bounds.y1) < 0
+      const outOfUp = (viewport.y1 + element.bounds.y2) < 0
       if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
         this.visible.push(element)
       }
@@ -58,7 +57,7 @@ class ElementsFascade {
     });
   }
 
-  updateSelected(selection: Rectangle, clearPrevious: boolean) {
+  updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
     if (clearPrevious) {
       this.selected.forEach((element) => {
         if (element.bounds.z >= 1000) {

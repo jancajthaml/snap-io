@@ -21,7 +21,7 @@ const Diagram = (props: IProps) => {
     }
   }, [])
 
-  const howMany = 9 //000
+  const howMany = 9000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   return (

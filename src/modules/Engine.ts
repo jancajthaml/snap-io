@@ -115,7 +115,7 @@ class Engine {
 
       this.store.dispatch(setViewPort(nextViewPort))
 
-      this.elements.updateVisible(this)
+      this.elements.updateVisible(nextViewPort)
       window.dispatchEvent(new Event('canvas-update-composition'));
     }
   }
@@ -155,7 +155,7 @@ class Engine {
 
         this.store.dispatch(setViewPort(nextViewPort))
 
-        this.elements.updateVisible(this)
+        this.elements.updateVisible(nextViewPort)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -201,9 +201,10 @@ class Engine {
     this.dimension.y = height
 
     const nextViewPort = this.viewport.copy()
-    nextViewPort.resize(width, height)
+    nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
     this.store.dispatch(setViewPort(nextViewPort))
-    this.elements.updateVisible(this)
+
+    this.elements.updateVisible(nextViewPort)
   }
 
   onResize = () => {
@@ -212,12 +213,12 @@ class Engine {
 
   addEntity = (entity: any) => {
     this.elements.add(entity)
-    this.elements.updateVisible(this)
+    this.elements.updateVisible(this.viewport)
   }
 
   removeEntity = (entity: any) => {
     this.elements.remove(entity)
-    this.elements.updateVisible(this)
+    this.elements.updateVisible(this.viewport)
   }
 
 }
