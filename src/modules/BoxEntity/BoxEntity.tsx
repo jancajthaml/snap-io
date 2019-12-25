@@ -1,18 +1,17 @@
 import React from 'react'
 
-//import Canvas from '../../components/Canvas'
 import Engine from '../Engine'
 import Rectangle from '../../atoms/Rectangle'
 
 interface IProps {
   engine: Engine;
-  selected?: boolean;
   x: number;
   y: number;
   width: number;
   height: number;
   color: string;
 }
+
 
 class BoxEntity extends React.PureComponent<IProps> {
 
@@ -21,22 +20,23 @@ class BoxEntity extends React.PureComponent<IProps> {
   constructor(props: IProps) {
     super(props)
     this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
+    this.state = {
+      selected: false,
+    }
   }
 
   componentDidMount() {
-    console.log('BoxEntity - add to engine')
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
-    console.log('BoxEntity - remove from engine')
     this.props.engine.removeEntity(this)
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
 
-    if (this.props.selected) {
+    if (this.bounds.z >= 1000) {
       ctx.fillStyle = "black"
     } else {
       ctx.fillStyle = this.props.color
@@ -52,7 +52,7 @@ class BoxEntity extends React.PureComponent<IProps> {
   drawDetail = (ctx: CanvasRenderingContext2D) => {
     const engine = this.props.engine
 
-    if (this.props.selected) {
+    if (this.bounds.z >= 1000) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
     } else {

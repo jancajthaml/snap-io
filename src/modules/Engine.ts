@@ -25,6 +25,10 @@ class Engine {
     this.elements = new ElementsFascade()
   }
 
+  cleanup = () => {
+    this.mouse.setEvent(undefined)
+  }
+
   removeListeners = () => {
     document.removeEventListener('contextmenu', this.contextMenu)
     document.removeEventListener('mousedown', this.mouseDown)
@@ -65,6 +69,9 @@ class Engine {
     this.mouse.down(event)
     const pointOfClick = new Point(this.mouse.coordinates.x1 / this.scale - this.viewport.x1, this.mouse.coordinates.y1 / this.scale - this.viewport.y1)
 
+    // FIXME if resizing switch in mode where resizing respects aspect ration
+    // FIXME decide if resising based on whenever there is resizer selection
+    // capute or this is moude down on canvas
     if (event.shiftKey) {
       this.mouse.setEvent(MODE_SELECTION)
       this.selection.mouseDown(this)
@@ -146,7 +153,6 @@ class Engine {
           element.bounds.translate(xDelta, yDelta)
         })
         this.selection.translate(xDelta, yDelta)
-        this.elements.updateVisible(this)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }

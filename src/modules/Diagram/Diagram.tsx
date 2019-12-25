@@ -11,17 +11,21 @@ const Diagram = () => {
     engine.addListeners();
     return () => {
       engine.removeListeners();
+      engine.cleanup();
     }
   }, [])
 
+  const howMany = 9 //000
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
   return (
     <Composition engine={engine}>
-      {Array.from(Array(100).keys()).map((idx) => (
+      {Array.from(Array(howMany).keys()).map((idx) => (
         <BoxEntity
           key={idx}
           engine={engine}
-          x={10 + ((idx%10)*70)}
-          y={20 + (Math.floor(idx/10)*70)}
+          x={10 + ((idx%modulus)*70)}
+          y={20 + (Math.floor(idx/modulus)*70)}
           width={60}
           height={60}
           color="red"

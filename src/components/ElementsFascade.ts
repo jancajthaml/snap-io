@@ -46,11 +46,12 @@ class ElementsFascade {
         this.visible.push(element)
       }
     })
+
     this.visible.sort(function(x, y) {
-      if (x.selected === y.selected) {
+      if (x.bounds.z === y.bounds.z) {
         return 0;
       }
-      if (x.selected && !y.selected) {
+      if (x.bounds.z > y.bounds.z) {
         return 1;
       }
       return -1;
@@ -59,23 +60,25 @@ class ElementsFascade {
 
   updateSelected(selection: Rectangle, clearPrevious: boolean) {
     if (clearPrevious) {
-      //this.selected.forEach((element) => {
-        //element.selected = false
-      //})
+      this.selected.forEach((element) => {
+        if (element.bounds.z >= 1000) {
+          element.bounds.z -= 1000
+        }
+      })
       this.selected = []
     }
     this.visible.forEach((element) => {
       if (element.bounds.insideRectangle(selection)) {
         this.selected.push(element)
-        //element.selected = true
-        //console.log('element', element, 'is now selected')
+        element.bounds.z += 1000
       }
     })
+
     this.visible.sort(function(x, y) {
-      if (x.selected === y.selected) {
+      if (x.bounds.z === y.bounds.z) {
         return 0;
       }
-      if (x.selected && !y.selected) {
+      if (x.bounds.z > y.bounds.z) {
         return 1;
       }
       return -1;

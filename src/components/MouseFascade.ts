@@ -31,9 +31,10 @@ class MouseFascade {
   }
 
   normalized(event: MouseEvent) {
+    // FIXME
     return {
-      x: event.clientX - (event.target as HTMLElement).offsetLeft,
-      y: event.clientY - (event.target as HTMLElement).offsetTop
+      x: event.clientX - 200,
+      y: event.clientY,
     }
   }
 
