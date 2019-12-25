@@ -17,6 +17,12 @@ class ElementsFascade {
     this.elements.push(element)
   }
 
+  remove(element: any) {
+    this.elements = this.elements.filter(function(value) {
+      return value !== element
+    });
+  }
+
   forEachVisible(callback: (element: any) => void) {
     for (let i = 0; i < this.visible.length; i++) {
       callback(this.visible[i])
@@ -32,19 +38,20 @@ class ElementsFascade {
   updateVisible(engine: Engine) {
     this.visible = []
     this.elements.forEach((element) => {
-      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.x1) < 0
-      const outOfLeft = (engine.viewport.x1 + element.x2) < 0
-      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.y1) < 0
-      const outOfUp = (engine.viewport.y1 + element.y2) < 0
+      const outOfRight = (engine.viewport.x2 - 2 * engine.viewport.x1 - element.bounds.x1) < 0
+      const outOfLeft = (engine.viewport.x1 + element.bounds.x2) < 0
+      const outOfBottom = (engine.viewport.y2 - 2 * engine.viewport.y1 - element.bounds.y1) < 0
+      const outOfUp = (engine.viewport.y1 + element.bounds.y2) < 0
       if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
         this.visible.push(element)
       }
     })
+
     this.visible.sort(function(x, y) {
-      if (x.selected === y.selected) {
+      if (x.bounds.z === y.bounds.z) {
         return 0;
       }
-      if (x.selected && !y.selected) {
+      if (x.bounds.z > y.bounds.z) {
         return 1;
       }
       return -1;
@@ -54,21 +61,24 @@ class ElementsFascade {
   updateSelected(selection: Rectangle, clearPrevious: boolean) {
     if (clearPrevious) {
       this.selected.forEach((element) => {
-        element.selected = false
+        if (element.bounds.z >= 1000) {
+          element.bounds.z -= 1000
+        }
       })
       this.selected = []
     }
     this.visible.forEach((element) => {
-      if (element.insideRectangle(selection)) {
+      if (element.bounds.insideRectangle(selection)) {
         this.selected.push(element)
-        element.selected = true
+        element.bounds.z += 1000
       }
     })
+
     this.visible.sort(function(x, y) {
-      if (x.selected === y.selected) {
+      if (x.bounds.z === y.bounds.z) {
         return 0;
       }
-      if (x.selected && !y.selected) {
+      if (x.bounds.z > y.bounds.z) {
         return 1;
       }
       return -1;

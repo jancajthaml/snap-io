@@ -17,7 +17,7 @@ function getPlugins(production) {
   let plugins = [
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': production ? `"production"` : `"development"`,
+        'NODE_ENV': `"production"`,
       },
     }),
     new webpack.ProgressPlugin(),
@@ -136,9 +136,6 @@ module.exports = function(env = {}, args = {}) {
         '.css',
         '.json'
       ],
-      alias: {
-        'react-dom': production ? 'react-dom' : '@hot-loader/react-dom',
-      },
       mainFields: [
         'browser',
         'main',

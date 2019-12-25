@@ -5,6 +5,7 @@ class Rectangle {
   x2: number;
   y1: number;
   y2: number;
+  z: number;
   private repr: string;
 
   constructor(x?: number, y?: number, w?: number, h?: number) {
@@ -12,13 +13,14 @@ class Rectangle {
     this.y1 = y || 0
     this.x2 = this.x1 + (w || 0)
     this.y2 = this.y1 + (h || 0)
-    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
+    this.z = 0
+    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
   }
 
   resize(w: number, h: number): void {
     this.x2 = this.x1 + w
     this.y2 = this.y1 + h
-    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
+    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
   }
 
   translate(x: number, y: number): void {
@@ -26,7 +28,7 @@ class Rectangle {
     this.y1 += y
     this.x2 += x
     this.y2 += y
-    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}`
+    this.repr = `R${this.x1}|${this.y1}|${this.x2}|${this.y2}@${this.z}`
   }
 
   insideRectangle(rect: Rectangle) {
