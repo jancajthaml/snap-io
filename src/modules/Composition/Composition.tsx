@@ -66,12 +66,18 @@ class Composition extends React.PureComponent<IProps> {
     engine.selection.drawSelectedBox(ctx, engine)
     engine.selection.drawSelectionBox(ctx, engine)
 
+    ctx.beginPath();
+    ctx.lineWidth = 10
+    ctx.moveTo(engine.currentMouseCoordinates.x1, engine.currentMouseCoordinates.y1);
+    ctx.lineTo(engine.currentMouseCoordinates.x2, engine.currentMouseCoordinates.y2);
+    ctx.strokeStyle = "white";
+    ctx.stroke();
 
     ctx.beginPath();
     ctx.lineWidth = 3
     ctx.moveTo(engine.currentMouseCoordinates.x1, engine.currentMouseCoordinates.y1);
     ctx.lineTo(engine.currentMouseCoordinates.x2, engine.currentMouseCoordinates.y2);
-    ctx.strokeStyle = "blue";
+    ctx.strokeStyle = "red";
     ctx.stroke();
   }
 
