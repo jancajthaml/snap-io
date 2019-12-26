@@ -1,8 +1,8 @@
 import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
-//import Point from '../../atoms/Point'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
+import { zoomToFit } from '../Diagram/actions'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
 interface IProps {
@@ -11,6 +11,7 @@ interface IProps {
   visible: any[];
   elements: any[];
   selected: any[];
+  zoomToFit: () => void;
 }
 
 const DebugPanel = (props: IProps) => {
@@ -48,7 +49,10 @@ const DebugPanel = (props: IProps) => {
           {`z: ${props.viewport.z.toFixed(2)}`}
           </li>
         </ul>
-        <button>
+        <button onClick={() => {
+          props.zoomToFit()
+          window.dispatchEvent(new Event('canvas-update-composition'));
+        }}>
           zoom to fit
         </button>
       </p>
@@ -108,7 +112,7 @@ const mapStateToProps = (state: IRootReduxState) => ({
 })
 
 const mapDispatchToProps = {
-
+  zoomToFit,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DebugPanel)

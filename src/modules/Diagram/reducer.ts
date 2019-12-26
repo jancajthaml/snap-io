@@ -1,9 +1,8 @@
 import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
-//import Point from '../../atoms/Point'
 
-import { SET_VIEWPORT, SET_RESOLUTION, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
 export const initialState = {
   viewport: new Rectangle() as Rectangle,
@@ -63,6 +62,49 @@ const calculateSelection = (selected: any[], visible: any[], selection: Rectangl
   return nextSelected
 }
 
+const calculateOptimalViewport = (elements: any[], resolution: Rectangle): Rectangle | null => {
+  const viewport = new Rectangle()
+
+  let x1: number | undefined = undefined
+  let y1: number | undefined = undefined
+  let x2: number | undefined = undefined
+  let y2: number | undefined = undefined
+
+  elements.forEach((element) => {
+    if (x1 === undefined || element.bounds.x1 < x1) {
+      x1 = element.bounds.x1
+    }
+    if (x2 === undefined || element.bounds.x2 > x2) {
+      x2 = element.bounds.x2
+    }
+    if (y1 === undefined || element.bounds.y1 < y1) {
+      y1 = element.bounds.y1
+    }
+    if (y2 === undefined || element.bounds.y2 > y2) {
+      y2 = element.bounds.y2
+    }
+  })
+
+  if (x1 === undefined || y1 === undefined || x2 === undefined || y2 === undefined) {
+    return null
+  }
+
+  const xScale = (resolution.x2 - resolution.x1) / (x2 - x1)
+  const yScale = (resolution.y2 - resolution.y1) / (y2 - y1)
+
+  const nextScale = Math.max(Math.min(Math.min(xScale, yScale) / Math.pow(1.03, 2), 8), 0.2)
+
+  const normalizedDiffWidth = (resolution.x2 - resolution.x1) - (x2 - x1) * nextScale
+  const normalizedDiffHeight = (resolution.y2 - resolution.y1) - (y2 - y1) * nextScale
+
+  viewport.x1 = -x1 + (normalizedDiffWidth / nextScale) / 2
+  viewport.x2 = viewport.x1 + ((resolution.x2 - resolution.x1) / nextScale)
+  viewport.y1 = -y1 + (normalizedDiffHeight / nextScale) / 2
+  viewport.y2 = viewport.y1 + ((resolution.y2 - resolution.y1) / nextScale)
+  viewport.z = nextScale
+  return viewport
+}
+
 export default (state: IReduxState = initialState, action: IAction): IReduxState => {
   switch (action.type) {
 
@@ -71,6 +113,18 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
         ...state,
         viewport: action.payload.viewport,
         visible: sortElements(calculateVisible(state.elements, state.selected, action.payload.viewport)),
+      }
+    }
+
+    case ZOOM_TO_FIT: {
+      const viewport = calculateOptimalViewport(state.elements, state.resolution)
+      if (viewport === null) {
+        return state
+      }
+      return {
+        ...state,
+        viewport,
+        visible: sortElements(calculateVisible(state.elements, state.selected, viewport)),
       }
     }
 

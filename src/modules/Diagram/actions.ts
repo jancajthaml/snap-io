@@ -1,7 +1,7 @@
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_VIEWPORT, SET_RESOLUTION, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
 export const setResolution = (resolution: Rectangle) => ({
   type: SET_RESOLUTION,
@@ -15,6 +15,11 @@ export const setViewPort = (viewport: Rectangle) => ({
   payload: {
     viewport,
   },
+}) as const
+
+export const zoomToFit = () => ({
+  type: ZOOM_TO_FIT,
+  payload: {},
 }) as const
 
 export const updateSelection = (selection: Rectangle, clearPrevious: boolean) => ({
@@ -42,6 +47,7 @@ export const removeElement = (element: any) => ({
 export type IAction =
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
+  | ReturnType<typeof zoomToFit>
   | ReturnType<typeof addElement>
   | ReturnType<typeof removeElement>
   | ReturnType<typeof updateSelection>

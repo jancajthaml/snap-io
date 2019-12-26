@@ -22,7 +22,7 @@ const Diagram = (props: IProps) => {
 
   // FIXME crashes at
   // const howMany = 100000
-  const howMany = 900 //10000
+  const howMany = 90 //10000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   return (
@@ -31,8 +31,8 @@ const Diagram = (props: IProps) => {
         <BoxEntity
           key={idx}
           engine={engine}
-          x={10 + ((idx%modulus)*70)}
-          y={20 + (Math.floor(idx/modulus)*70)}
+          x={((idx%modulus)*70)}
+          y={(Math.floor(idx/modulus)*70)}
           width={60}
           height={60}
           color="red"
