@@ -1,11 +1,13 @@
 import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
+import Point from '../../atoms/Point'
 
-import { SET_VIEWPORT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_VIEWPORT, SET_RESOLUTION, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
 export const initialState = {
   viewport: new Rectangle() as Rectangle,
+  resolution: new Point(1, 1) as Point,
   elements: [] as any[],
   visible: [] as any[],
   selected: [] as any[],
@@ -52,7 +54,6 @@ const calculateSelection = (selected: any[], visible: any[], selection: Rectangl
   } else{
     nextSelected = [...selected]
   }
-  console.log(visible)
   visible.forEach((element) => {
     if (element.bounds.insideRectangle(selection)) {
       nextSelected.push(element)
@@ -70,6 +71,13 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
         ...state,
         viewport: action.payload.viewport,
         visible: sortElements(calculateVisible(state.elements, state.selected, action.payload.viewport)),
+      }
+    }
+
+    case SET_RESOLUTION: {
+      return {
+        ...state,
+        resolution: action.payload.resolution,
       }
     }
 

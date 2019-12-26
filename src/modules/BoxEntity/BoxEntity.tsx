@@ -12,7 +12,6 @@ interface IProps {
   color: string;
 }
 
-
 class BoxEntity extends React.PureComponent<IProps> {
 
   bounds: Rectangle;
@@ -20,9 +19,6 @@ class BoxEntity extends React.PureComponent<IProps> {
   constructor(props: IProps) {
     super(props)
     this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
-    this.state = {
-      selected: false,
-    }
   }
 
   componentDidMount() {

@@ -2,20 +2,17 @@ import Rectangle from '../atoms/Rectangle'
 import SelectionEntity from './SelectionEntity'
 import Point from '../atoms/Point'
 import MouseFascade from '../components/MouseFascade'
-//import ElementsFascade from '../components/ElementsFascade'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
-import { getViewport, getElements, getSelected, getVisible } from './Diagram/selectors'
-import { setViewPort, updateSelection, addElement, removeElement } from './Diagram/actions'
+import { getViewport, getResolution, getElements, getSelected, getVisible } from './Diagram/selectors'
+import { setViewPort, setResolution, updateSelection, addElement, removeElement } from './Diagram/actions'
 
 class Engine {
-  dimension: Point;
   selection: SelectionEntity;
   mouse: MouseFascade;
   store: IReduxStore;
 
   constructor(store: IReduxStore) {
-    this.dimension = new Point(1, 1)
     this.selection = new SelectionEntity()
     this.mouse = new MouseFascade()
     this.store = store
@@ -37,49 +34,25 @@ class Engine {
     return getSelected(this.store.getState())
   }
 
+  get resolution() {
+    return getResolution(this.store.getState())
+  }
+
   cleanup = () => {
     this.mouse.setEvent(undefined)
   }
 
-  removeListeners = () => {
-    document.removeEventListener('contextmenu', this.contextMenu)
-    document.removeEventListener('mousedown', this.mouseDown)
-    document.removeEventListener('mouseup', this.mouseUp)
-    document.removeEventListener('mousemove', this.mouseMove)
-    document.removeEventListener('wheel', this.mouseWheel)
-    window.removeEventListener('resize', this.onResize)
+  bootstrap = () => {
 
-    const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
-    rootElement.removeEventListener('blur', this.mouseUp)
-  }
-
-  addListeners = () => {
-    document.addEventListener('contextmenu', this.contextMenu)
-    document.addEventListener('mousedown', this.mouseDown)
-    document.addEventListener('mouseup', this.mouseUp)
-    document.addEventListener('mousemove', this.mouseMove)
-    document.addEventListener('wheel', this.mouseWheel, { passive: false })
-    window.addEventListener('resize', this.onResize)
-
-    const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
-    rootElement.addEventListener('blur', this.mouseUp)
-  }
-
-  contextMenu = (event: MouseEvent) => {
-    if (event.button === 0 && event.ctrlKey) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
   }
 
   mouseDown = (event: MouseEvent) => {
-    event.preventDefault()
-    if (event.button !== 0) {
-      return
-    }
-
     this.mouse.down(event)
-    const pointOfClick = new Point(this.mouse.coordinates.x1 / this.viewport.z - this.viewport.x1, this.mouse.coordinates.y1 / this.viewport.z - this.viewport.y1)
+
+    const pointOfClick = new Point(
+      this.mouse.coordinates.x1 / this.viewport.z - this.viewport.x1,
+      this.mouse.coordinates.y1 / this.viewport.z - this.viewport.y1,
+    )
 
     // FIXME if resizing switch in mode where resizing respects aspect ration
     // FIXME decide if resising based on whenever there is resizer selection
@@ -96,13 +69,10 @@ class Engine {
     }
     const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
     rootElement.focus()
-
     window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
   mouseWheel = (event: WheelEvent) => {
-    event.preventDefault()
-
     const prevScale = this.viewport.z
     let nextScale = this.viewport.z
     if (event.deltaY > 0) {
@@ -117,20 +87,17 @@ class Engine {
 
       const nextViewPort = this.viewport.copy()
       nextViewPort.x1 = (-zoomX * nextScale + e.x) / nextScale
-      nextViewPort.x2 = nextViewPort.x1 + (this.dimension.x / nextScale)
+      nextViewPort.x2 = nextViewPort.x1 + (this.resolution.x / nextScale)
       nextViewPort.y1 = (-zoomY * nextScale + e.y) / nextScale
-      nextViewPort.y2 = nextViewPort.y1 + (this.dimension.y / nextScale)
+      nextViewPort.y2 = nextViewPort.y1 + (this.resolution.y / nextScale)
       nextViewPort.z = nextScale
 
       this.store.dispatch(setViewPort(nextViewPort))
-      //this.store.dispatch(updateVisible())
-
-      //this.elements.updateVisible(nextViewPort)
       window.dispatchEvent(new Event('canvas-update-composition'));
     }
   }
 
-  mouseUp = (event: MouseEvent | FocusEvent) => {
+  mouseUp = (event: MouseEvent) => {
     if (this.mouse.currentEvent === null) {
       return
     }
@@ -159,12 +126,11 @@ class Engine {
 
         const nextViewPort = this.viewport.copy()
         nextViewPort.x1 += xDelta
-        nextViewPort.x2 = nextViewPort.x1 + (this.dimension.x / nextViewPort.z)
+        nextViewPort.x2 = nextViewPort.x1 + (this.resolution.x / nextViewPort.z)
         nextViewPort.y1 += yDelta
-        nextViewPort.y2 = nextViewPort.y1 + (this.dimension.y / nextViewPort.z)
+        nextViewPort.y2 = nextViewPort.y1 + (this.resolution.y / nextViewPort.z)
 
         this.store.dispatch(setViewPort(nextViewPort))
-
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -206,20 +172,15 @@ class Engine {
   }
 
   resize = (width: number, height: number) => {
-    this.dimension.x = width
-    this.dimension.y = height
-
     const nextViewPort = this.viewport.copy()
     nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
+
+    this.store.dispatch(setResolution(new Point(width, height)))
     this.store.dispatch(setViewPort(nextViewPort))
   }
 
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
     this.store.dispatch(updateSelection(selection, clearPrevious))
-  }
-
-  onResize = () => {
-    window.dispatchEvent(new Event('canvas-resize-composition'));
   }
 
   addEntity = (entity: any) => {

@@ -10,8 +10,24 @@ interface IProps {
 
 class Composition extends React.PureComponent<IProps> {
 
-  resize = (width: number, height: number) => {
+  onResize = (width: number, height: number) => {
     this.props.engine.resize(width, height)
+  }
+
+  onMouseUp = (event: MouseEvent) => {
+    this.props.engine.mouseUp(event)
+  }
+
+  onMouseDown = (event: MouseEvent) => {
+    this.props.engine.mouseDown(event)
+  }
+
+  onMouseMove = (event: MouseEvent) => {
+    this.props.engine.mouseMove(event)
+  }
+
+  onWheel = (event: WheelEvent) => {
+    this.props.engine.mouseWheel(event)
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
@@ -58,7 +74,11 @@ class Composition extends React.PureComponent<IProps> {
           name="composition"
           opaque={false}
           draw={this.draw}
-          resize={this.resize}
+          onResize={this.onResize}
+          onMouseUp={this.onMouseUp}
+          onMouseDown={this.onMouseDown}
+          onMouseMove={this.onMouseMove}
+          onWheel={this.onWheel}
         />
         {this.props.children}
       </React.Fragment>

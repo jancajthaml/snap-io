@@ -14,16 +14,17 @@ const Diagram = (props: IProps) => {
   const engine = new Engine(props.store);
 
   useEffect(() => {
-    engine.addListeners();
+    engine.bootstrap()
+    //engine.addListeners();
     return () => {
-      engine.removeListeners();
+      //engine.removeListeners();
       engine.cleanup();
     }
   }, [])
 
   // FIXME crashes at
   // const howMany = 100000
-  const howMany = 10000
+  const howMany = 9 //10000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   return (

@@ -4,7 +4,11 @@ interface IProps {
   name: string;
   opaque?: boolean;
   draw: (ctx: CanvasRenderingContext2D) => void;
-  resize: (width: number, height: number) => void;
+  onResize: (width: number, height: number) => void;
+  onMouseUp: (event: MouseEvent) => void;
+  onMouseDown: (event: MouseEvent) => void;
+  onMouseMove: (event: MouseEvent) => void;
+  onWheel: (event: WheelEvent) => void;
 }
 
 const Canvas = (props: IProps) => {
@@ -17,24 +21,59 @@ const Canvas = (props: IProps) => {
     dirty.current = true
   }
 
-  const resize = () => {
+  const onResize = () => {
     if (ref.current === null) {
       return
     }
     ref.current.width = (ref.current.parentElement as HTMLElement).clientWidth
     ref.current.height = (ref.current.parentElement as HTMLElement).clientHeight
-    props.resize(ref.current.width, ref.current.height)
+    props.onResize(ref.current.width, ref.current.height)
     dirty.current = true
+  }
+
+  const onMouseDown = (event: any) => {
+    event.stopPropagation()
+    if (event.nativeEvent.button === 0) {
+      props.onMouseDown(event.nativeEvent)
+    }
+  }
+
+  const onMouseUp = (event: MouseEvent) => {
+    props.onMouseUp(event)
+  }
+
+  const onMouseMove = (event: any) => {
+    props.onMouseMove(event.nativeEvent)
+  }
+
+  const onWheel = (event: WheelEvent) => {
+    event.stopPropagation()
+    if (event.target == ref.current) {
+      props.onWheel(event)
+    }
+  }
+
+  const onContextMenu = (event: MouseEvent) => {
+    if (event.button === 0 && event.ctrlKey) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
   }
 
   const removeListeners = () => {
     window.removeEventListener(`canvas-update-${props.name}`, update)
-    window.removeEventListener(`canvas-resize-${props.name}`, resize)
+    window.removeEventListener('mouseup', onMouseUp)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('wheel', onWheel)
+    window.removeEventListener('contextmenu', onContextMenu)
   }
 
   const addListeners = () => {
+    window.addEventListener('resize', onResize)
+    window.addEventListener('mouseup', onMouseUp)
     window.addEventListener(`canvas-update-${props.name}`, update)
-    window.addEventListener(`canvas-resize-${props.name}`, resize)
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('contextmenu', onContextMenu)
   }
 
   useEffect(() => {
@@ -44,7 +83,7 @@ const Canvas = (props: IProps) => {
     ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
       alpha: props.opaque === undefined ? true : !props.opaque,
     }))
-    resize()
+    onResize()
   }, [ref])
 
   const delayedRepaint = useCallback(() => {
@@ -65,7 +104,11 @@ const Canvas = (props: IProps) => {
   }, [])
 
   return (
-    <canvas ref={ref} />
+    <canvas
+      ref={ref}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+    />
   )
 }
 

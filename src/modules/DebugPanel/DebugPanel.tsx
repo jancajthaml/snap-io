@@ -1,12 +1,13 @@
 import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
+import Point from '../../atoms/Point'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { getViewport, getElements, getSelected, getVisible } from '../Diagram/selectors'
-
+import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
 interface IProps {
   viewport: Rectangle;
+  resolution: Point;
   visible: any[];
   elements: any[];
   selected: any[];
@@ -14,7 +15,7 @@ interface IProps {
 
 const DebugPanel = (props: IProps) => {
   return (
-    <div>
+    <div tabIndex={0}>
       <h4
         style={{
           margin: 0
@@ -23,7 +24,13 @@ const DebugPanel = (props: IProps) => {
         Debug Panel
       </h4>
       <p>
-        <h5>viewport</h5>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+          viewport
+        </h5>
         <ul>
           <li>
           {`x: ${props.viewport.x1.toFixed(2)}`}
@@ -41,9 +48,35 @@ const DebugPanel = (props: IProps) => {
           {`z: ${props.viewport.z.toFixed(2)}`}
           </li>
         </ul>
+        <button>
+          zoom to fit
+        </button>
       </p>
       <p>
-        <h5>elements</h5>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+          resolution
+        </h5>
+        <ul>
+          <li>
+          {`w: ${(props.resolution.x).toFixed(2)}`}
+          </li>
+          <li>
+          {`h: ${(props.resolution.y).toFixed(2)}`}
+          </li>
+        </ul>
+      </p>
+      <p>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+          elements
+        </h5>
         <ul>
           <li>
           {`elements: ${props.elements.length}`}
@@ -62,6 +95,7 @@ const DebugPanel = (props: IProps) => {
 
 const mapStateToProps = (state: IRootReduxState) => ({
   viewport: getViewport(state),
+  resolution: getResolution(state),
   visible: getVisible(state),
   elements: getElements(state),
   selected: getSelected(state),
