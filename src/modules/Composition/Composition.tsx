@@ -10,8 +10,8 @@ interface IProps {
 
 class Composition extends React.PureComponent<IProps> {
 
-  onResize = (width: number, height: number) => {
-    this.props.engine.resize(width, height)
+  onResize = (x: number, y: number, width: number, height: number) => {
+    this.props.engine.resize(x, y, width, height)
   }
 
   onMouseUp = (event: MouseEvent) => {

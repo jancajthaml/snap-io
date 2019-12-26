@@ -1,10 +1,9 @@
 
 import Rectangle from '../../atoms/Rectangle'
-import Point from '../../atoms/Point'
 
 import { SET_VIEWPORT, SET_RESOLUTION, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
-export const setResolution = (resolution: Point) => ({
+export const setResolution = (resolution: Rectangle) => ({
   type: SET_RESOLUTION,
   payload: {
     resolution,

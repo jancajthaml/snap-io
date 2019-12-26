@@ -15,9 +15,7 @@ const Diagram = (props: IProps) => {
 
   useEffect(() => {
     engine.bootstrap()
-    //engine.addListeners();
     return () => {
-      //engine.removeListeners();
       engine.cleanup();
     }
   }, [])

@@ -44,10 +44,10 @@ class SelectionEntity extends Rectangle {
     if (this.is_resizing) {
       return
     }
-    this.x1 = engine.mouse.coordinates.x1 / engine.viewport.z - engine.viewport.x1
-    this.y1 = engine.mouse.coordinates.y1 / engine.viewport.z - engine.viewport.y1
-    this.x2 = this.x1 + (engine.mouse.coordinates.x2 - engine.mouse.coordinates.x1) / engine.viewport.z
-    this.y2 = this.y1 + (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1) / engine.viewport.z
+    this.x1 = engine.currentMouseCoordinates.x1 / engine.viewport.z - engine.viewport.x1
+    this.y1 = engine.currentMouseCoordinates.y1 / engine.viewport.z - engine.viewport.y1
+    this.x2 = this.x1 + (engine.currentMouseCoordinates.x2 - engine.currentMouseCoordinates.x1) / engine.viewport.z
+    this.y2 = this.y1 + (engine.currentMouseCoordinates.y2 - engine.currentMouseCoordinates.y1) / engine.viewport.z
     this.updateSelected(engine, true)
     this.updateResizers()
   }
@@ -307,21 +307,21 @@ class SelectionEntity extends Rectangle {
   }
 
   updateSelected = (engine: Engine, clearPrevious: boolean) => {
-    this.x1 = (engine.mouse.coordinates.x1 > engine.mouse.coordinates.x2
-      ? engine.mouse.coordinates.x2
-      : engine.mouse.coordinates.x1) / engine.viewport.z - engine.viewport.x1
-    this.y1 = (engine.mouse.coordinates.y1 > engine.mouse.coordinates.y2
-      ? engine.mouse.coordinates.y2
-      : engine.mouse.coordinates.y1) / engine.viewport.z - engine.viewport.y1
+    this.x1 = (engine.currentMouseCoordinates.x1 > engine.currentMouseCoordinates.x2
+      ? engine.currentMouseCoordinates.x2
+      : engine.currentMouseCoordinates.x1) / engine.viewport.z - engine.viewport.x1
+    this.y1 = (engine.currentMouseCoordinates.y1 > engine.currentMouseCoordinates.y2
+      ? engine.currentMouseCoordinates.y2
+      : engine.currentMouseCoordinates.y1) / engine.viewport.z - engine.viewport.y1
     this.x2 = this.x1 + (
-      engine.mouse.coordinates.x1 > engine.mouse.coordinates.x2
-        ? (engine.mouse.coordinates.x1 - engine.mouse.coordinates.x2)
-        : (engine.mouse.coordinates.x2 - engine.mouse.coordinates.x1)
+      engine.currentMouseCoordinates.x1 > engine.currentMouseCoordinates.x2
+        ? (engine.currentMouseCoordinates.x1 - engine.currentMouseCoordinates.x2)
+        : (engine.currentMouseCoordinates.x2 - engine.currentMouseCoordinates.x1)
       ) / engine.viewport.z
     this.y2 = this.y1 + (
-      engine.mouse.coordinates.y1 > engine.mouse.coordinates.y2
-        ? (engine.mouse.coordinates.y1 - engine.mouse.coordinates.y2)
-        : (engine.mouse.coordinates.y2 - engine.mouse.coordinates.y1)
+      engine.currentMouseCoordinates.y1 > engine.currentMouseCoordinates.y2
+        ? (engine.currentMouseCoordinates.y1 - engine.currentMouseCoordinates.y2)
+        : (engine.currentMouseCoordinates.y2 - engine.currentMouseCoordinates.y1)
       ) / engine.viewport.z
 
 
@@ -456,7 +456,7 @@ class SelectionEntity extends Rectangle {
   }
 
   drawSelectionBox(ctx: CanvasRenderingContext2D, engine: Engine) {
-    if (engine.mouse.currentEvent !== MODE_SELECTION) {
+    if (engine.currentMouseEvent !== MODE_SELECTION) {
       return
     }
 
@@ -485,7 +485,7 @@ class SelectionEntity extends Rectangle {
   }
 
   drawSelectedBox(ctx: CanvasRenderingContext2D, engine: Engine) {
-    if (engine.mouse.currentEvent === MODE_SELECTION) {
+    if (engine.currentMouseEvent === MODE_SELECTION) {
       return
     }
 

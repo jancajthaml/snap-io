@@ -1,13 +1,13 @@
 import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
-import Point from '../../atoms/Point'
+//import Point from '../../atoms/Point'
 
 import { SET_VIEWPORT, SET_RESOLUTION, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
 export const initialState = {
   viewport: new Rectangle() as Rectangle,
-  resolution: new Point(1, 1) as Point,
+  resolution: new Rectangle(0, 0, 1, 1) as Rectangle,
   elements: [] as any[],
   visible: [] as any[],
   selected: [] as any[],

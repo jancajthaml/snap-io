@@ -4,7 +4,7 @@ interface IProps {
   name: string;
   opaque?: boolean;
   draw: (ctx: CanvasRenderingContext2D) => void;
-  onResize: (width: number, height: number) => void;
+  onResize: (x: number, y: number, width: number, height: number) => void;
   onMouseUp: (event: MouseEvent) => void;
   onMouseDown: (event: MouseEvent) => void;
   onMouseMove: (event: MouseEvent) => void;
@@ -25,14 +25,15 @@ const Canvas = (props: IProps) => {
     if (ref.current === null) {
       return
     }
-    ref.current.width = (ref.current.parentElement as HTMLElement).clientWidth
-    ref.current.height = (ref.current.parentElement as HTMLElement).clientHeight
-    props.onResize(ref.current.width, ref.current.height)
+    const wrapper = (ref.current.parentElement as HTMLElement)
+    ref.current.width = wrapper.clientWidth
+    ref.current.height = wrapper.clientHeight
+    props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
     dirty.current = true
   }
 
   const onMouseDown = (event: any) => {
-    event.stopPropagation()
+    event.preventDefault()
     if (event.nativeEvent.button === 0) {
       props.onMouseDown(event.nativeEvent)
     }
@@ -47,7 +48,7 @@ const Canvas = (props: IProps) => {
   }
 
   const onWheel = (event: WheelEvent) => {
-    event.stopPropagation()
+    event.preventDefault()
     if (event.target == ref.current) {
       props.onWheel(event)
     }

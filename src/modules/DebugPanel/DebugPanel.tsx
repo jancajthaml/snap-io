@@ -1,13 +1,13 @@
 import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
-import Point from '../../atoms/Point'
+//import Point from '../../atoms/Point'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
 interface IProps {
   viewport: Rectangle;
-  resolution: Point;
+  resolution: Rectangle;
   visible: any[];
   elements: any[];
   selected: any[];
@@ -62,10 +62,16 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <ul>
           <li>
-          {`w: ${(props.resolution.x).toFixed(2)}`}
+          {`x: ${props.resolution.x1.toFixed(2)}`}
           </li>
           <li>
-          {`h: ${(props.resolution.y).toFixed(2)}`}
+          {`y: ${props.resolution.y1.toFixed(2)}`}
+          </li>
+          <li>
+          {`w: ${(props.resolution.x2 - props.resolution.x1).toFixed(2)}`}
+          </li>
+          <li>
+          {`h: ${(props.resolution.y2 - props.resolution.y1).toFixed(2)}`}
           </li>
         </ul>
       </p>
