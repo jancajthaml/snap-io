@@ -151,6 +151,16 @@ class Engine {
     }
     this.setMouseEvent(undefined)
     window.dispatchEvent(new Event('canvas-update-composition'));
+
+    const resolution = this.resolution
+    const x = event.clientX - resolution.x1
+    const y = event.clientY - resolution.y1
+
+    this.currentMouseCoordinates.x1 = x
+    this.currentMouseCoordinates.y1 = y
+    this.currentMouseCoordinates.x2 = x
+    this.currentMouseCoordinates.y2 = y
+
   }
 
   // FIXME do not immediatelly dispatch delta x and delta y remember original position of
@@ -170,10 +180,7 @@ class Engine {
         this.currentMouseCoordinates.y2 = y
 
         const nextViewPort = viewport.copy()
-        nextViewPort.x1 += xDelta
-        nextViewPort.x2 = nextViewPort.x1 + ((resolution.x2 - resolution.x1) / nextViewPort.z)
-        nextViewPort.y1 += yDelta
-        nextViewPort.y2 = nextViewPort.y1 + ((resolution.y2 - resolution.y1) / nextViewPort.z)
+        nextViewPort.translate(xDelta, yDelta)
 
         this.store.dispatch(setViewPort(nextViewPort))
         window.dispatchEvent(new Event('canvas-update-composition'));
@@ -213,11 +220,8 @@ class Engine {
 
       case MODE_SELECTION: {
         const resolution = this.resolution
-        const x = event.clientX - resolution.x1
-        const y = event.clientY - resolution.y1
-        this.currentMouseCoordinates.x2 = x
-        this.currentMouseCoordinates.y2 = y
-
+        this.currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        this.currentMouseCoordinates.y2 = event.clientY - resolution.y1
         this.selection.mouseMove(this, 0, 0)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break

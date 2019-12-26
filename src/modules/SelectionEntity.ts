@@ -65,8 +65,6 @@ class SelectionEntity extends Rectangle {
     }
 
     let normalizedResizing: string | undefined = undefined
-    //const overflowY = this.y1 + yDelta >= this.y2// - 10
-    //const overflowX = this.x1 + xDelta >= this.x2// - 10
 
     switch (this.is_resizing) {
 
@@ -143,8 +141,8 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           element.bounds.y1 += yDelta * (1-y_percentage)
           element.bounds.y2 += yDelta * (1-(h_percentage + y_percentage))
@@ -161,18 +159,17 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
-          const w_percentage = ele_w / sel_w
-          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
+          const w_percentage = ele_w === 0 ? 1 : ele_w / sel_w
+          const x_percentage = ele_w === 0 ? 0 : (element.bounds.x1 - this.x1) / sel_w
 
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           element.bounds.x1 += xDelta * (1-x_percentage)
           element.bounds.x2 += xDelta * (1-(w_percentage + x_percentage))
           element.bounds.y1 += yDelta * (1-y_percentage)
           element.bounds.y2 += yDelta * (1-(h_percentage + y_percentage))
-
         })
         this.y1 += yDelta
         this.x1 += xDelta
@@ -186,12 +183,12 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
-          const w_percentage = ele_w / sel_w
-          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
+          const w_percentage = ele_w === 0 ? 1 : ele_w / sel_w
+          const x_percentage = ele_w === 0 ? 0 : (element.bounds.x1 - this.x1) / sel_w
 
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           element.bounds.x1 += xDelta * x_percentage
           element.bounds.x2 += xDelta * (w_percentage + x_percentage)
@@ -209,8 +206,8 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           element.bounds.y1 += yDelta * y_percentage
           element.bounds.y2 += yDelta * (h_percentage + y_percentage)
@@ -226,12 +223,12 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           const ele_w = (element.bounds.x2 - element.bounds.x1)
-          const w_percentage = ele_w / sel_w
-          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
+          const w_percentage = ele_w === 0 ? 1 : ele_w / sel_w
+          const x_percentage = ele_w === 0 ? 0 : (element.bounds.x1 - this.x1) / sel_w
 
           element.bounds.x1 += xDelta * (1-x_percentage)
           element.bounds.x2 += xDelta * (1-(w_percentage + x_percentage))
@@ -250,12 +247,12 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_h = (element.bounds.y2 - element.bounds.y1)
-          const h_percentage = ele_h / sel_h
-          const y_percentage = (element.bounds.y1 - this.y1) / sel_h
+          const h_percentage = ele_h === 0 ? 1 : ele_h / sel_h
+          const y_percentage = ele_h === 0 ? 0 : (element.bounds.y1 - this.y1) / sel_h
 
           const ele_w = (element.bounds.x2 - element.bounds.x1)
-          const w_percentage = ele_w / sel_w
-          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
+          const w_percentage = ele_w === 0 ? 1 : ele_w / sel_w
+          const x_percentage = ele_w === 0 ? 0 : (element.bounds.x1 - this.x1) / sel_w
 
           element.bounds.x1 += xDelta * x_percentage
           element.bounds.x2 += xDelta * (w_percentage + x_percentage)
@@ -289,8 +286,8 @@ class SelectionEntity extends Rectangle {
 
         engine.selected.forEach((element: any) => {
           const ele_w = (element.bounds.x2 - element.bounds.x1)
-          const w_percentage = ele_w / sel_w
-          const x_percentage = (element.bounds.x1 - this.x1) / sel_w
+          const w_percentage = ele_w === 0 ? 1 : ele_w / sel_w
+          const x_percentage = ele_w === 0 ? 0 : (element.bounds.x1 - this.x1) / sel_w
 
           element.bounds.x1 += xDelta * x_percentage
           element.bounds.x2 += xDelta * (w_percentage + x_percentage)
@@ -323,7 +320,6 @@ class SelectionEntity extends Rectangle {
         ? (engine.currentMouseCoordinates.y1 - engine.currentMouseCoordinates.y2)
         : (engine.currentMouseCoordinates.y2 - engine.currentMouseCoordinates.y1)
       ) / engine.viewport.z
-
 
     engine.updateSelected(this, clearPrevious)
   }
