@@ -1,6 +1,7 @@
 import React from 'react'
 
 import Engine from '../Engine'
+import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 
 interface IProps {
@@ -29,6 +30,10 @@ class BoxEntity extends React.PureComponent<IProps> {
 
   componentWillUnmount() {
     this.props.engine.removeEntity(this)
+  }
+
+  mouseDownCapture = (point: Point): boolean => {
+    return point.x >= this.bounds.x1 && point.x <= this.bounds.x2 && point.y >= this.bounds.y1 && point.y <= this.bounds.y2;
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {

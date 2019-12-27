@@ -9,6 +9,7 @@ import { getSchema } from '../Diagram/selectors'
 import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../BoxEntity'
+import SelectionEntity from '../SelectionEntity'
 
 interface IProps {
   store: IReduxStore;
@@ -37,6 +38,9 @@ const Diagram = (props: IProps) => {
           color="red"
         />
       ))}
+      <SelectionEntity
+        engine={ref.current}
+      />
     </Composition>
   )
 }

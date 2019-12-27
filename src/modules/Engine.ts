@@ -1,5 +1,4 @@
 import Rectangle from '../atoms/Rectangle'
-import SelectionEntity from './SelectionEntity'
 import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
@@ -7,13 +6,12 @@ import { getViewport, getResolution, getElements, getSelected, getVisible } from
 import { setViewPort, setResolution, updateSelection, addElement, removeElement } from './Diagram/actions'
 
 class Engine {
-  selection: SelectionEntity;
+  selection?: any
   currentMouseEvent?: string;
   currentMouseCoordinates: Rectangle;
   store: IReduxStore;
 
   constructor(store: IReduxStore) {
-    this.selection = new SelectionEntity()
     this.currentMouseCoordinates = new Rectangle()
     this.store = store
   }
@@ -66,8 +64,7 @@ class Engine {
   }
 
   mouseDown = (event: MouseEvent) => {
-    const resolution = this.resolution
-    const viewport = this.viewport
+    const { resolution, viewport, visible } = this
 
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
@@ -78,25 +75,31 @@ class Engine {
     this.currentMouseCoordinates.y2 = y
 
     const pointOfClick = new Point(
-      this.currentMouseCoordinates.x1 / viewport.z - viewport.x1,
-      this.currentMouseCoordinates.y1 / viewport.z - viewport.y1,
+      (this.currentMouseCoordinates.x1 / viewport.z) - viewport.x1,
+      (this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1,
     )
 
-    // FIXME if resizing switch in mode where resizing respects aspect ration
-    // FIXME decide if resising based on whenever there is resizer selection
-    // capute or this is moude down on canvas
-    if (event.shiftKey) {
-      this.setMouseEvent(MODE_SELECTION)
-      this.selection.mouseDown(this)
-    } else if (this.selection.selectionCapture(pointOfClick)) {
-      this.setMouseEvent(MODE_TRANSLATE)
-    } else if (this.selection.resizerCapture(this, pointOfClick)) {
-      this.setMouseEvent(MODE_RESIZE)
+    const capture = visible.find((element) => {
+      if (element.mouseDownCapture && element.mouseDownCapture(pointOfClick)) {
+        return element
+      }
+    })
+
+    if (capture && capture.onMouseDown) {
+      capture.onMouseDown(pointOfClick)
     } else {
-      this.setMouseEvent(MODE_SCENE_TRANSLATE)
+      if (event.shiftKey) {
+        this.setMouseEvent(MODE_SELECTION)
+        this.selection.onMouseDown()
+      } else if (this.selection.selectionCapture(pointOfClick)) {
+        this.setMouseEvent(MODE_TRANSLATE)
+      } else if (this.selection.resizerCapture(pointOfClick)) {
+        this.setMouseEvent(MODE_RESIZE)
+      } else {
+        this.setMouseEvent(MODE_SCENE_TRANSLATE)
+      }
     }
-    const rootElement = (document.getElementById(MOUNT_NODE) as HTMLElement)
-    rootElement.focus()
+
     window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
@@ -136,19 +139,21 @@ class Engine {
     if (this.currentMouseEvent === undefined) {
       return
     }
+
     if (this.currentMouseEvent === MODE_RESIZE) {
-      this.selection.mouseUp()
+      this.selection.onMouseUp()
     } else if (
       this.currentMouseCoordinates.x1 === this.currentMouseCoordinates.x2 &&
       this.currentMouseCoordinates.y1 === this.currentMouseCoordinates.y2
     ) {
-      this.selection.updateSelected(this, !((event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey))
-      this.selection.compressSelected(this)
-      this.selection.updateResizers()
+      this.selection.updateSelected(this.viewport, this.currentMouseCoordinates ,!((event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey))
+      this.selection.compressSelected()
+      this.selection.bounds.updateResizers()
     } else if (this.currentMouseEvent === MODE_SELECTION) {
-      this.selection.compressSelected(this)
-      this.selection.updateResizers()
+      this.selection.compressSelected()
+      this.selection.bounds.updateResizers()
     }
+
     this.setMouseEvent(undefined)
     window.dispatchEvent(new Event('canvas-update-composition'));
 
@@ -165,18 +170,18 @@ class Engine {
   // FIXME do not immediatelly dispatch delta x and delta y remember original position of
   // mouse down and current position of mouse move and calculate delta based on that
   mouseMove = (event: MouseEvent) => {
+
     switch (this.currentMouseEvent) {
 
       case MODE_SCENE_TRANSLATE: {
-        const resolution = this.resolution
-        const viewport = this.viewport
+        const { resolution, viewport, currentMouseCoordinates } = this
         const x = event.clientX - resolution.x1
         const y = event.clientY - resolution.y1
-        const xDelta = (x - this.currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - this.currentMouseCoordinates.y2) / viewport.z
+        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
+        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
 
-        this.currentMouseCoordinates.x2 = x
-        this.currentMouseCoordinates.y2 = y
+        currentMouseCoordinates.x2 = x
+        currentMouseCoordinates.y2 = y
 
         const nextViewPort = viewport.copy()
         nextViewPort.translate(xDelta, yDelta)
@@ -187,41 +192,39 @@ class Engine {
       }
 
       case MODE_TRANSLATE: {
-        const resolution = this.resolution
-        const viewport = this.viewport
+        const { resolution, viewport, currentMouseCoordinates } = this
         const x = event.clientX - resolution.x1
         const y = event.clientY - resolution.y1
-        const xDelta = (x - this.currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - this.currentMouseCoordinates.y2) / viewport.z
-        this.currentMouseCoordinates.x2 = x
-        this.currentMouseCoordinates.y2 = y
+        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
+        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
+        currentMouseCoordinates.x2 = x
+        currentMouseCoordinates.y2 = y
         this.selected.forEach((element) => {
           element.bounds.translate(xDelta, yDelta)
         })
-        this.selection.translate(xDelta, yDelta)
+        this.selection.bounds.translate(xDelta, yDelta)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
       case MODE_RESIZE: {
-        const resolution = this.resolution
-        const viewport = this.viewport
+        const { resolution, viewport, currentMouseCoordinates } = this
         const x = event.clientX - resolution.x1
         const y = event.clientY - resolution.y1
-        const xDelta = (x - this.currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - this.currentMouseCoordinates.y2) / viewport.z
-        this.currentMouseCoordinates.x2 = x
-        this.currentMouseCoordinates.y2 = y
-        this.selection.mouseMove(this, xDelta, yDelta)
+        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
+        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
+        currentMouseCoordinates.x2 = x
+        currentMouseCoordinates.y2 = y
+        this.selection.onMouseMove(xDelta, yDelta)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
       case MODE_SELECTION: {
-        const resolution = this.resolution
-        this.currentMouseCoordinates.x2 = event.clientX - resolution.x1
-        this.currentMouseCoordinates.y2 = event.clientY - resolution.y1
-        this.selection.mouseMove(this, 0, 0)
+        const { resolution, currentMouseCoordinates } = this
+        currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        currentMouseCoordinates.y2 = event.clientY - resolution.y1
+        this.selection.onMouseMove(0, 0)
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -235,7 +238,6 @@ class Engine {
   resize = (x: number, y: number, width: number, height: number) => {
     const nextViewPort = this.viewport.copy()
     nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
-
     this.store.dispatch(setResolution(new Rectangle(x, y, width, height)))
     this.store.dispatch(setViewPort(nextViewPort))
   }
