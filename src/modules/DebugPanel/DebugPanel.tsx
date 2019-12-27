@@ -1,8 +1,10 @@
 import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
+
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { zoomToFit } from '../Diagram/actions'
+import { IEntitySchema } from '../Diagram/reducer'
+import { setSchema, zoomToFit } from '../Diagram/actions'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
 interface IProps {
@@ -12,6 +14,46 @@ interface IProps {
   elements: any[];
   selected: any[];
   zoomToFit: () => void;
+  setSchema: (schema: IEntitySchema[]) => void;
+}
+
+const loadSchema_A = (): IEntitySchema[] => {
+  const howMany = 9
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
+  return Array.from(Array(howMany).keys()).map((idx) => ({
+    x: (idx % modulus) * 70,
+    y: Math.floor(idx / modulus) * 70,
+    width: 60,
+    height: 60,
+    type: 'box-entity'
+  }))
+}
+
+const loadSchema_B = (): IEntitySchema[] => {
+  const howMany = 900
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
+  return Array.from(Array(howMany).keys()).map((idx) => ({
+    x: (idx % modulus) * 70,
+    y: Math.floor(idx / modulus) * 70,
+    width: 60,
+    height: 60,
+    type: 'box-entity'
+  }))
+}
+
+const loadSchema_C = (): IEntitySchema[] => {
+  const howMany = 9000
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
+  return Array.from(Array(howMany).keys()).map((idx) => ({
+    x: (idx % modulus) * 70,
+    y: Math.floor(idx / modulus) * 70,
+    width: 60,
+    height: 60,
+    type: 'box-entity'
+  }))
 }
 
 const DebugPanel = (props: IProps) => {
@@ -24,6 +66,36 @@ const DebugPanel = (props: IProps) => {
       >
         Debug Panel
       </h4>
+      <p>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+          schemas
+        </h5>
+        <button onClick={() => {
+          props.setSchema(loadSchema_A())
+          //props.zoomToFit()
+          //window.dispatchEvent(new Event('canvas-update-composition'));
+        }}>
+          load schema A
+        </button>
+        <button onClick={() => {
+          props.setSchema(loadSchema_B())
+          //props.zoomToFit()
+          //window.dispatchEvent(new Event('canvas-update-composition'));
+        }}>
+          load schema B
+        </button>
+        <button onClick={() => {
+          props.setSchema(loadSchema_C())
+          //props.zoomToFit()
+          //window.dispatchEvent(new Event('canvas-update-composition'));
+        }}>
+          load schema C
+        </button>
+      </p>
       <p>
         <h5
           style={{
@@ -113,6 +185,7 @@ const mapStateToProps = (state: IRootReduxState) => ({
 
 const mapDispatchToProps = {
   zoomToFit,
+  setSchema,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DebugPanel)

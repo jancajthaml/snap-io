@@ -1,7 +1,15 @@
 
+import { IEntitySchema } from './reducer'
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+
+export const setSchema = (schema: IEntitySchema[]) => ({
+  type: SET_SCHEMA,
+  payload: {
+    schema
+  },
+}) as const
 
 export const setResolution = (resolution: Rectangle) => ({
   type: SET_RESOLUTION,
@@ -45,6 +53,7 @@ export const removeElement = (element: any) => ({
 }) as const
 
 export type IAction =
+  | ReturnType<typeof setSchema>
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
   | ReturnType<typeof zoomToFit>

@@ -104,6 +104,9 @@ const Canvas = (props: IProps) => {
     }
   }, [])
 
+  //console.log('here in canvas')
+  update()
+
   return (
     <canvas
       ref={ref}

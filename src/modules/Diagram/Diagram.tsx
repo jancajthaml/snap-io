@@ -1,45 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+
+import { connect } from 'react-redux'
+import { IRootReduxState } from '../../reducer'
+import { IReduxStore } from '../../store'
+import { IEntitySchema } from './reducer'
+import { getSchema } from '../Diagram/selectors'
 
 import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../BoxEntity'
 
-import { IReduxStore } from '../../store'
-
 interface IProps {
   store: IReduxStore;
+  schema: IEntitySchema[];
 }
 
 const Diagram = (props: IProps) => {
-  const engine = new Engine(props.store);
+  const ref = useRef<Engine>(new Engine(props.store))
 
   useEffect(() => {
-    engine.bootstrap()
+    ref.current.bootstrap()
     return () => {
-      engine.cleanup();
+      ref.current.cleanup();
     }
   }, [])
 
-  // FIXME crashes at
-  // const howMany = 100000
-  const howMany = 900 //10000
-  const modulus = Math.floor(Math.pow(howMany, 0.5))
-
   return (
-    <Composition engine={engine}>
-      {Array.from(Array(howMany).keys()).map((idx) => (
+    <Composition engine={ref.current}>
+      {props.schema.map((entity) => (
         <BoxEntity
-          key={idx}
-          engine={engine}
-          x={((idx%modulus)*70)}
-          y={(Math.floor(idx/modulus)*70)}
-          width={60}
-          height={60}
-          color={["red", "green", "blue"][idx % 3]}
+          engine={ref.current}
+          x={entity.x}
+          y={entity.y}
+          width={entity.width}
+          height={entity.height}
+          color="red"
         />
       ))}
     </Composition>
   )
 }
 
-export default Diagram
+const mapStateToProps = (state: IRootReduxState) => ({
+  schema: getSchema(state),
+})
+
+const mapDispatchToProps = {
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Diagram)

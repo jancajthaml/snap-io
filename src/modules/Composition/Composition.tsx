@@ -10,38 +10,18 @@ interface IProps {
 
 class Composition extends React.PureComponent<IProps> {
 
-  onResize = (x: number, y: number, width: number, height: number) => {
-    this.props.engine.resize(x, y, width, height)
-  }
-
-  onMouseUp = (event: MouseEvent) => {
-    this.props.engine.mouseUp(event)
-  }
-
-  onMouseDown = (event: MouseEvent) => {
-    this.props.engine.mouseDown(event)
-  }
-
-  onMouseMove = (event: MouseEvent) => {
-    this.props.engine.mouseMove(event)
-  }
-
-  onWheel = (event: WheelEvent) => {
-    this.props.engine.mouseWheel(event)
-  }
-
   draw = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
+    const { viewport, visible } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // FIXME get from state
 
-    const p = 10 * engine.viewport.z
-    const xOffset = (engine.viewport.x1 * engine.viewport.z) % p
-    const yOffset = (engine.viewport.y1 * engine.viewport.z) % p
-    ctx.lineWidth = (engine.viewport.z / 3) + 0.2;
+    const p = 10 * viewport.z
+    const xOffset = (viewport.x1 * viewport.z) % p
+    const yOffset = (viewport.y1 * viewport.z) % p
+    ctx.lineWidth = (viewport.z / 3) + 0.2;
 
     ctx.beginPath();
     for (let x = xOffset + 0.5; x <= ctx.canvas.width + p; x += p) {
@@ -57,28 +37,13 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    // FIXME get from state
-    engine.visible.forEach((element: any) => {
-      element.draw(ctx, engine)
+    visible.forEach((element: any) => {
+      element.draw(ctx, this.props.engine)
     })
 
     // FIXME do this better e.g. with a entity
-    engine.selection.drawSelectedBox(ctx, engine)
-    engine.selection.drawSelectionBox(ctx, engine)
-
-    ctx.beginPath();
-    ctx.lineWidth = 10
-    ctx.moveTo(engine.currentMouseCoordinates.x1, engine.currentMouseCoordinates.y1);
-    ctx.lineTo(engine.currentMouseCoordinates.x2, engine.currentMouseCoordinates.y2);
-    ctx.strokeStyle = "white";
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.lineWidth = 3
-    ctx.moveTo(engine.currentMouseCoordinates.x1, engine.currentMouseCoordinates.y1);
-    ctx.lineTo(engine.currentMouseCoordinates.x2, engine.currentMouseCoordinates.y2);
-    ctx.strokeStyle = "red";
-    ctx.stroke();
+    this.props.engine.selection.drawSelectedBox(ctx, this.props.engine)
+    this.props.engine.selection.drawSelectionBox(ctx, this.props.engine)
   }
 
   render() {
@@ -88,11 +53,11 @@ class Composition extends React.PureComponent<IProps> {
           name="composition"
           opaque={false}
           draw={this.draw}
-          onResize={this.onResize}
-          onMouseUp={this.onMouseUp}
-          onMouseDown={this.onMouseDown}
-          onMouseMove={this.onMouseMove}
-          onWheel={this.onWheel}
+          onResize={this.props.engine.resize}
+          onMouseUp={this.props.engine.mouseUp}
+          onMouseDown={this.props.engine.mouseDown}
+          onMouseMove={this.props.engine.mouseMove}
+          onWheel={this.props.engine.mouseWheel}
         />
         {this.props.children}
       </React.Fragment>

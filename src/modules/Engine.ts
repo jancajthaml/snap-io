@@ -160,7 +160,6 @@ class Engine {
     this.currentMouseCoordinates.y1 = y
     this.currentMouseCoordinates.x2 = x
     this.currentMouseCoordinates.y2 = y
-
   }
 
   // FIXME do not immediatelly dispatch delta x and delta y remember original position of

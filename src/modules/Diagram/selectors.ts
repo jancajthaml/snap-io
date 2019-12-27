@@ -11,3 +11,5 @@ export const getVisible = (state: IRootReduxState) => state[COMPONENT_NAME].visi
 export const getSelected = (state: IRootReduxState) => state[COMPONENT_NAME].selected
 
 export const getElements = (state: IRootReduxState) => state[COMPONENT_NAME].elements
+
+export const getSchema = (state: IRootReduxState) => state[COMPONENT_NAME].schema

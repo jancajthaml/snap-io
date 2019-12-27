@@ -18,10 +18,12 @@ class BoxEntity extends React.PureComponent<IProps> {
 
   constructor(props: IProps) {
     super(props)
+    // FIXME this does not update if entity is recycled, probably better to use a hook here
     this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
   }
 
   componentDidMount() {
+    // FIXME this lags application if too many entities are on screen (>10k)
     this.props.engine.addEntity(this)
   }
 
@@ -29,25 +31,21 @@ class BoxEntity extends React.PureComponent<IProps> {
     this.props.engine.removeEntity(this)
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
-
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
     if (this.bounds.z >= 1000) {
       ctx.fillStyle = "black"
     } else {
       ctx.fillStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.viewport.z
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.viewport.z
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.viewport.z
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.viewport.z
+    const x = (viewport.x1 + this.bounds.x1) * viewport.z
+    const y = (viewport.y1 + this.bounds.y1) * viewport.z
+    const w = (this.bounds.x2 - this.bounds.x1) * viewport.z
+    const h = (this.bounds.y2 - this.bounds.y1) * viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
-
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
     if (this.bounds.z >= 1000) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
@@ -55,23 +53,23 @@ class BoxEntity extends React.PureComponent<IProps> {
       ctx.fillStyle = this.props.color
       ctx.strokeStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.viewport.z
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.viewport.z
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.viewport.z
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.viewport.z
+    const x = (viewport.x1 + this.bounds.x1) * viewport.z
+    const y = (viewport.y1 + this.bounds.y1) * viewport.z
+    const w = (this.bounds.x2 - this.bounds.x1) * viewport.z
+    const h = (this.bounds.y2 - this.bounds.y1) * viewport.z
 
-    const offset = 3 * engine.viewport.z
-    ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
+    const offset = 3 * viewport.z
+    ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
     ctx.strokeRect(x, y, w, h);
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
+    const { viewport } = this.props.engine
 
-    if (engine.viewport.z <= 0.4) {
-      this.drawSimple(ctx)
+    if (viewport.z <= 0.4) {
+      this.drawSimple(ctx, viewport)
     } else {
-      this.drawDetail(ctx)
+      this.drawDetail(ctx, viewport)
     }
   }
 
