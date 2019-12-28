@@ -18,10 +18,12 @@ interface IProps {
 class BoxEntity extends React.PureComponent<IProps> {
 
   componentDidMount() {
+    // FIXME this slows rendering significantly
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
+    // FIXME this slows rendering significantly
     this.props.engine.removeEntity(this)
   }
 
@@ -63,7 +65,6 @@ class BoxEntity extends React.PureComponent<IProps> {
   }
 
   render() {
-    //console.log('now calling render with', this.props)
     return <React.Fragment />
   }
 }

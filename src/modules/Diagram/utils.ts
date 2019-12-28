@@ -1,24 +1,9 @@
 import Rectangle from '../../atoms/Rectangle'
 import { IDiagramSchema } from './reducer'
 
-export const sortElements = (elements: any[]) => {
-  /*
-  elements.sort(function(x, y) {
-    if (x.bounds.z === y.bounds.z) {
-      return 0;
-    }
-    if (x.bounds.z > y.bounds.z) {
-      return 1;
-    }
-    return -1;
-  });
-  */
-  return elements
-}
-
-export const calculateVisible = (elements: any[], selected: any[], viewport: Rectangle) => {
+export const calculateVisible = (elements: {}, selected: any[], viewport: Rectangle): string[] => {
   const visible: Set<any> = new Set(selected)
-  elements.forEach((element) => {
+  Object.values(elements).forEach((element: any) => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.props.x) < 0
     const outOfLeft = (viewport.x1 + element.props.x + element.props.width) < 0
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.props.y) < 0

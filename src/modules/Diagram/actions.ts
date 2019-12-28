@@ -2,10 +2,10 @@
 import { IDiagramSchema, IEntitySchema } from './reducer'
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT, UPDATE_ELEMENTS_SCHEMA } from './constants'
+import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
 
-export const updateElementsSchema = (update: IEntitySchema[]) => ({
-  type: UPDATE_ELEMENTS_SCHEMA,
+export const patchSchema = (update: IEntitySchema[]) => ({
+  type: PATCH_SCHEMA,
   payload: {
     update
   },
@@ -61,10 +61,10 @@ export const removeElement = (element: any) => ({
 
 export type IAction =
   | ReturnType<typeof setSchema>
+  | ReturnType<typeof patchSchema>
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
   | ReturnType<typeof zoomToFit>
   | ReturnType<typeof addElement>
   | ReturnType<typeof removeElement>
-  | ReturnType<typeof updateElementsSchema>
   | ReturnType<typeof updateSelection>

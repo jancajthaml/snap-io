@@ -3,7 +3,7 @@ import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from './Diagram/selectors'
-import { setViewPort, setResolution, updateSelection, addElement, removeElement, updateElementsSchema } from './Diagram/actions'
+import { setViewPort, setResolution, updateSelection, addElement, removeElement, patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
 
 class Engine {
@@ -23,6 +23,15 @@ class Engine {
 
   get visible() {
     return getVisible(this.store.getState())
+    /*
+    const elements = getElements(this.store.getState())
+    const result: any[] = []
+    getVisible(this.store.getState()).forEach((id: string) => {
+      const element = (elements as { [key: string]: any })[id]
+      result.push(element)
+    })
+    return result
+    */
   }
 
   get elements() {
@@ -154,7 +163,7 @@ class Engine {
           height: element.props.height,
         })
       })
-      this.store.dispatch(updateElementsSchema(updateBulk))
+      this.store.dispatch(patchSchema(updateBulk))
     }
 
     if (this.currentMouseEvent === MODE_RESIZE) {
@@ -163,7 +172,7 @@ class Engine {
       this.currentMouseCoordinates.x1 === this.currentMouseCoordinates.x2 &&
       this.currentMouseCoordinates.y1 === this.currentMouseCoordinates.y2
     ) {
-      this.selection.updateSelected(this.viewport, this.currentMouseCoordinates ,!((event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey))
+      this.selection.updateSelected(this.viewport, this.currentMouseCoordinates, !((event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey))
       this.selection.compressSelected()
       this.selection.bounds.updateResizers()
     } else if (this.currentMouseEvent === MODE_SELECTION) {

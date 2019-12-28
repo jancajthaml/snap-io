@@ -11,7 +11,7 @@ interface IProps {
   viewport: Rectangle;
   resolution: Rectangle;
   visible: any[];
-  elements: any[];
+  elements: { [key: string]: any };
   selected: any[];
   zoomToFit: () => void;
   setSchema: (schema: IDiagramSchema) => void;
@@ -93,19 +93,19 @@ const DebugPanel = (props: IProps) => {
           props.setSchema(loadSchema_A())
           props.zoomToFit()
         }}>
-          load schema A
+          small diagram
         </button>
         <button onClick={() => {
           props.setSchema(loadSchema_B())
           props.zoomToFit()
         }}>
-          load schema B
+          medium diagram
         </button>
         <button onClick={() => {
           props.setSchema(loadSchema_C())
           props.zoomToFit()
         }}>
-          load schema C
+          huge diagram
         </button>
       </p>
       <p>
@@ -173,7 +173,7 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <ul>
           <li>
-          {`elements: ${props.elements.length}`}
+          {`elements: ${Object.keys(props.elements).length}`}
           </li>
           <li>
           {`visible: ${props.visible.length}`}
