@@ -23,15 +23,6 @@ class Engine {
 
   get visible() {
     return getVisible(this.store.getState())
-    /*
-    const elements = getElements(this.store.getState())
-    const result: any[] = []
-    getVisible(this.store.getState()).forEach((id: string) => {
-      const element = (elements as { [key: string]: any })[id]
-      result.push(element)
-    })
-    return result
-    */
   }
 
   get elements() {

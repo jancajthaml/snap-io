@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
@@ -17,20 +17,28 @@ interface IProps {
 }
 
 const Diagram = (props: IProps) => {
-  const ref = useRef<Engine>(new Engine(props.store))
+  const [engine, setEngine] = useState<Engine | null>(null)
 
   useEffect(() => {
-    ref.current.bootstrap()
+    const nextEngine = new Engine(props.store)
+    setEngine(nextEngine)
+    nextEngine.bootstrap()
     return () => {
-      ref.current.cleanup();
+      if (engine !== null ){
+        engine.cleanup()
+      }
     }
   }, [])
 
+  if (engine === null) {
+    return null
+  }
+
   return (
-    <Composition engine={ref.current}>
+    <Composition engine={engine as Engine}>
       {Object.values(props.schema).map((entity, idx) => (
         <BoxEntity
-          engine={ref.current}
+          engine={engine as Engine}
           type={entity.type}
           id={entity.id}
           x={entity.x}
@@ -41,7 +49,7 @@ const Diagram = (props: IProps) => {
         />
       ))}
       <SelectionEntity
-        engine={ref.current}
+        engine={engine as Engine}
       />
     </Composition>
   )
