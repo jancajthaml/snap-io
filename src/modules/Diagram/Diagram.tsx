@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IReduxStore } from '../../store'
-import { IEntitySchema } from './reducer'
+import { IDiagramSchema } from './reducer'
 import { getSchema } from '../Diagram/selectors'
 
 import Engine from '../Engine'
@@ -13,7 +13,7 @@ import SelectionEntity from '../SelectionEntity'
 
 interface IProps {
   store: IReduxStore;
-  schema: IEntitySchema[];
+  schema: IDiagramSchema;
 }
 
 const Diagram = (props: IProps) => {
@@ -28,14 +28,16 @@ const Diagram = (props: IProps) => {
 
   return (
     <Composition engine={ref.current}>
-      {props.schema.map((entity) => (
+      {Object.values(props.schema).map((entity, idx) => (
         <BoxEntity
           engine={ref.current}
+          type={entity.type}
+          id={entity.id}
           x={entity.x}
           y={entity.y}
           width={entity.width}
           height={entity.height}
-          color="red"
+          color={["red", "blue", "green"][(idx % 3)]}
         />
       ))}
       <SelectionEntity

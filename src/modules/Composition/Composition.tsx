@@ -11,7 +11,7 @@ interface IProps {
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, visible } = this.props.engine
+    const { viewport, visible, selection } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -39,11 +39,7 @@ class Composition extends React.PureComponent<IProps> {
       element.draw(ctx)
     })
 
-    this.props.engine.selection.draw(ctx)
-
-    // FIXME do this better e.g. with a entity
-    //this.props.engine.selection.drawSelectedBox(ctx, this.props.engine)
-    //this.props.engine.selection.drawSelectionBox(ctx, this.props.engine)
+    selection.draw(ctx)
   }
 
   render() {

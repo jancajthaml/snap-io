@@ -3,7 +3,8 @@ import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from './Diagram/selectors'
-import { setViewPort, setResolution, updateSelection, addElement, removeElement } from './Diagram/actions'
+import { setViewPort, setResolution, updateSelection, addElement, removeElement, updateElementsSchema } from './Diagram/actions'
+import { IEntitySchema } from './Diagram/reducer'
 
 class Engine {
   selection?: any
@@ -140,6 +141,22 @@ class Engine {
       return
     }
 
+    if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
+      let updateBulk = [] as IEntitySchema[]
+
+      this.selected.forEach((element) => {
+        updateBulk.push({
+          id: element.props.id,
+          type: element.props.type,
+          x: element.props.x,
+          y: element.props.y,
+          width: element.props.width,
+          height: element.props.height,
+        })
+      })
+      this.store.dispatch(updateElementsSchema(updateBulk))
+    }
+
     if (this.currentMouseEvent === MODE_RESIZE) {
       this.selection.onMouseUp()
     } else if (
@@ -199,8 +216,10 @@ class Engine {
         const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
         currentMouseCoordinates.x2 = x
         currentMouseCoordinates.y2 = y
+
         this.selected.forEach((element) => {
-          element.bounds.translate(xDelta, yDelta)
+          element.props.x += xDelta
+          element.props.y += yDelta
         })
         this.selection.bounds.translate(xDelta, yDelta)
         window.dispatchEvent(new Event('canvas-update-composition'));

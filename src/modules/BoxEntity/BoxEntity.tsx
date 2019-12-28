@@ -6,6 +6,8 @@ import Rectangle from '../../atoms/Rectangle'
 
 interface IProps {
   engine: Engine;
+  id: string;
+  type: string;
   x: number;
   y: number;
   width: number;
@@ -15,16 +17,7 @@ interface IProps {
 
 class BoxEntity extends React.PureComponent<IProps> {
 
-  bounds: Rectangle;
-
-  constructor(props: IProps) {
-    super(props)
-    // FIXME this does not update if entity is recycled, probably better to use a hook here
-    this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
-  }
-
   componentDidMount() {
-    // FIXME this lags application if too many entities are on screen (>10k)
     this.props.engine.addEntity(this)
   }
 
@@ -33,35 +26,26 @@ class BoxEntity extends React.PureComponent<IProps> {
   }
 
   mouseDownCapture = (point: Point): boolean => {
-    return point.x >= this.bounds.x1 && point.x <= this.bounds.x2 && point.y >= this.bounds.y1 && point.y <= this.bounds.y2;
+    return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
-    if (this.bounds.z >= 1000) {
-      ctx.fillStyle = "black"
-    } else {
-      ctx.fillStyle = this.props.color
-    }
-    const x = (viewport.x1 + this.bounds.x1) * viewport.z
-    const y = (viewport.y1 + this.bounds.y1) * viewport.z
-    const w = (this.bounds.x2 - this.bounds.x1) * viewport.z
-    const h = (this.bounds.y2 - this.bounds.y1) * viewport.z
+    ctx.fillStyle = this.props.color
+    const x = (viewport.x1 + this.props.x) * viewport.z
+    const y = (viewport.y1 + this.props.y) * viewport.z
+    const w = (this.props.width) * viewport.z
+    const h = (this.props.height) * viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
 
   drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
-    if (this.bounds.z >= 1000) {
-      ctx.fillStyle = "black"
-      ctx.strokeStyle = "black"
-    } else {
-      ctx.fillStyle = this.props.color
-      ctx.strokeStyle = this.props.color
-    }
-    const x = (viewport.x1 + this.bounds.x1) * viewport.z
-    const y = (viewport.y1 + this.bounds.y1) * viewport.z
-    const w = (this.bounds.x2 - this.bounds.x1) * viewport.z
-    const h = (this.bounds.y2 - this.bounds.y1) * viewport.z
+    ctx.fillStyle = this.props.color
+    ctx.strokeStyle = this.props.color
+    const x = (viewport.x1 + this.props.x) * viewport.z
+    const y = (viewport.y1 + this.props.y) * viewport.z
+    const w = (this.props.width) * viewport.z
+    const h = (this.props.height) * viewport.z
 
     const offset = 3 * viewport.z
     ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
@@ -79,6 +63,7 @@ class BoxEntity extends React.PureComponent<IProps> {
   }
 
   render() {
+    //console.log('now calling render with', this.props)
     return <React.Fragment />
   }
 }

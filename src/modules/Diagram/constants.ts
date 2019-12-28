@@ -14,3 +14,4 @@ export const ADD_ELEMENT = 'ADD_ELEMENT' as const
 
 export const REMOVE_ELEMENT = 'REMOVE_ELEMENT' as const
 
+export const UPDATE_ELEMENTS_SCHEMA = 'UPDATE_ELEMENTS_SCHEMA' as const

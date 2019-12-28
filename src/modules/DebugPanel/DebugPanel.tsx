@@ -3,7 +3,7 @@ import Rectangle from '../../atoms/Rectangle'
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { IEntitySchema } from '../Diagram/reducer'
+import { IDiagramSchema } from '../Diagram/reducer'
 import { setSchema, zoomToFit } from '../Diagram/actions'
 import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
 
@@ -14,46 +14,61 @@ interface IProps {
   elements: any[];
   selected: any[];
   zoomToFit: () => void;
-  setSchema: (schema: IEntitySchema[]) => void;
+  setSchema: (schema: IDiagramSchema) => void;
 }
 
-const loadSchema_A = (): IEntitySchema[] => {
+const loadSchema_A = (): IDiagramSchema => {
   const howMany = 9
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  return Array.from(Array(howMany).keys()).map((idx) => ({
-    x: (idx % modulus) * 70,
-    y: Math.floor(idx / modulus) * 70,
-    width: 60,
-    height: 60,
-    type: 'box-entity'
-  }))
+  const result = {} as IDiagramSchema
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 70,
+      y: Math.floor(idx / modulus) * 70,
+      width: 60,
+      height: 60,
+      type: 'box-entity'
+    }
+  })
+  return result
 }
 
-const loadSchema_B = (): IEntitySchema[] => {
+const loadSchema_B = (): IDiagramSchema => {
   const howMany = 900
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  return Array.from(Array(howMany).keys()).map((idx) => ({
-    x: (idx % modulus) * 70,
-    y: Math.floor(idx / modulus) * 70,
-    width: 60,
-    height: 60,
-    type: 'box-entity'
-  }))
+  const result = {} as IDiagramSchema
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 70,
+      y: Math.floor(idx / modulus) * 70,
+      width: 60,
+      height: 60,
+      type: 'box-entity'
+    }
+  })
+  return result
 }
 
-const loadSchema_C = (): IEntitySchema[] => {
+const loadSchema_C = (): IDiagramSchema => {
   const howMany = 9000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  return Array.from(Array(howMany).keys()).map((idx) => ({
-    x: (idx % modulus) * 70,
-    y: Math.floor(idx / modulus) * 70,
-    width: 60,
-    height: 60,
-    type: 'box-entity'
-  }))
+  const result = {} as IDiagramSchema
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 70,
+      y: Math.floor(idx / modulus) * 70,
+      width: 60,
+      height: 60,
+      type: 'box-entity'
+    }
+  })
+  return result
 }
 
 const DebugPanel = (props: IProps) => {
@@ -76,22 +91,19 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <button onClick={() => {
           props.setSchema(loadSchema_A())
-          //props.zoomToFit()
-          //window.dispatchEvent(new Event('canvas-update-composition'));
+          props.zoomToFit()
         }}>
           load schema A
         </button>
         <button onClick={() => {
           props.setSchema(loadSchema_B())
-          //props.zoomToFit()
-          //window.dispatchEvent(new Event('canvas-update-composition'));
+          props.zoomToFit()
         }}>
           load schema B
         </button>
         <button onClick={() => {
           props.setSchema(loadSchema_C())
-          //props.zoomToFit()
-          //window.dispatchEvent(new Event('canvas-update-composition'));
+          props.zoomToFit()
         }}>
           load schema C
         </button>

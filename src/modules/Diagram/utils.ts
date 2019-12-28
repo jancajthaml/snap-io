@@ -1,6 +1,8 @@
 import Rectangle from '../../atoms/Rectangle'
+import { IDiagramSchema } from './reducer'
 
 export const sortElements = (elements: any[]) => {
+  /*
   elements.sort(function(x, y) {
     if (x.bounds.z === y.bounds.z) {
       return 0;
@@ -10,16 +12,17 @@ export const sortElements = (elements: any[]) => {
     }
     return -1;
   });
+  */
   return elements
 }
 
 export const calculateVisible = (elements: any[], selected: any[], viewport: Rectangle) => {
   const visible: Set<any> = new Set(selected)
   elements.forEach((element) => {
-    const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.bounds.x1) < 0
-    const outOfLeft = (viewport.x1 + element.bounds.x2) < 0
-    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.bounds.y1) < 0
-    const outOfUp = (viewport.y1 + element.bounds.y2) < 0
+    const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.props.x) < 0
+    const outOfLeft = (viewport.x1 + element.props.x + element.props.width) < 0
+    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.props.y) < 0
+    const outOfUp = (viewport.y1 + element.props.y + element.props.height) < 0
     if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
       visible.add(element)
     }
@@ -30,25 +33,28 @@ export const calculateVisible = (elements: any[], selected: any[], viewport: Rec
 export const calculateSelection = (selected: any[], visible: any[], selection: Rectangle, clearPrevious: boolean) => {
   let nextSelected: any[]
   if (clearPrevious) {
-    selected.forEach((element) => {
-      if (element.bounds.z >= 1000) {
-        element.bounds.z -= 1000
-      }
-    })
+    //selected.forEach((element) => {
+      //if (element.bounds.z >= 1000) {
+        //element.bounds.z -= 1000
+      //}
+    //})
     nextSelected = []
   } else{
     nextSelected = [...selected]
   }
   visible.forEach((element) => {
-    if (element.bounds.insideRectangle(selection)) {
+
+    const insideRectangle = !(element.props.x > selection.x2 || selection.x1 > (element.props.x + element.props.width) || element.props.y > selection.y2 || selection.y1 > (element.props.y + element.props.height))
+
+    if (insideRectangle) {
       nextSelected.push(element)
-      element.bounds.z += 1000
+      //element.bounds.z += 1000
     }
   })
   return nextSelected
 }
 
-export const calculateOptimalViewport = (elements: any[], resolution: Rectangle): Rectangle | null => {
+export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rectangle): Rectangle | null => {
   const viewport = new Rectangle()
 
   let x1: number | undefined = undefined
@@ -56,18 +62,18 @@ export const calculateOptimalViewport = (elements: any[], resolution: Rectangle)
   let x2: number | undefined = undefined
   let y2: number | undefined = undefined
 
-  elements.forEach((element) => {
-    if (x1 === undefined || element.bounds.x1 < x1) {
-      x1 = element.bounds.x1
+  Object.values(schema).forEach((element) => {
+    if (x1 === undefined || element.x < x1) {
+      x1 = element.x
     }
-    if (x2 === undefined || element.bounds.x2 > x2) {
-      x2 = element.bounds.x2
+    if (x2 === undefined || (element.x + element.width) > x2) {
+      x2 = (element.x + element.width)
     }
-    if (y1 === undefined || element.bounds.y1 < y1) {
-      y1 = element.bounds.y1
+    if (y1 === undefined || element.y < y1) {
+      y1 = element.y
     }
-    if (y2 === undefined || element.bounds.y2 > y2) {
-      y2 = element.bounds.y2
+    if (y2 === undefined || (element.y + element.height) > y2) {
+      y2 = (element.y + element.height)
     }
   })
 

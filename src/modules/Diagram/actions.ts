@@ -1,10 +1,17 @@
 
-import { IEntitySchema } from './reducer'
+import { IDiagramSchema, IEntitySchema } from './reducer'
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT, UPDATE_ELEMENTS_SCHEMA } from './constants'
 
-export const setSchema = (schema: IEntitySchema[]) => ({
+export const updateElementsSchema = (update: IEntitySchema[]) => ({
+  type: UPDATE_ELEMENTS_SCHEMA,
+  payload: {
+    update
+  },
+}) as const
+
+export const setSchema = (schema: IDiagramSchema) => ({
   type: SET_SCHEMA,
   payload: {
     schema
@@ -59,4 +66,5 @@ export type IAction =
   | ReturnType<typeof zoomToFit>
   | ReturnType<typeof addElement>
   | ReturnType<typeof removeElement>
+  | ReturnType<typeof updateElementsSchema>
   | ReturnType<typeof updateSelection>

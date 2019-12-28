@@ -33,8 +33,8 @@ const Canvas = (props: IProps) => {
   }
 
   const onMouseDown = (event: any) => {
-    event.preventDefault()
     if (event.nativeEvent.button === 0) {
+      event.preventDefault()
       props.onMouseDown(event.nativeEvent)
     }
   }
@@ -48,8 +48,8 @@ const Canvas = (props: IProps) => {
   }
 
   const onWheel = (event: WheelEvent) => {
-    event.preventDefault()
     if (event.target == ref.current) {
+      event.preventDefault()
       props.onWheel(event)
     }
   }

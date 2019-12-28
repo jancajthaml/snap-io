@@ -2,10 +2,11 @@ import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT } from './constants'
+import { SET_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT, UPDATE_ELEMENTS_SCHEMA } from './constants'
 import { calculateOptimalViewport, sortElements, calculateVisible, calculateSelection } from './utils'
 
 export interface IEntitySchema {
+  id: string;
   x: number;
   y: number;
   width: number;
@@ -13,8 +14,12 @@ export interface IEntitySchema {
   type: string;
 }
 
+export interface IDiagramSchema {
+  [key: string]: IEntitySchema;
+}
+
 export const initialState = {
-  schema: [] as IEntitySchema[],
+  schema: {} as IDiagramSchema,
   viewport: new Rectangle() as Rectangle,
   resolution: new Rectangle(0, 0, 1, 1) as Rectangle,
   elements: [] as any[],
@@ -43,7 +48,7 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case ZOOM_TO_FIT: {
-      const viewport = calculateOptimalViewport(state.elements, state.resolution)
+      const viewport = calculateOptimalViewport(state.schema, state.resolution)
       if (viewport === null) {
         return {
           ...state,
@@ -61,6 +66,19 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       return {
         ...state,
         resolution: action.payload.resolution,
+      }
+    }
+
+    case UPDATE_ELEMENTS_SCHEMA: {
+      const schema = { ...state.schema }
+
+      action.payload.update.forEach((update) => {
+        schema[update.id] = update
+      })
+
+      return {
+        ...state,
+        schema,
       }
     }
 
