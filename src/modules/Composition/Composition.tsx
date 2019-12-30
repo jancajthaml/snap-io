@@ -11,7 +11,7 @@ interface IProps {
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, visible, selection } = this.props.engine
+    const { viewport, elements, selection } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -35,7 +35,7 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    visible.forEach((element: any) => {
+    elements.forEach((element: any) => {
       element.draw(ctx)
     })
 

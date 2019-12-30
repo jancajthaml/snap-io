@@ -15,7 +15,18 @@ interface IProps {
   color: string;
 }
 
-class BoxEntity extends React.PureComponent<IProps> {
+interface IState {
+  selected: boolean;
+}
+
+class BoxEntity extends React.Component<IProps, IState> {
+
+  constructor(props: IProps) {
+    super(props)
+    this.state = {
+      selected: false,
+    }
+  }
 
   componentDidMount() {
     // FIXME this slows rendering significantly
@@ -32,7 +43,12 @@ class BoxEntity extends React.PureComponent<IProps> {
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
-    ctx.fillStyle = this.props.color
+    if (this.state.selected) {
+      ctx.fillStyle = "black"
+    } else {
+      ctx.fillStyle = this.props.color
+    }
+
     const x = (viewport.x1 + this.props.x) * viewport.z
     const y = (viewport.y1 + this.props.y) * viewport.z
     const w = (this.props.width) * viewport.z
@@ -42,8 +58,14 @@ class BoxEntity extends React.PureComponent<IProps> {
   }
 
   drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
-    ctx.fillStyle = this.props.color
-    ctx.strokeStyle = this.props.color
+    if (this.state.selected) {
+      ctx.fillStyle = "black"
+      ctx.strokeStyle = "black"
+    } else {
+      ctx.fillStyle = this.props.color
+      ctx.strokeStyle = this.props.color
+    }
+
     const x = (viewport.x1 + this.props.x) * viewport.z
     const y = (viewport.y1 + this.props.y) * viewport.z
     const w = (this.props.width) * viewport.z

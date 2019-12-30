@@ -6,10 +6,4 @@ export const getViewport = (state: IRootReduxState) => state[COMPONENT_NAME].vie
 
 export const getResolution = (state: IRootReduxState) => state[COMPONENT_NAME].resolution
 
-export const getVisible = (state: IRootReduxState) => state[COMPONENT_NAME].visible
-
-export const getSelected = (state: IRootReduxState) => state[COMPONENT_NAME].selected
-
-export const getElements = (state: IRootReduxState) => state[COMPONENT_NAME].elements
-
 export const getSchema = (state: IRootReduxState) => state[COMPONENT_NAME].schema

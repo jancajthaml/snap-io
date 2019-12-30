@@ -2,8 +2,8 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
-import { getViewport, getResolution, getElements, getSelected, getVisible } from './Diagram/selectors'
-import { setViewPort, setResolution, updateSelection, addElement, removeElement, patchSchema } from './Diagram/actions'
+import { getViewport, getResolution } from './Diagram/selectors'
+import { setViewPort, setResolution, patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
 
 class Engine {
@@ -12,25 +12,18 @@ class Engine {
   currentMouseCoordinates: Rectangle;
   store: IReduxStore;
 
+  elements: any[];
+  selected: any[];
+
   constructor(store: IReduxStore) {
     this.currentMouseCoordinates = new Rectangle()
     this.store = store
+    this.elements = []
+    this.selected = []
   }
 
   get viewport() {
     return getViewport(this.store.getState())
-  }
-
-  get visible() {
-    return getVisible(this.store.getState())
-  }
-
-  get elements() {
-    return getElements(this.store.getState())
-  }
-
-  get selected() {
-    return getSelected(this.store.getState())
   }
 
   get resolution() {
@@ -65,7 +58,7 @@ class Engine {
   }
 
   mouseDown = (event: MouseEvent) => {
-    const { resolution, viewport, visible } = this
+    const { resolution, viewport, elements } = this
 
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
@@ -80,7 +73,7 @@ class Engine {
       (this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1,
     )
 
-    const capture = visible.find((element) => {
+    const capture = elements.find((element) => {
       if (element.mouseDownCapture && element.mouseDownCapture(pointOfClick)) {
         return element
       }
@@ -262,15 +255,43 @@ class Engine {
   }
 
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
-    this.store.dispatch(updateSelection(selection, clearPrevious))
+    if (clearPrevious) {
+      this.selected.forEach((element) => {
+        element.setState({
+          selected: false,
+        })
+      })
+      this.selected = []
+    }
+    this.elements.forEach((element) => {
+      const insideRectangle = !(element.props.x > selection.x2 || selection.x1 > (element.props.x + element.props.width) || element.props.y > selection.y2 || selection.y1 > (element.props.y + element.props.height))
+
+      if (insideRectangle) {
+        this.selected.push(element)
+        element.setState({
+          selected: true,
+        })
+      }
+    })
+
+    this.elements.sort(function(x, y) {
+      if (x.state.selected && y.state.selected) {
+        return 0;
+      }
+      if (x.state.selected && !y.state.selected) {
+        return 1;
+      }
+      return -1;
+    });
   }
 
   addEntity = (entity: any) => {
-    this.store.dispatch(addElement(entity))
+    this.elements.push(entity)
   }
 
   removeEntity = (entity: any) => {
-    this.store.dispatch(removeElement(entity))
+    this.elements = this.elements.filter((value) => value !== entity)
+    this.selected = this.selected.filter((value) => value !== entity)
   }
 
 }

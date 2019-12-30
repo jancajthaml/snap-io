@@ -1,43 +1,6 @@
 import Rectangle from '../../atoms/Rectangle'
 import { IDiagramSchema } from './reducer'
 
-export const calculateVisible = (elements: {}, selected: any[], viewport: Rectangle): string[] => {
-  const visible: Set<any> = new Set(selected)
-  Object.values(elements).forEach((element: any) => {
-    const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.props.x) < 0
-    const outOfLeft = (viewport.x1 + element.props.x + element.props.width) < 0
-    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.props.y) < 0
-    const outOfUp = (viewport.y1 + element.props.y + element.props.height) < 0
-    if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
-      visible.add(element)
-    }
-  })
-  return [...visible]
-}
-
-export const calculateSelection = (selected: any[], visible: any[], selection: Rectangle, clearPrevious: boolean) => {
-  let nextSelected: any[]
-  if (clearPrevious) {
-    //selected.forEach((element) => {
-      //if (element.bounds.z >= 1000) {
-        //element.bounds.z -= 1000
-      //}
-    //})
-    nextSelected = []
-  } else{
-    nextSelected = [...selected]
-  }
-  visible.forEach((element) => {
-
-    const insideRectangle = !(element.props.x > selection.x2 || selection.x1 > (element.props.x + element.props.width) || element.props.y > selection.y2 || selection.y1 > (element.props.y + element.props.height))
-
-    if (insideRectangle) {
-      nextSelected.push(element)
-      //element.bounds.z += 1000
-    }
-  })
-  return nextSelected
-}
 
 export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rectangle): Rectangle | null => {
   const viewport = new Rectangle()

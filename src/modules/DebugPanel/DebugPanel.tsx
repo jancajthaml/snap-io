@@ -5,14 +5,12 @@ import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema } from '../Diagram/reducer'
 import { setSchema, zoomToFit } from '../Diagram/actions'
-import { getViewport, getResolution, getElements, getSelected, getVisible } from '../Diagram/selectors'
+import { getViewport, getResolution, getSchema } from '../Diagram/selectors'
 
 interface IProps {
   viewport: Rectangle;
   resolution: Rectangle;
-  visible: any[];
-  elements: { [key: string]: any };
-  selected: any[];
+  schema: IDiagramSchema;
   zoomToFit: () => void;
   setSchema: (schema: IDiagramSchema) => void;
 }
@@ -107,6 +105,17 @@ const DebugPanel = (props: IProps) => {
         }}>
           huge diagram
         </button>
+        <pre
+          style={{
+            fontFamily: 'Verdana',
+            fontSize: 8,
+            height: 200,
+            overflowY: 'scroll',
+            border: '1px solid black',
+          }}
+        >
+          {JSON.stringify(props.schema, null, 2)}
+        </pre>
       </p>
       <p>
         <h5
@@ -173,13 +182,7 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <ul>
           <li>
-          {`elements: ${Object.keys(props.elements).length}`}
-          </li>
-          <li>
-          {`visible: ${props.visible.length}`}
-          </li>
-          <li>
-          {`selected: ${props.selected.length}`}
+          {`elements: ${Object.keys(props.schema).length}`}
           </li>
         </ul>
       </p>
@@ -190,9 +193,7 @@ const DebugPanel = (props: IProps) => {
 const mapStateToProps = (state: IRootReduxState) => ({
   viewport: getViewport(state),
   resolution: getResolution(state),
-  visible: getVisible(state),
-  elements: getElements(state),
-  selected: getSelected(state),
+  schema: getSchema(state),
 })
 
 const mapDispatchToProps = {
