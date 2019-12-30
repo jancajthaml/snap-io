@@ -86,6 +86,15 @@ class BoxEntity extends React.Component<IProps, IState> {
     }
   }
 
+  serialize = () => ({
+    id: this.props.id,
+    type: this.props.type,
+    x: this.props.x,
+    y: this.props.y,
+    width: this.props.width,
+    height: this.props.height,
+  })
+
   render() {
     return <React.Fragment />
   }

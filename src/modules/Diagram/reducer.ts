@@ -69,18 +69,15 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case PATCH_SCHEMA: {
-      const schema = {
-        id: state.schema.id,
-        root: { ...state.schema.root },
-      } as IDiagramSchema
-
-      action.payload.update.forEach((update) => {
-        schema.root[update.id] = update
-      })
-
       return {
         ...state,
-        schema,
+        schema: {
+          id: state.schema.id,
+          root: {
+            ...state.schema.root,
+            ...action.payload.update,
+          },
+        },
       }
     }
 

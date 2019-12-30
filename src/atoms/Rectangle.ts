@@ -37,10 +37,6 @@ class Rectangle {
     this.y2 += y
   }
 
-  insideRectangle(rect: Rectangle) {
-    return !(this.x1 > rect.x2 || rect.x1 > this.x2 || this.y1 > rect.y2 || rect.y1 > this.y2)
-  }
-
 }
 
 export default Rectangle

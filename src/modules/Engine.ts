@@ -143,18 +143,12 @@ class Engine {
     }
 
     if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
-      let updateBulk = [] as IEntitySchema[]
+      let updateBulk = {} as { [key: string]: IEntitySchema }
 
       this.selected.forEach((element) => {
-        updateBulk.push({
-          id: element.props.id,
-          type: element.props.type,
-          x: element.props.x,
-          y: element.props.y,
-          width: element.props.width,
-          height: element.props.height,
-        })
+        updateBulk[element.props.id] = element.serialize()
       })
+
       this.store.dispatch(patchSchema(updateBulk))
     }
 

@@ -4,7 +4,7 @@ import Rectangle from '../../atoms/Rectangle'
 
 import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT } from './constants'
 
-export const patchSchema = (update: IEntitySchema[]) => ({
+export const patchSchema = (update: { [key: string]: IEntitySchema }) => ({
   type: PATCH_SCHEMA,
   payload: {
     update

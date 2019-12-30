@@ -16,7 +16,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 9
+  const howMany = 1
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
@@ -32,13 +32,13 @@ const loadSchema_A = (): IDiagramSchema => {
   })
 
   return {
-    id: 'schema-a',
+    id: 'schema-tiny',
     root: result,
   }
 }
 
 const loadSchema_B = (): IDiagramSchema => {
-  const howMany = 900
+  const howMany = 10
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
@@ -54,13 +54,35 @@ const loadSchema_B = (): IDiagramSchema => {
   })
 
   return {
-    id: 'schema-b',
+    id: 'schema-small',
     root: result,
   }
 }
 
 const loadSchema_C = (): IDiagramSchema => {
-  const howMany = 9000
+  const howMany = 100
+  const modulus = Math.min(howMany, Math.round(Math.pow(howMany, 0.5)))
+
+  const result = {} as { [key: string]: IEntitySchema }
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 70,
+      y: Math.floor(idx / modulus) * 70,
+      width: 60,
+      height: 60,
+      type: 'box-entity'
+    }
+  })
+
+  return {
+    id: 'schema-medium',
+    root: result,
+  }
+}
+
+const loadSchema_D = (): IDiagramSchema => {
+  const howMany = 1000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
@@ -76,7 +98,29 @@ const loadSchema_C = (): IDiagramSchema => {
   })
 
   return {
-    id: 'schema-c',
+    id: 'schema-huge',
+    root: result,
+  }
+}
+
+const loadSchema_E = (): IDiagramSchema => {
+  const howMany = 10000
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
+  const result = {} as { [key: string]: IEntitySchema }
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 70,
+      y: Math.floor(idx / modulus) * 70,
+      width: 60,
+      height: 60,
+      type: 'box-entity'
+    }
+  })
+
+  return {
+    id: 'schema-masive',
     root: result,
   }
 }
@@ -99,32 +143,71 @@ const DebugPanel = (props: IProps) => {
         >
           schemas
         </h5>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_A())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_A())
+            props.zoomToFit()
+          }}
+        >
+          tiny diagram
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_B())
+            props.zoomToFit()
+          }}
+        >
           small diagram
         </button>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_B())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_C())
+            props.zoomToFit()
+          }}
+        >
           medium diagram
         </button>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_C())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_D())
+            props.zoomToFit()
+          }}
+        >
           huge diagram
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_E())
+            props.zoomToFit()
+          }}
+        >
+          masive diagram
         </button>
         <pre
           style={{
             fontFamily: 'Verdana',
             fontSize: 8,
-            height: 200,
+            height: 100,
             overflowY: 'scroll',
             border: '1px solid black',
           }}
@@ -157,11 +240,36 @@ const DebugPanel = (props: IProps) => {
           {`z: ${props.viewport.z.toFixed(2)}`}
           </li>
         </ul>
-        <button onClick={() => {
-          props.zoomToFit()
-          window.dispatchEvent(new Event('canvas-update-composition'));
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            props.zoomToFit()
+            window.dispatchEvent(new Event('canvas-update-composition'));
+          }}
+        >
           zoom to fit
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+
+          }}
+        >
+          zoom in
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+
+          }}
+        >
+          zoom out
         </button>
       </p>
       <p>
@@ -197,7 +305,7 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <ul>
           <li>
-          {`elements: ${Object.keys(props.schema).length}`}
+          {`elements: ${Object.keys(props.schema.root).length}`}
           </li>
         </ul>
       </p>
