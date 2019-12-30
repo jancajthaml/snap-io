@@ -111,7 +111,7 @@ class Engine {
     let nextScale = viewport.z
 
     if (event.deltaY > 0) {
-      nextScale = Math.max(prevScale / 1.03, 0.2)
+      nextScale = Math.max(prevScale / 1.03, 0.3)
     } else {
       nextScale = Math.min(prevScale * 1.03, 8)
     }
