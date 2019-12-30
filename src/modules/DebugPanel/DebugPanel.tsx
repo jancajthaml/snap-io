@@ -3,7 +3,7 @@ import Rectangle from '../../atoms/Rectangle'
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { IDiagramSchema } from '../Diagram/reducer'
+import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
 import { setSchema, zoomToFit } from '../Diagram/actions'
 import { getViewport, getResolution, getSchema } from '../Diagram/selectors'
 
@@ -19,7 +19,7 @@ const loadSchema_A = (): IDiagramSchema => {
   const howMany = 9
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as IDiagramSchema
+  const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
@@ -30,14 +30,18 @@ const loadSchema_A = (): IDiagramSchema => {
       type: 'box-entity'
     }
   })
-  return result
+
+  return {
+    id: 'schema-a',
+    root: result,
+  }
 }
 
 const loadSchema_B = (): IDiagramSchema => {
   const howMany = 900
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as IDiagramSchema
+  const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
@@ -48,14 +52,18 @@ const loadSchema_B = (): IDiagramSchema => {
       type: 'box-entity'
     }
   })
-  return result
+
+  return {
+    id: 'schema-b',
+    root: result,
+  }
 }
 
 const loadSchema_C = (): IDiagramSchema => {
   const howMany = 9000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as IDiagramSchema
+  const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
@@ -66,7 +74,11 @@ const loadSchema_C = (): IDiagramSchema => {
       type: 'box-entity'
     }
   })
-  return result
+
+  return {
+    id: 'schema-c',
+    root: result,
+  }
 }
 
 const DebugPanel = (props: IProps) => {
@@ -88,18 +100,21 @@ const DebugPanel = (props: IProps) => {
           schemas
         </h5>
         <button onClick={() => {
+          window.dispatchEvent(new Event('engine-cleanup'));
           props.setSchema(loadSchema_A())
           props.zoomToFit()
         }}>
           small diagram
         </button>
         <button onClick={() => {
+          window.dispatchEvent(new Event('engine-cleanup'));
           props.setSchema(loadSchema_B())
           props.zoomToFit()
         }}>
           medium diagram
         </button>
         <button onClick={() => {
+          window.dispatchEvent(new Event('engine-cleanup'));
           props.setSchema(loadSchema_C())
           props.zoomToFit()
         }}>

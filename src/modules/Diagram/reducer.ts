@@ -2,8 +2,8 @@ import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, /*UPDATE_SELECTION, ADD_ELEMENT, REMOVE_ELEMENT*/ } from './constants'
-import { calculateOptimalViewport /*, calculateVisible, calculateSelection*/ } from './utils'
+import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT } from './constants'
+import { calculateOptimalViewport } from './utils'
 
 export interface IEntitySchema {
   id: string;
@@ -15,11 +15,15 @@ export interface IEntitySchema {
 }
 
 export interface IDiagramSchema {
-  [key: string]: IEntitySchema;
+  id: string;
+  root: { [key: string]: IEntitySchema };
 }
 
 export const initialState = {
-  schema: {} as IDiagramSchema,
+  schema: {
+    id: '',
+    root: {}
+  } as IDiagramSchema,
   viewport: new Rectangle() as Rectangle,
   resolution: new Rectangle(0, 0, 1, 1) as Rectangle,
 } as const
@@ -65,10 +69,13 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case PATCH_SCHEMA: {
-      const schema = { ...state.schema }
+      const schema = {
+        id: state.schema.id,
+        root: { ...state.schema.root },
+      } as IDiagramSchema
 
       action.payload.update.forEach((update) => {
-        schema[update.id] = update
+        schema.root[update.id] = update
       })
 
       return {

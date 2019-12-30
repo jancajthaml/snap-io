@@ -5,9 +5,10 @@ import { IReduxStore } from '../store'
 import { getViewport, getResolution } from './Diagram/selectors'
 import { setViewPort, setResolution, patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
+import SelectionFascade from './SelectionFascade'
 
 class Engine {
-  selection?: any
+  selection: SelectionFascade;
   currentMouseEvent?: string;
   currentMouseCoordinates: Rectangle;
   store: IReduxStore;
@@ -20,6 +21,7 @@ class Engine {
     this.store = store
     this.elements = []
     this.selected = []
+    this.selection = new SelectionFascade(this)
   }
 
   get viewport() {
@@ -32,10 +34,16 @@ class Engine {
 
   cleanup = () => {
     this.setMouseEvent(undefined)
+    this.selection.cleanup()
+  }
+
+  teardown = () => {
+    window.removeEventListener('engine-cleanup', this.cleanup)
+    this.cleanup()
   }
 
   bootstrap = () => {
-
+    window.addEventListener('engine-cleanup', this.cleanup)
   }
 
   setMouseEvent = (event: string | undefined) => {

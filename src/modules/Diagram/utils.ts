@@ -10,7 +10,7 @@ export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rec
   let x2: number | undefined = undefined
   let y2: number | undefined = undefined
 
-  Object.values(schema).forEach((element) => {
+  Object.values(schema.root).forEach((element) => {
     if (x1 === undefined || element.x < x1) {
       x1 = element.x
     }

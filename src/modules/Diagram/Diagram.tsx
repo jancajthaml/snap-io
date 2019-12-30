@@ -9,7 +9,6 @@ import { getSchema } from '../Diagram/selectors'
 import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../BoxEntity'
-import SelectionEntity from '../SelectionEntity'
 
 interface IProps {
   store: IReduxStore;
@@ -24,8 +23,8 @@ const Diagram = (props: IProps) => {
     setEngine(nextEngine)
     nextEngine.bootstrap()
     return () => {
-      if (engine !== null ){
-        engine.cleanup()
+      if (engine !== null) {
+        engine.teardown()
       }
     }
   }, [])
@@ -36,7 +35,7 @@ const Diagram = (props: IProps) => {
 
   return (
     <Composition engine={engine as Engine}>
-      {Object.values(props.schema).map((entity, idx) => (
+      {Object.values(props.schema.root).map((entity, idx) => (
         <BoxEntity
           engine={engine as Engine}
           type={entity.type}
@@ -48,9 +47,6 @@ const Diagram = (props: IProps) => {
           color={["red", "blue", "green"][(idx % 3)]}
         />
       ))}
-      <SelectionEntity
-        engine={engine as Engine}
-      />
     </Composition>
   )
 }

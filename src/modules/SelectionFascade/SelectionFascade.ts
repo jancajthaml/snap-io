@@ -1,5 +1,3 @@
-import React from 'react'
-
 import Engine from '../Engine'
 import Rectangle from '../../atoms/Rectangle'
 import Point from '../../atoms/Point'
@@ -9,38 +7,23 @@ import ResizerHandle from './ResizerHandle'
 import SelectionBounds from './SelectionBounds'
 import { RESIZER_SIZE } from './constants'
 
-interface IProps {
-  engine: Engine;
-}
-
-class SelectionEntity extends React.PureComponent<IProps> {
+class SelectionFascade  {
 
   bounds: SelectionBounds;
   is_resizing?: string;
+  engine: Engine;
 
-  constructor(props: IProps) {
-    super(props)
+  constructor(engine: Engine) {
     this.bounds = new SelectionBounds()
+    this.engine = engine
   }
-
-  componentDidMount() {
-    // FIXME not ideal but we the selection coordinates in redux to ommit this
-    this.props.engine.selection = this
-  }
-
-  componentWillUnmount() {
-    // FIXME not ideal but we the selection coordinates in redux to ommit this
-    this.props.engine.selection = undefined
-  }
-
 
   onMouseMove = (xDelta: number, yDelta: number) => {
-    const engine = this.props.engine
+    const engine = this.engine
 
     if (this.is_resizing === undefined) {
       const { viewport, currentMouseCoordinates } = engine
       this.updateSelected(viewport, currentMouseCoordinates, true)
-      //this.updateSelected(engine, true)
       this.bounds.updateResizers()
       return
     }
@@ -332,7 +315,7 @@ class SelectionEntity extends React.PureComponent<IProps> {
     if (this.is_resizing) {
       return
     }
-    const engine = this.props.engine
+    const engine = this.engine
     const { viewport, currentMouseCoordinates } = engine
 
     this.bounds.x1 = currentMouseCoordinates.x1 / viewport.z - viewport.x1
@@ -362,7 +345,7 @@ class SelectionEntity extends React.PureComponent<IProps> {
         : (currentMouseCoordinates.y2 - currentMouseCoordinates.y1)
       ) / viewport.z
 
-    this.props.engine.updateSelected(this.bounds, clearPrevious)
+    this.engine.updateSelected(this.bounds, clearPrevious)
   }
 
   selectionCapture = (point: Point) => {
@@ -370,7 +353,7 @@ class SelectionEntity extends React.PureComponent<IProps> {
   }
 
   resizerCapture = (point: Point) => {
-    const { viewport } = this.props.engine
+    const { viewport } = this.engine
     const pointScaled = point.multiply(viewport.z)
 
     return [
@@ -403,7 +386,7 @@ class SelectionEntity extends React.PureComponent<IProps> {
     let y1: number | undefined = undefined
     let x2: number | undefined = undefined
     let y2: number | undefined = undefined
-    this.props.engine.selected.forEach((element: any) => {
+    this.engine.selected.forEach((element: any) => {
       if (x1 === undefined || x1 > element.props.x) {
         x1 = element.props.x
       }
@@ -503,7 +486,7 @@ class SelectionEntity extends React.PureComponent<IProps> {
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { currentMouseEvent, viewport } = this.props.engine
+    const { currentMouseEvent, viewport } = this.engine
 
     if (currentMouseEvent !== MODE_SELECTION) {
       this.drawSelectedBox(ctx, viewport)
@@ -512,9 +495,27 @@ class SelectionEntity extends React.PureComponent<IProps> {
     }
   }
 
-  render() {
-    return <React.Fragment />
+  cleanup = () => {
+    this.bounds.x1 = 0
+    this.bounds.y1 = 0
+    this.bounds.x2 = 0
+    this.bounds.y2 = 0
+
+    this.engine.selected.forEach((element) => {
+      try {
+        element.setState({
+          selected: false,
+        })
+      } catch (err) {
+
+      }
+    })
+
+    this.engine.selected = []
+    this.bounds.updateResizers()
+    window.dispatchEvent(new Event('canvas-update-composition'));
   }
+
 }
 
-export default SelectionEntity
+export default SelectionFascade
