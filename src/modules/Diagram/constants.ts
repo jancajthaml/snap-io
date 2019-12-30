@@ -1,5 +1,7 @@
 export const COMPONENT_NAME = 'diagram' as const
 
+export const SET_GRID_SIZE = 'SET_GRID_SIZE' as const
+
 export const SET_VIEWPORT = 'SET_VIEWPORT' as const
 
 export const SET_SCHEMA = 'SET_SCHEMA' as const

@@ -4,13 +4,15 @@ import Rectangle from '../../atoms/Rectangle'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
-import { setSchema, zoomToFit } from '../Diagram/actions'
-import { getViewport, getResolution, getSchema } from '../Diagram/selectors'
+import { setGridSize, setSchema, zoomToFit } from '../Diagram/actions'
+import { getViewport, getResolution, getSchema, getGridSize } from '../Diagram/selectors'
 
 interface IProps {
   viewport: Rectangle;
   resolution: Rectangle;
   schema: IDiagramSchema;
+  gridSize: number;
+  setGridSize: (gridSize: number) => void;
   zoomToFit: () => void;
   setSchema: (schema: IDiagramSchema) => void;
 }
@@ -125,9 +127,16 @@ const loadSchema_E = (): IDiagramSchema => {
   }
 }
 
+// FIXME add gridSize from redux store and provide slider element that would change grisSize on change
 const DebugPanel = (props: IProps) => {
   return (
-    <div tabIndex={0}>
+    <div
+      tabIndex={0}
+      style={{
+        fontFamily: 'Verdana',
+        fontSize: 10,
+      }}
+    >
       <h4
         style={{
           margin: 0
@@ -278,6 +287,29 @@ const DebugPanel = (props: IProps) => {
             margin: 0
           }}
         >
+        {`grid size ( ${props.gridSize} )`}
+        </h5>
+        <input
+          type="range"
+          min={6*2}
+          max={6*10}
+          style={{
+            display: 'block',
+          }}
+          value={props.gridSize}
+          onChange={(event) => {
+            event.preventDefault()
+            props.setGridSize(Number(event.target.value))
+            window.dispatchEvent(new Event('canvas-update-composition'));
+          }}
+        />
+      </p>
+      <p>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
           resolution
         </h5>
         <ul>
@@ -314,12 +346,14 @@ const DebugPanel = (props: IProps) => {
 }
 
 const mapStateToProps = (state: IRootReduxState) => ({
+  gridSize: getGridSize(state),
   viewport: getViewport(state),
   resolution: getResolution(state),
   schema: getSchema(state),
 })
 
 const mapDispatchToProps = {
+  setGridSize,
   zoomToFit,
   setSchema,
 }

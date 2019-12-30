@@ -7,3 +7,5 @@ export const getViewport = (state: IRootReduxState) => state[COMPONENT_NAME].vie
 export const getResolution = (state: IRootReduxState) => state[COMPONENT_NAME].resolution
 
 export const getSchema = (state: IRootReduxState) => state[COMPONENT_NAME].schema
+
+export const getGridSize = (state: IRootReduxState) => state[COMPONENT_NAME].gridSize

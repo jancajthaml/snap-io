@@ -2,7 +2,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
-import { getViewport, getResolution } from './Diagram/selectors'
+import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
 import { setViewPort, setResolution, patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
 import SelectionFascade from './SelectionFascade'
@@ -13,6 +13,7 @@ class Engine {
   currentMouseCoordinates: Rectangle;
   store: IReduxStore;
 
+  // FIXME try to introduce visible back and check if it makes any difference
   elements: any[];
   selected: any[];
 
@@ -30,6 +31,10 @@ class Engine {
 
   get resolution() {
     return getResolution(this.store.getState())
+  }
+
+  get gridSize() {
+    return getGridSize(this.store.getState())
   }
 
   cleanup = () => {

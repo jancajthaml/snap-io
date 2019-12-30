@@ -2,7 +2,7 @@ import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT } from './constants'
+import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
 import { calculateOptimalViewport } from './utils'
 
 export interface IEntitySchema {
@@ -24,6 +24,7 @@ export const initialState = {
     id: '',
     root: {}
   } as IDiagramSchema,
+  gridSize: 12 as number,
   viewport: new Rectangle() as Rectangle,
   resolution: new Rectangle(0, 0, 1, 1) as Rectangle,
 } as const
@@ -32,6 +33,13 @@ export type IReduxState = typeof initialState
 
 export default (state: IReduxState = initialState, action: IAction): IReduxState => {
   switch (action.type) {
+
+    case SET_GRID_SIZE: {
+      return {
+        ...state,
+        gridSize: action.payload.gridSize,
+      }
+    }
 
     case SET_SCHEMA: {
       return {
