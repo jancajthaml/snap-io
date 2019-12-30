@@ -1,10 +1,13 @@
 import React from 'react'
 
 import Engine from '../Engine'
+import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 
 interface IProps {
   engine: Engine;
+  id: string;
+  type: string;
   x: number;
   y: number;
   width: number;
@@ -12,70 +15,74 @@ interface IProps {
   color: string;
 }
 
+interface IState {
+  selected: boolean;
+}
 
-class BoxEntity extends React.PureComponent<IProps> {
-
-  bounds: Rectangle;
+class BoxEntity extends React.Component<IProps, IState> {
 
   constructor(props: IProps) {
     super(props)
-    this.bounds = new Rectangle(props.x, props.y, props.width, props.height)
     this.state = {
       selected: false,
     }
   }
 
   componentDidMount() {
+    // FIXME this slows rendering significantly
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
+    // FIXME this slows rendering significantly
     this.props.engine.removeEntity(this)
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
+  mouseDownCapture = (point: Point): boolean => {
+    return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
+  }
 
-    if (this.bounds.z >= 1000) {
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
+    if (this.state.selected) {
       ctx.fillStyle = "black"
     } else {
       ctx.fillStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
+
+    const x = (viewport.x1 + this.props.x) * viewport.z
+    const y = (viewport.y1 + this.props.y) * viewport.z
+    const w = (this.props.width) * viewport.z
+    const h = (this.props.height) * viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
-
-    if (this.bounds.z >= 1000) {
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
+    if (this.state.selected) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
     } else {
       ctx.fillStyle = this.props.color
       ctx.strokeStyle = this.props.color
     }
-    const x = (engine.viewport.x1 + this.bounds.x1) * engine.scale
-    const y = (engine.viewport.y1 + this.bounds.y1) * engine.scale
-    const w = (this.bounds.x2 - this.bounds.x1) * engine.scale
-    const h = (this.bounds.y2 - this.bounds.y1) * engine.scale
 
-    const offset = 3 * engine.scale
-    ctx.fillRect(x + offset, y + offset, w - 2*offset, h - 2*offset);
+    const x = (viewport.x1 + this.props.x) * viewport.z
+    const y = (viewport.y1 + this.props.y) * viewport.z
+    const w = (this.props.width) * viewport.z
+    const h = (this.props.height) * viewport.z
+
+    const offset = 3 * viewport.z
+    ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
     ctx.strokeRect(x, y, w, h);
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const engine = this.props.engine
+    const { viewport } = this.props.engine
 
-    if (engine.scale <= 0.4) {
-      this.drawSimple(ctx)
+    if (viewport.z <= 0.4) {
+      this.drawSimple(ctx, viewport)
     } else {
-      this.drawDetail(ctx)
+      this.drawDetail(ctx, viewport)
     }
   }
 

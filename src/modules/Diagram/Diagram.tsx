@@ -1,38 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { connect } from 'react-redux'
+import { IRootReduxState } from '../../reducer'
+import { IReduxStore } from '../../store'
+import { IDiagramSchema } from './reducer'
+import { getSchema } from '../Diagram/selectors'
 
 import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../BoxEntity'
 
-const Diagram = () => {
-  const engine = new Engine();
+interface IProps {
+  store: IReduxStore;
+  schema: IDiagramSchema;
+}
+
+const Diagram = (props: IProps) => {
+  const [engine, setEngine] = useState<Engine | null>(null)
 
   useEffect(() => {
-    engine.addListeners();
+    const nextEngine = new Engine(props.store)
+    setEngine(nextEngine)
+    nextEngine.bootstrap()
     return () => {
-      engine.removeListeners();
-      engine.cleanup();
+      if (engine !== null) {
+        engine.teardown()
+      }
     }
   }, [])
 
-  const howMany = 9 //000
-  const modulus = Math.floor(Math.pow(howMany, 0.5))
+  if (engine === null) {
+    return null
+  }
 
   return (
-    <Composition engine={engine}>
-      {Array.from(Array(howMany).keys()).map((idx) => (
+    <Composition engine={engine as Engine}>
+      {Object.values(props.schema.root).map((entity, idx) => (
         <BoxEntity
-          key={idx}
-          engine={engine}
-          x={10 + ((idx%modulus)*70)}
-          y={20 + (Math.floor(idx/modulus)*70)}
-          width={60}
-          height={60}
-          color="red"
+          engine={engine as Engine}
+          type={entity.type}
+          id={entity.id}
+          x={entity.x}
+          y={entity.y}
+          width={entity.width}
+          height={entity.height}
+          color={["red", "blue", "green"][(idx % 3)]}
         />
       ))}
     </Composition>
   )
 }
 
-export default Diagram
+const mapStateToProps = (state: IRootReduxState) => ({
+  schema: getSchema(state),
+})
+
+const mapDispatchToProps = {
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Diagram)

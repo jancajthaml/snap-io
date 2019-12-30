@@ -1,35 +1,41 @@
 import React from 'react'
+import { ReactReduxContext } from 'react-redux'
 
 import Diagram from '../Diagram'
 import DebugPanel from '../DebugPanel'
+import Providers from '../Providers'
 
 const Layout = () => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'row',
-      height: '100vh',
-    }}
-  >
+  <Providers>
     <div
       style={{
-        flex: 1,
-        maxWidth: 200,
-        borderRight: '1px solid black',
-        padding: '10px',
-        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'row',
+        height: '100vh',
       }}
     >
-      <DebugPanel />
+      <div
+        style={{
+          flex: 1,
+          maxWidth: 200,
+          borderRight: '1px solid black',
+          padding: '10px',
+          boxSizing: 'border-box',
+        }}
+      >
+        <DebugPanel />
+      </div>
+      <div
+        style={{
+          flex: 1,
+        }}
+      >
+        <ReactReduxContext.Consumer>
+          {({ store }) => <Diagram store={store} />}
+        </ReactReduxContext.Consumer>
+      </div>
     </div>
-    <div
-      style={{
-        flex: 1,
-      }}
-    >
-      <Diagram />
-    </div>
-  </div>
+  </Providers>
 )
 
 export default Layout
