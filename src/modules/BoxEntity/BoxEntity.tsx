@@ -42,22 +42,22 @@ class BoxEntity extends React.Component<IProps, IState> {
     return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     if (this.state.selected) {
       ctx.fillStyle = "black"
     } else {
       ctx.fillStyle = this.props.color
     }
 
-    const x = (viewport.x1 + this.props.x) * viewport.z
-    const y = (viewport.y1 + this.props.y) * viewport.z
-    const w = (this.props.width) * viewport.z
-    const h = (this.props.height) * viewport.z
+    const x = (viewport.x1 + this.props.x * gridSize) * viewport.z
+    const y = (viewport.y1 + this.props.y * gridSize) * viewport.z
+    const w = this.props.width * gridSize * viewport.z
+    const h = this.props.height * gridSize * viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle) => {
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     if (this.state.selected) {
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"
@@ -66,10 +66,10 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.strokeStyle = this.props.color
     }
 
-    const x = (viewport.x1 + this.props.x) * viewport.z
-    const y = (viewport.y1 + this.props.y) * viewport.z
-    const w = (this.props.width) * viewport.z
-    const h = (this.props.height) * viewport.z
+    const x = (viewport.x1 + this.props.x * gridSize)  * viewport.z
+    const y = (viewport.y1 + this.props.y * gridSize)  * viewport.z
+    const w = this.props.width * gridSize * viewport.z
+    const h = this.props.height * gridSize * viewport.z
 
     const offset = 3 * viewport.z
     ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
@@ -77,12 +77,12 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport } = this.props.engine
+    const { viewport, gridSize } = this.props.engine
 
     if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport)
+      this.drawSimple(ctx, viewport, gridSize)
     } else {
-      this.drawDetail(ctx, viewport)
+      this.drawDetail(ctx, viewport, gridSize)
     }
   }
 

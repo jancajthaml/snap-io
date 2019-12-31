@@ -25,10 +25,10 @@ const loadSchema_A = (): IDiagramSchema => {
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
@@ -47,10 +47,10 @@ const loadSchema_B = (): IDiagramSchema => {
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
@@ -69,10 +69,10 @@ const loadSchema_C = (): IDiagramSchema => {
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
@@ -91,10 +91,10 @@ const loadSchema_D = (): IDiagramSchema => {
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
@@ -113,10 +113,10 @@ const loadSchema_E = (): IDiagramSchema => {
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })

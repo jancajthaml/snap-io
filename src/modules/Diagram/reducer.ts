@@ -56,7 +56,7 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case ZOOM_TO_FIT: {
-      const viewport = calculateOptimalViewport(state.schema, state.resolution)
+      const viewport = calculateOptimalViewport(state.schema, state.gridSize, state.resolution)
       if (viewport === null) {
         return {
           ...state,

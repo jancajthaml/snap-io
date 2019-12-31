@@ -209,32 +209,57 @@ class Engine {
       }
 
       case MODE_TRANSLATE: {
-        const { resolution, viewport, currentMouseCoordinates } = this
-        const x = event.clientX - resolution.x1
-        const y = event.clientY - resolution.y1
-        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
-        currentMouseCoordinates.x2 = x
-        currentMouseCoordinates.y2 = y
+        //const { gridSize } = this
+        // FIXME to selection
+        const { resolution, viewport, currentMouseCoordinates, gridSize } = this
+        //const x =
+        //const y =
+        //const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
+        //const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
+        currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        currentMouseCoordinates.y2 = event.clientY - resolution.y1
 
+        const xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
+        const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+
+        if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
+          //return//
+          window.dispatchEvent(new Event('canvas-update-composition'));
+          //console.log('nothing to do')
+          break
+        }
         this.selected.forEach((element) => {
           element.props.x += xDelta
           element.props.y += yDelta
         })
-        this.selection.bounds.translate(xDelta, yDelta)
+        this.selection.bounds.translate(xDelta * gridSize, yDelta * gridSize)
+
+        currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
+        currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
       case MODE_RESIZE: {
-        const { resolution, viewport, currentMouseCoordinates } = this
-        const x = event.clientX - resolution.x1
-        const y = event.clientY - resolution.y1
-        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
-        currentMouseCoordinates.x2 = x
-        currentMouseCoordinates.y2 = y
-        this.selection.onMouseMove(xDelta, yDelta)
+        const { resolution, viewport, currentMouseCoordinates, gridSize } = this
+
+        currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        currentMouseCoordinates.y2 = event.clientY - resolution.y1
+
+        const xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
+        const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+
+        if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
+          window.dispatchEvent(new Event('canvas-update-composition'));
+          break
+        }
+
+        this.selection.onResize(xDelta === -0 ? 0 : xDelta, yDelta === -0 ? 0 : yDelta)
+
+        currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
+        currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -243,7 +268,7 @@ class Engine {
         const { resolution, currentMouseCoordinates } = this
         currentMouseCoordinates.x2 = event.clientX - resolution.x1
         currentMouseCoordinates.y2 = event.clientY - resolution.y1
-        this.selection.onMouseMove(0, 0)
+        this.selection.onMouseMove()
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -262,6 +287,7 @@ class Engine {
   }
 
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
+    const { gridSize } = this
     if (clearPrevious) {
       this.selected.forEach((element) => {
         element.setState({
@@ -271,7 +297,7 @@ class Engine {
       this.selected = []
     }
     this.elements.forEach((element) => {
-      const insideRectangle = !(element.props.x > selection.x2 || selection.x1 > (element.props.x + element.props.width) || element.props.y > selection.y2 || selection.y1 > (element.props.y + element.props.height))
+      const insideRectangle = !((element.props.x * gridSize) > selection.x2 || selection.x1 > ((element.props.x + element.props.width) * gridSize) || (element.props.y * gridSize) > selection.y2 || selection.y1 > ((element.props.y + element.props.height) * gridSize))
 
       if (insideRectangle) {
         this.selected.push(element)

@@ -2,7 +2,7 @@ import Rectangle from '../../atoms/Rectangle'
 import { IDiagramSchema } from './reducer'
 
 
-export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rectangle): Rectangle | null => {
+export const calculateOptimalViewport = (schema: IDiagramSchema, gridSize: number, resolution: Rectangle): Rectangle | null => {
   const viewport = new Rectangle()
 
   let x1: number | undefined = undefined
@@ -28,6 +28,11 @@ export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rec
   if (x1 === undefined || y1 === undefined || x2 === undefined || y2 === undefined) {
     return null
   }
+
+  x1 = (x1 as number) * gridSize
+  x2 = (x2 as number) * gridSize
+  y1 = (y1 as number) * gridSize
+  y2 = (y2 as number) * gridSize
 
   const xScale = (resolution.x2 - resolution.x1) / (x2 - x1)
   const yScale = (resolution.y2 - resolution.y1) / (y2 - y1)
