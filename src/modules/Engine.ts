@@ -147,16 +147,6 @@ class Engine {
       return
     }
 
-    if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
-      let updateBulk = {} as { [key: string]: IEntitySchema }
-
-      this.selected.forEach((element) => {
-        updateBulk[element.props.id] = element.serialize()
-      })
-
-      this.store.dispatch(patchSchema(updateBulk))
-    }
-
     if (this.currentMouseEvent === MODE_RESIZE) {
       this.selection.onMouseUp()
     } else if (
@@ -169,6 +159,16 @@ class Engine {
     } else if (this.currentMouseEvent === MODE_SELECTION) {
       this.selection.compressSelected()
       this.selection.bounds.updateResizers()
+    }
+
+    if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
+      let updateBulk = {} as { [key: string]: IEntitySchema }
+
+      this.selected.forEach((element) => {
+        updateBulk[element.props.id] = element.serialize()
+      })
+
+      this.store.dispatch(patchSchema(updateBulk))
     }
 
     this.setMouseEvent(undefined)
@@ -209,13 +209,7 @@ class Engine {
       }
 
       case MODE_TRANSLATE: {
-        //const { gridSize } = this
-        // FIXME to selection
         const { resolution, viewport, currentMouseCoordinates, gridSize } = this
-        //const x =
-        //const y =
-        //const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-        //const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
         currentMouseCoordinates.x2 = event.clientX - resolution.x1
         currentMouseCoordinates.y2 = event.clientY - resolution.y1
 
@@ -223,9 +217,7 @@ class Engine {
         const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
 
         if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
-          //return//
           window.dispatchEvent(new Event('canvas-update-composition'));
-          //console.log('nothing to do')
           break
         }
         this.selected.forEach((element) => {

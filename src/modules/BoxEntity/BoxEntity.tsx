@@ -66,10 +66,10 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.strokeStyle = this.props.color
     }
 
-    const x = (viewport.x1 + this.props.x * gridSize)  * viewport.z
-    const y = (viewport.y1 + this.props.y * gridSize)  * viewport.z
-    const w = this.props.width * gridSize * viewport.z
-    const h = this.props.height * gridSize * viewport.z
+    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
+    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
+    const w = Math.round(this.props.width) * gridSize * viewport.z
+    const h = Math.round(this.props.height) * gridSize * viewport.z
 
     const offset = 3 * viewport.z
     ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
@@ -89,10 +89,10 @@ class BoxEntity extends React.Component<IProps, IState> {
   serialize = () => ({
     id: this.props.id,
     type: this.props.type,
-    x: this.props.x,
-    y: this.props.y,
-    width: this.props.width,
-    height: this.props.height,
+    x: Math.round(this.props.x),
+    y: Math.round(this.props.y),
+    width: Math.round(this.props.width),
+    height: Math.round(this.props.height),
   })
 
   render() {

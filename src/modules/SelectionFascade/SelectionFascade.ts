@@ -329,6 +329,16 @@ class SelectionFascade  {
 
   onMouseUp = () => {
     this.is_resizing = undefined
+    /*
+    const { selected } = this.engine
+
+    selected.forEach((element: any) => {
+      element.props.x = Math.round(element.props.x)
+      element.props.y = Math.round(element.props.y)
+      element.props.width = Math.round(element.props.width)
+      element.props.height = Math.round(element.props.height)
+    })
+    */
   }
 
   onMouseDown = () => {
