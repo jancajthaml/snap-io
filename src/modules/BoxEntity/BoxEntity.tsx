@@ -78,7 +78,6 @@ class BoxEntity extends React.Component<IProps, IState> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
     const { viewport, gridSize } = this.props.engine
-
     if (viewport.z <= 0.4) {
       this.drawSimple(ctx, viewport, gridSize)
     } else {
