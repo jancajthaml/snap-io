@@ -89,6 +89,7 @@ const Canvas = (props: IProps) => {
 
   const delayedRepaint = useCallback(() => {
     if (dirty.current && ctx.current != null) {
+      ctx.current.imageSmoothingEnabled = true
       props.draw(ctx.current as CanvasRenderingContext2D)
       dirty.current = false
     }

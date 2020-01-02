@@ -27,7 +27,7 @@ class ImageLibrary {
       window.dispatchEvent(new Event('canvas-update-composition'));
     }
     this.underlying[uri] = {
-      counter: 0,
+      counter: 1,
       source,
     }
   }

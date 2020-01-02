@@ -11,7 +11,7 @@ interface IProps {
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { gridSize, viewport, elements, selection } = this.props.engine
+    const { gridSize, viewport, visible, selection } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -35,18 +35,30 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    elements.forEach((element: any) => {
+    visible.forEach((element: any) => {
       element.draw(ctx)
     })
 
     selection.draw(ctx)
 
+    /*
     ctx.beginPath();
     ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
     ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
     ctx.lineWidth = 10;
     ctx.strokeStyle = "purple";
-    ctx.stroke();
+    ctx.stroke();*/
+
+    ctx.font = "12px Arial";
+    const w_t = ctx.measureText(`visible: ${visible.length}`).width + 10
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+    ctx.fillRect(5, 7, w_t, 20)
+    ctx.strokeRect(5, 7, w_t, 20)
+    ctx.fillStyle = "black";
+
+    ctx.fillText(`visible: ${visible.length}`, 10, 22);
+
   }
 
   render() {

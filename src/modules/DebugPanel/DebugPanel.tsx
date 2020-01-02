@@ -31,7 +31,7 @@ const loadSchema_A = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: 'https://bellard.org/bpg/2.png',
+        url: 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
       result[`box_${idx}`] = {
@@ -225,6 +225,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_A())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           tiny diagram
@@ -237,6 +238,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_B())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           small diagram
@@ -249,6 +251,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           medium diagram
@@ -261,6 +264,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           huge diagram
@@ -273,6 +277,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           masive diagram
@@ -320,6 +325,7 @@ const DebugPanel = (props: IProps) => {
           }}
           onClick={() => {
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
             window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         >
@@ -365,6 +371,7 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
+            window.dispatchEvent(new Event('engine-sync'));
             window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         />
