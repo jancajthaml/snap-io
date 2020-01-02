@@ -4,86 +4,139 @@ import Rectangle from '../../atoms/Rectangle'
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
-import { setSchema, zoomToFit } from '../Diagram/actions'
-import { getViewport, getResolution, getSchema } from '../Diagram/selectors'
+import { setGridSize, setSchema, zoomToFit } from '../Diagram/actions'
+import { getViewport, getResolution, getSchema, getGridSize } from '../Diagram/selectors'
 
 interface IProps {
   viewport: Rectangle;
   resolution: Rectangle;
   schema: IDiagramSchema;
+  gridSize: number;
+  setGridSize: (gridSize: number) => void;
   zoomToFit: () => void;
   setSchema: (schema: IDiagramSchema) => void;
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 9
+  const howMany = 1
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
 
   return {
-    id: 'schema-a',
+    id: 'schema-tiny',
     root: result,
   }
 }
 
 const loadSchema_B = (): IDiagramSchema => {
-  const howMany = 900
+  const howMany = 10
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
 
   return {
-    id: 'schema-b',
+    id: 'schema-small',
     root: result,
   }
 }
 
 const loadSchema_C = (): IDiagramSchema => {
-  const howMany = 9000
+  const howMany = 100
+  const modulus = Math.min(howMany, Math.round(Math.pow(howMany, 0.5)))
+
+  const result = {} as { [key: string]: IEntitySchema }
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
+      type: 'box-entity'
+    }
+  })
+
+  return {
+    id: 'schema-medium',
+    root: result,
+  }
+}
+
+const loadSchema_D = (): IDiagramSchema => {
+  const howMany = 1000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
     result[`box_${idx}`] = {
       id: `box_${idx}`,
-      x: (idx % modulus) * 70,
-      y: Math.floor(idx / modulus) * 70,
-      width: 60,
-      height: 60,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
       type: 'box-entity'
     }
   })
 
   return {
-    id: 'schema-c',
+    id: 'schema-huge',
     root: result,
   }
 }
 
+const loadSchema_E = (): IDiagramSchema => {
+  const howMany = 10000
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
+  const result = {} as { [key: string]: IEntitySchema }
+  Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
+      type: 'box-entity'
+    }
+  })
+
+  return {
+    id: 'schema-masive',
+    root: result,
+  }
+}
+
+// FIXME add gridSize from redux store and provide slider element that would change grisSize on change
 const DebugPanel = (props: IProps) => {
   return (
-    <div tabIndex={0}>
+    <div
+      tabIndex={0}
+      style={{
+        fontFamily: 'Verdana',
+        fontSize: 10,
+      }}
+    >
       <h4
         style={{
           margin: 0
@@ -99,32 +152,71 @@ const DebugPanel = (props: IProps) => {
         >
           schemas
         </h5>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_A())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_A())
+            props.zoomToFit()
+          }}
+        >
+          tiny diagram
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_B())
+            props.zoomToFit()
+          }}
+        >
           small diagram
         </button>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_B())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_C())
+            props.zoomToFit()
+          }}
+        >
           medium diagram
         </button>
-        <button onClick={() => {
-          window.dispatchEvent(new Event('engine-cleanup'));
-          props.setSchema(loadSchema_C())
-          props.zoomToFit()
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_D())
+            props.zoomToFit()
+          }}
+        >
           huge diagram
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            window.dispatchEvent(new Event('engine-cleanup'));
+            props.setSchema(loadSchema_E())
+            props.zoomToFit()
+          }}
+        >
+          masive diagram
         </button>
         <pre
           style={{
             fontFamily: 'Verdana',
             fontSize: 8,
-            height: 200,
+            height: 100,
             overflowY: 'scroll',
             border: '1px solid black',
           }}
@@ -157,12 +249,60 @@ const DebugPanel = (props: IProps) => {
           {`z: ${props.viewport.z.toFixed(2)}`}
           </li>
         </ul>
-        <button onClick={() => {
-          props.zoomToFit()
-          window.dispatchEvent(new Event('canvas-update-composition'));
-        }}>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+            props.zoomToFit()
+            window.dispatchEvent(new Event('canvas-update-composition'));
+          }}
+        >
           zoom to fit
         </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+
+          }}
+        >
+          zoom in
+        </button>
+        <button
+          style={{
+            display: 'block',
+          }}
+          onClick={() => {
+
+          }}
+        >
+          zoom out
+        </button>
+      </p>
+      <p>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+        {`grid size ( ${props.gridSize} )`}
+        </h5>
+        <input
+          type="range"
+          min={6*2}
+          max={6*10}
+          style={{
+            display: 'block',
+          }}
+          value={props.gridSize}
+          onChange={(event) => {
+            event.preventDefault()
+            props.setGridSize(Number(event.target.value))
+            window.dispatchEvent(new Event('canvas-update-composition'));
+          }}
+        />
       </p>
       <p>
         <h5
@@ -197,7 +337,7 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <ul>
           <li>
-          {`elements: ${Object.keys(props.schema).length}`}
+          {`elements: ${Object.keys(props.schema.root).length}`}
           </li>
         </ul>
       </p>
@@ -206,12 +346,14 @@ const DebugPanel = (props: IProps) => {
 }
 
 const mapStateToProps = (state: IRootReduxState) => ({
+  gridSize: getGridSize(state),
   viewport: getViewport(state),
   resolution: getResolution(state),
   schema: getSchema(state),
 })
 
 const mapDispatchToProps = {
+  setGridSize,
   zoomToFit,
   setSchema,
 }

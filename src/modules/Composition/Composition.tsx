@@ -11,12 +11,12 @@ interface IProps {
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, elements, selection } = this.props.engine
+    const { gridSize, viewport, elements, selection } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    const p = 10 * viewport.z
+    const p = gridSize * viewport.z
     const xOffset = (viewport.x1 * viewport.z) % p
     const yOffset = (viewport.y1 * viewport.z) % p
     ctx.lineWidth = (viewport.z / 3) + 0.2;
@@ -40,6 +40,13 @@ class Composition extends React.PureComponent<IProps> {
     })
 
     selection.draw(ctx)
+
+    ctx.beginPath();
+    ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
+    ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "purple";
+    ctx.stroke();
   }
 
   render() {

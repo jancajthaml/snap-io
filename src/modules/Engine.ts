@@ -2,7 +2,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
-import { getViewport, getResolution } from './Diagram/selectors'
+import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
 import { setViewPort, setResolution, patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
 import SelectionFascade from './SelectionFascade'
@@ -13,6 +13,7 @@ class Engine {
   currentMouseCoordinates: Rectangle;
   store: IReduxStore;
 
+  // FIXME try to introduce visible back and check if it makes any difference
   elements: any[];
   selected: any[];
 
@@ -30,6 +31,10 @@ class Engine {
 
   get resolution() {
     return getResolution(this.store.getState())
+  }
+
+  get gridSize() {
+    return getGridSize(this.store.getState())
   }
 
   cleanup = () => {
@@ -111,7 +116,7 @@ class Engine {
     let nextScale = viewport.z
 
     if (event.deltaY > 0) {
-      nextScale = Math.max(prevScale / 1.03, 0.2)
+      nextScale = Math.max(prevScale / 1.03, 0.3)
     } else {
       nextScale = Math.min(prevScale * 1.03, 8)
     }
@@ -142,22 +147,6 @@ class Engine {
       return
     }
 
-    if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
-      let updateBulk = [] as IEntitySchema[]
-
-      this.selected.forEach((element) => {
-        updateBulk.push({
-          id: element.props.id,
-          type: element.props.type,
-          x: element.props.x,
-          y: element.props.y,
-          width: element.props.width,
-          height: element.props.height,
-        })
-      })
-      this.store.dispatch(patchSchema(updateBulk))
-    }
-
     if (this.currentMouseEvent === MODE_RESIZE) {
       this.selection.onMouseUp()
     } else if (
@@ -170,6 +159,16 @@ class Engine {
     } else if (this.currentMouseEvent === MODE_SELECTION) {
       this.selection.compressSelected()
       this.selection.bounds.updateResizers()
+    }
+
+    if (this.currentMouseEvent === MODE_TRANSLATE || this.currentMouseEvent === MODE_RESIZE) {
+      let updateBulk = {} as { [key: string]: IEntitySchema }
+
+      this.selected.forEach((element) => {
+        updateBulk[element.props.id] = element.serialize()
+      })
+
+      this.store.dispatch(patchSchema(updateBulk))
     }
 
     this.setMouseEvent(undefined)
@@ -210,32 +209,49 @@ class Engine {
       }
 
       case MODE_TRANSLATE: {
-        const { resolution, viewport, currentMouseCoordinates } = this
-        const x = event.clientX - resolution.x1
-        const y = event.clientY - resolution.y1
-        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
-        currentMouseCoordinates.x2 = x
-        currentMouseCoordinates.y2 = y
+        const { resolution, viewport, currentMouseCoordinates, gridSize } = this
+        currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        currentMouseCoordinates.y2 = event.clientY - resolution.y1
 
+        const xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
+        const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+
+        if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
+          window.dispatchEvent(new Event('canvas-update-composition'));
+          break
+        }
         this.selected.forEach((element) => {
           element.props.x += xDelta
           element.props.y += yDelta
         })
-        this.selection.bounds.translate(xDelta, yDelta)
+        this.selection.bounds.translate(xDelta * gridSize, yDelta * gridSize)
+
+        currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
+        currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
       case MODE_RESIZE: {
-        const { resolution, viewport, currentMouseCoordinates } = this
-        const x = event.clientX - resolution.x1
-        const y = event.clientY - resolution.y1
-        const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-        const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
-        currentMouseCoordinates.x2 = x
-        currentMouseCoordinates.y2 = y
-        this.selection.onMouseMove(xDelta, yDelta)
+        const { resolution, viewport, currentMouseCoordinates, gridSize } = this
+
+        currentMouseCoordinates.x2 = event.clientX - resolution.x1
+        currentMouseCoordinates.y2 = event.clientY - resolution.y1
+
+        const xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
+        const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+
+        if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
+          window.dispatchEvent(new Event('canvas-update-composition'));
+          break
+        }
+
+        this.selection.onResize(xDelta === -0 ? 0 : xDelta, yDelta === -0 ? 0 : yDelta)
+
+        currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
+        currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -244,7 +260,7 @@ class Engine {
         const { resolution, currentMouseCoordinates } = this
         currentMouseCoordinates.x2 = event.clientX - resolution.x1
         currentMouseCoordinates.y2 = event.clientY - resolution.y1
-        this.selection.onMouseMove(0, 0)
+        this.selection.onMouseMove()
         window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
@@ -263,6 +279,7 @@ class Engine {
   }
 
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
+    const { gridSize } = this
     if (clearPrevious) {
       this.selected.forEach((element) => {
         element.setState({
@@ -272,7 +289,7 @@ class Engine {
       this.selected = []
     }
     this.elements.forEach((element) => {
-      const insideRectangle = !(element.props.x > selection.x2 || selection.x1 > (element.props.x + element.props.width) || element.props.y > selection.y2 || selection.y1 > (element.props.y + element.props.height))
+      const insideRectangle = !((element.props.x * gridSize) > selection.x2 || selection.x1 > ((element.props.x + element.props.width) * gridSize) || (element.props.y * gridSize) > selection.y2 || selection.y1 > ((element.props.y + element.props.height) * gridSize))
 
       if (insideRectangle) {
         this.selected.push(element)
