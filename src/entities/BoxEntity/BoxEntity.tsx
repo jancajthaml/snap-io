@@ -3,16 +3,10 @@ import React from 'react'
 import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
+import { IEntitySchema } from './types'
 
-interface IProps {
+interface IProps extends IEntitySchema {
   engine: Engine;
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
 }
 
 interface IState {
