@@ -9,6 +9,8 @@ import { getSchema } from '../Diagram/selectors'
 import Engine from '../Engine'
 import Composition from '../Composition'
 import BoxEntity from '../../entities/BoxEntity'
+import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
+
 //import ImageEntity from '../../entities/ImageEntity'
 
 interface IProps {
@@ -47,7 +49,7 @@ const Diagram = (props: IProps) => {
           y={entity.y}
           width={entity.width}
           height={entity.height}
-          color={entity.color}
+          color={(entity as IBoxEntitySchema).color}
         />
       ))}
     </Composition>

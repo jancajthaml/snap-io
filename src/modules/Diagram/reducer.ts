@@ -5,19 +5,12 @@ import Rectangle from '../../atoms/Rectangle'
 import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
 import { calculateOptimalViewport } from './utils'
 
-
-interface IBoxEntitySchema {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  type: string;
-  color: string;
-}
+import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
+import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
 
 export type IEntitySchema =
   | IBoxEntitySchema
+  | IImageEntitySchema
 
 export interface IDiagramSchema {
   id: string;
