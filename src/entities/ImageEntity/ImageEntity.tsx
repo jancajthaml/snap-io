@@ -4,6 +4,7 @@ import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
+import ImageLibrary from './ImageLibrary'
 
 interface IProps extends IEntitySchema {
   engine: Engine;
@@ -23,10 +24,12 @@ class ImageEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
+    ImageLibrary.alloc(this.props.url)
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
+    ImageLibrary.free(this.props.url)
     this.props.engine.removeEntity(this)
   }
 
@@ -35,14 +38,22 @@ class ImageEntity extends React.Component<IProps, IState> {
   }
 
   drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    ctx.fillStyle = "orange"
-
-    const x = (viewport.x1 + this.props.x * gridSize) * viewport.z
-    const y = (viewport.y1 + this.props.y * gridSize) * viewport.z
+    const image = ImageLibrary.get(this.props.url)
+    const w_i = image.width as number
+    if (w_i === 0) {
+      return
+    }
+    const h_i = image.height as number
     const w = this.props.width * gridSize * viewport.z
     const h = this.props.height * gridSize * viewport.z
 
-    ctx.fillRect(x, y, w, h);
+    const ratio  = Math.min(w / w_i, h / h_i);
+
+    const x = (viewport.x1 + this.props.x * gridSize) * viewport.z + (w - w_i * ratio) / 2
+    const y = (viewport.y1 + this.props.y * gridSize) * viewport.z + (h - h_i * ratio) / 2
+
+    ctx.imageSmoothingEnabled = true
+    ctx.drawImage(image, 0, 0, w_i, h_i, x, y, w_i * ratio, h_i * ratio);
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {

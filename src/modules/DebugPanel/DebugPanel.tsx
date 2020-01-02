@@ -23,14 +23,26 @@ const loadSchema_A = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -46,14 +58,26 @@ const loadSchema_B = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -69,14 +93,26 @@ const loadSchema_C = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -92,14 +128,26 @@ const loadSchema_D = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -115,14 +163,26 @@ const loadSchema_E = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
