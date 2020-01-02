@@ -16,18 +16,19 @@ class ImageLibrary {
   }
 
   alloc = (uri: string) => {
-    if (!this.underlying[uri]) {
-      const source = new Image()
-      source.src = uri
-      source.onload = function() {
-        window.dispatchEvent(new Event('canvas-update-composition'));
-      }
-      this.underlying[uri] = {
-        counter: 1,
-        source,
-      }
-    } else {
-      this.underlying[uri].counter++;
+    let ref = this.underlying[uri]
+    if (ref) {
+      ref.counter++;
+      return
+    }
+    const source = new Image()
+    source.src = uri
+    source.onload = function() {
+      window.dispatchEvent(new Event('canvas-update-composition'));
+    }
+    this.underlying[uri] = {
+      counter: 0,
+      source,
     }
   }
 
