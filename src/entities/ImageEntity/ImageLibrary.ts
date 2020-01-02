@@ -21,11 +21,12 @@ class ImageLibrary {
       ref.counter++;
       return
     }
+    // FIXME does not work nicely with gifs
     const source = new Image()
     source.src = uri
-    source.onload = function() {
-      window.dispatchEvent(new Event('canvas-update-composition'));
-    }
+    //source.onload = function() {
+      //window.dispatchEvent(new Event('canvas-update-composition'));
+    //}
     this.underlying[uri] = {
       counter: 1,
       source,

@@ -58,6 +58,8 @@ class ImageEntity extends React.Component<IProps, IState> {
       ctx.fillRect(x, y, w, h);
     }
     ctx.drawImage(image, 0, 0, w_i, h_i, x + (w - w_i * ratio) / 2, y + (h - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
+    const ref = image as any
+    ref.current = (ref.current + 1) % ref.total_frames
   }
 
   serialize = () => ({

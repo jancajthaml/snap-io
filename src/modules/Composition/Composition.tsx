@@ -8,9 +8,17 @@ interface IProps {
   children?: ReactNode;
 }
 
+let times: number[] = []
+
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D) => {
+    const now = performance.now();
+    while (times.length > 0 && times[0] <= now - 1000) {
+      times.shift();
+    }
+    times.push(now);
+
     const { gridSize, viewport, visible, selection } = this.props.engine
 
     ctx.fillStyle = "white";
@@ -53,12 +61,12 @@ class Composition extends React.PureComponent<IProps> {
     const w_t = ctx.measureText(`visible: ${visible.length}`).width + 10
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
-    ctx.fillRect(5, 7, w_t, 20)
-    ctx.strokeRect(5, 7, w_t, 20)
+    ctx.fillRect(5, 7, w_t, 50)
+    ctx.strokeRect(5, 7, w_t, 50)
     ctx.fillStyle = "black";
 
     ctx.fillText(`visible: ${visible.length}`, 10, 22);
-
+    ctx.fillText(`fps: ${times.length}`, 10, 42);
   }
 
   render() {

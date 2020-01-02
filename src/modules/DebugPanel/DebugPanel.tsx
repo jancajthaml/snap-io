@@ -326,7 +326,7 @@ const DebugPanel = (props: IProps) => {
           onClick={() => {
             props.zoomToFit()
             window.dispatchEvent(new Event('engine-sync'));
-            window.dispatchEvent(new Event('canvas-update-composition'));
+            //window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         >
           zoom to fit
@@ -372,7 +372,7 @@ const DebugPanel = (props: IProps) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
             window.dispatchEvent(new Event('engine-sync'));
-            window.dispatchEvent(new Event('canvas-update-composition'));
+            //window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         />
       </p>

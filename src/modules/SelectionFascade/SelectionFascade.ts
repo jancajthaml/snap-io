@@ -545,7 +545,7 @@ class SelectionFascade  {
 
     this.engine.selected = []
     this.bounds.updateResizers()
-    window.dispatchEvent(new Event('canvas-update-composition'));
+    //window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
 }

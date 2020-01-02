@@ -49,13 +49,11 @@ class Engine {
   }
 
   sync = () => {
-    this.visible = []
     if (this.delayedSync) {
       clearTimeout(this.delayedSync)
     }
     this.delayedSync = setTimeout(() => {
       this.updateVisible(this.viewport)
-      window.dispatchEvent(new Event('canvas-update-composition'));
     }, 1)
   }
 
@@ -143,6 +141,7 @@ class Engine {
     if (prevScale === nextScale) {
       return
     }
+
     const resolution = this.resolution
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
@@ -160,7 +159,6 @@ class Engine {
     this.updateVisible(nextViewPort)
 
     this.store.dispatch(setViewPort(nextViewPort))
-    window.dispatchEvent(new Event('canvas-update-composition'));
   }
 
   mouseUp = (event: MouseEvent) => {
@@ -193,7 +191,6 @@ class Engine {
     }
 
     this.setMouseEvent(undefined)
-    window.dispatchEvent(new Event('canvas-update-composition'));
 
     const resolution = this.resolution
     const x = event.clientX - resolution.x1
@@ -228,7 +225,7 @@ class Engine {
 
         this.store.dispatch(setViewPort(nextViewPort))
 
-        window.dispatchEvent(new Event('canvas-update-composition'));
+        //window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
@@ -241,7 +238,6 @@ class Engine {
         const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
 
         if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
-          window.dispatchEvent(new Event('canvas-update-composition'));
           break
         }
         this.selected.forEach((element) => {
@@ -253,7 +249,6 @@ class Engine {
         currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
         currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
 
-        window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
@@ -267,7 +262,6 @@ class Engine {
         const yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
 
         if ((xDelta === -0 || xDelta === 0) && (yDelta === -0 || yDelta === 0)) {
-          window.dispatchEvent(new Event('canvas-update-composition'));
           break
         }
 
@@ -276,7 +270,6 @@ class Engine {
         currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
         currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
 
-        window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
@@ -285,7 +278,6 @@ class Engine {
         currentMouseCoordinates.x2 = event.clientX - resolution.x1
         currentMouseCoordinates.y2 = event.clientY - resolution.y1
         this.selection.onMouseMove()
-        window.dispatchEvent(new Event('canvas-update-composition'));
         break
       }
 
