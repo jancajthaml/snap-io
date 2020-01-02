@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Engine from '../Engine'
+import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 
@@ -29,12 +29,10 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    // FIXME this slows rendering significantly
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
-    // FIXME this slows rendering significantly
     this.props.engine.removeEntity(this)
   }
 
@@ -88,6 +86,7 @@ class BoxEntity extends React.Component<IProps, IState> {
   serialize = () => ({
     id: this.props.id,
     type: this.props.type,
+    color: this.props.color,
     x: Math.round(this.props.x),
     y: Math.round(this.props.y),
     width: Math.round(this.props.width),

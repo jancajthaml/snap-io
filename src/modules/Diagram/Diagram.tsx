@@ -8,7 +8,8 @@ import { getSchema } from '../Diagram/selectors'
 
 import Engine from '../Engine'
 import Composition from '../Composition'
-import BoxEntity from '../BoxEntity'
+import BoxEntity from '../../entities/BoxEntity'
+//import ImageEntity from '../../entities/ImageEntity'
 
 interface IProps {
   store: IReduxStore;
@@ -33,9 +34,11 @@ const Diagram = (props: IProps) => {
     return null
   }
 
+  // FIXME factory here
+
   return (
     <Composition engine={engine as Engine}>
-      {Object.values(props.schema.root).map((entity, idx) => (
+      {Object.values(props.schema.root).map((entity) => (
         <BoxEntity
           engine={engine as Engine}
           type={entity.type}
@@ -44,7 +47,7 @@ const Diagram = (props: IProps) => {
           y={entity.y}
           width={entity.width}
           height={entity.height}
-          color={["red", "blue", "green"][(idx % 3)]}
+          color={entity.color}
         />
       ))}
     </Composition>

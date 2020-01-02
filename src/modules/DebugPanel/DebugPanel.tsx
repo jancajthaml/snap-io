@@ -29,7 +29,8 @@ const loadSchema_A = (): IDiagramSchema => {
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'box-entity'
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
     }
   })
 
@@ -51,7 +52,8 @@ const loadSchema_B = (): IDiagramSchema => {
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'box-entity'
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
     }
   })
 
@@ -73,7 +75,8 @@ const loadSchema_C = (): IDiagramSchema => {
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'box-entity'
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
     }
   })
 
@@ -95,7 +98,8 @@ const loadSchema_D = (): IDiagramSchema => {
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'box-entity'
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
     }
   })
 
@@ -117,7 +121,8 @@ const loadSchema_E = (): IDiagramSchema => {
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'box-entity'
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
     }
   })
 
