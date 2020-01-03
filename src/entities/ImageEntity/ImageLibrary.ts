@@ -63,7 +63,7 @@ class ImageLibrary {
     const ref = this.underlying[uri]
     if (!ref) {
       this.alloc(uri)
-      return this.nil
+      return this.nil.source
     }
     if (ref.type === GIF && timestamp - ref.source.timestamp > 50) {
       ref.source.timestamp = timestamp
@@ -74,7 +74,10 @@ class ImageLibrary {
       frameImageData.data.set(ref.source.frames[ref.source.idx].patch);
       ref.source.buffer.putImageData(frameImageData, 0, 0);
     }
-    return ref
+    if (ref.type == GIF) {
+      return ref.source.buffer.canvas
+    }
+    return ref.source
   }
 
 }
