@@ -66,7 +66,7 @@ const loadSchema_B = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: 'https://bellard.org/bpg/2.png',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
       result[`box_${idx}`] = {
@@ -101,7 +101,7 @@ const loadSchema_C = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: 'https://bellard.org/bpg/2.png',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
       result[`box_${idx}`] = {
@@ -136,7 +136,7 @@ const loadSchema_D = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: 'https://bellard.org/bpg/2.png',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
       result[`box_${idx}`] = {

@@ -3,7 +3,7 @@ import React, { useEffect, useCallback, useRef } from 'react';
 interface IProps {
   name: string;
   opaque?: boolean;
-  draw: (ctx: CanvasRenderingContext2D) => void;
+  draw: (ctx: CanvasRenderingContext2D, timestamp: number) => void;
   onResize: (x: number, y: number, width: number, height: number) => void;
   onMouseUp: (event: MouseEvent) => void;
   onMouseDown: (event: MouseEvent) => void;
@@ -18,15 +18,7 @@ const Canvas = (props: IProps) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const animationRef = useRef<number>(0)
   const lastTime = useRef<number>(Date.now())
-  //const dirty = useRef<boolean>(true)
   const ctx = useRef<CanvasRenderingContext2D | null>(null)
-
-      //this._lastTime = rightNow();
-
-
-  //const update = () => {
-    //dirty.current = true
-  //}
 
   const onResize = () => {
     if (ref.current === null) {
@@ -36,7 +28,6 @@ const Canvas = (props: IProps) => {
     ref.current.width = wrapper.clientWidth
     ref.current.height = wrapper.clientHeight
     props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
-    //dirty.current = true
   }
 
   const onMouseDown = (event: any) => {
@@ -69,7 +60,6 @@ const Canvas = (props: IProps) => {
   }
 
   const removeListeners = () => {
-    //window.removeEventListener(`canvas-update-${props.name}`, update)
     window.removeEventListener('mouseup', onMouseUp)
     window.removeEventListener('resize', onResize)
     window.removeEventListener('wheel', onWheel)
@@ -79,7 +69,6 @@ const Canvas = (props: IProps) => {
   const addListeners = () => {
     window.addEventListener('resize', onResize)
     window.addEventListener('mouseup', onMouseUp)
-    //window.addEventListener(`canvas-update-${props.name}`, update)
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('contextmenu', onContextMenu)
   }
@@ -99,7 +88,7 @@ const Canvas = (props: IProps) => {
     const delta = now - lastTime.current
     if (delta > INTERVAL && ctx.current != null) {
       ctx.current.imageSmoothingEnabled = true
-      props.draw(ctx.current as CanvasRenderingContext2D)
+      props.draw(ctx.current as CanvasRenderingContext2D, now)
       lastTime.current = now - (delta % INTERVAL)
     }
     animationRef.current = requestAnimationFrame(delayedRepaint);

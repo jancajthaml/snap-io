@@ -12,7 +12,7 @@ let times: number[] = []
 
 class Composition extends React.PureComponent<IProps> {
 
-  draw = (ctx: CanvasRenderingContext2D) => {
+  draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {
       times.shift();
@@ -44,7 +44,7 @@ class Composition extends React.PureComponent<IProps> {
     ctx.lineWidth = 1
 
     visible.forEach((element: any) => {
-      element.draw(ctx)
+      element.draw(ctx, timestamp)
     })
 
     selection.draw(ctx)

@@ -505,7 +505,6 @@ class SelectionFascade  {
           (resizer.x2 - resizer.x1),
           (resizer.y2 - resizer.y1),
         )
-
         ctx.strokeRect(
           ((viewport.x1 + resizer.x1) * viewport.z) + (w - RESIZER_SIZE)/2,
           ((viewport.y1 + resizer.y1) * viewport.z) + (h - RESIZER_SIZE)/2,

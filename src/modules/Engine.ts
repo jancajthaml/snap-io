@@ -135,7 +135,7 @@ class Engine {
     if (event.deltaY > 0) {
       nextScale = Math.max(prevScale / 1.03, 0.3)
     } else {
-      nextScale = Math.min(prevScale * 1.03, 8)
+      nextScale = Math.min(prevScale * 1.03, 12)
     }
 
     if (prevScale === nextScale) {

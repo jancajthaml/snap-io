@@ -1,54 +1,80 @@
+// FIXME not ideal pollutes window scope
+require('gifuct-js/dist/gifuct-js')
+
+const GIF = 'GIF' as const
+const IMAGE = 'IMAGE' as const
 
 class ImageLibrary {
 
   private underlying: {
     [uri: string]: {
-      counter: number;
-      source: CanvasImageSource;
+      type: string;
+      source: any;
     };
   };
 
-  private nil: CanvasImageSource;
+  private nil: any;
 
   constructor() {
     this.underlying = {}
-    this.nil = new Image()
+    this.nil = {
+      type: IMAGE,
+      source: new Image(),
+    }
   }
 
   alloc = (uri: string) => {
     let ref = this.underlying[uri]
     if (ref) {
-      ref.counter++;
       return
     }
-    // FIXME does not work nicely with gifs
-    const source = new Image()
-    source.src = uri
-    //source.onload = function() {
-      //window.dispatchEvent(new Event('canvas-update-composition'));
-    //}
     this.underlying[uri] = {
-      counter: 1,
-      source,
+      type: this.nil.type,
+      source: this.nil.source,
+    }
+
+    if (uri.endsWith('.gif')) {
+      fetch(uri)
+        .then((resp) => resp.arrayBuffer())
+        .then((buff) => new window.GIF(buff))
+        .then((gif) => gif.decompressFrames(true))
+        .then((data) => {
+          this.underlying[uri].source = {
+            idx: 0,
+            frames: data,
+            timestamp: 0,
+            buffer: document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D,
+          }
+          this.underlying[uri].type = GIF
+        }).catch(() => {
+          const source = new Image()
+          source.src = uri
+          this.underlying[uri].source = source
+          return Promise.resolve(null)
+        })
+    } else {
+      const source = new Image()
+      source.src = uri
+      this.underlying[uri].source = source
     }
   }
 
-  free = (uri: string) => {
-    if (!this.underlying[uri]) {
-      return
-    }
-    this.underlying[uri].counter--
-    if (this.underlying[uri].counter <= 0) {
-      delete this.underlying[uri]
-    }
-  }
-
-  get = (uri: string) => {
+  get = (uri: string, timestamp: number) => {
     const ref = this.underlying[uri]
     if (!ref) {
-      return this.nil;
+      this.alloc(uri)
+      return this.nil
     }
-    return ref.source;
+    if (ref.type === GIF && timestamp - ref.source.timestamp > 50) {
+      ref.source.timestamp = timestamp
+      ref.source.idx = (ref.source.idx + 1) % ref.source.frames.length
+      ref.source.buffer.canvas.width = ref.source.frames[ref.source.idx].dims.width as number
+      ref.source.buffer.canvas.height = ref.source.frames[ref.source.idx].dims.height as number
+      let frameImageData = ref.source.buffer.createImageData(ref.source.buffer.canvas.width, ref.source.buffer.canvas.height);
+      frameImageData.data.set(ref.source.frames[ref.source.idx].patch);
+      ref.source.buffer.putImageData(frameImageData, 0, 0);
+    }
+    return ref
   }
 
 }
