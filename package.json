@@ -7,14 +7,12 @@
     "serve": "node node_modules/serve/bin/serve.js build"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "18.5.0",
     "gifuct-js": "1.0.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "react-redux": "7.1.1",
     "redux": "4.0.4",
-    "redux-saga": "1.1.1",
-    "resize-image-data": "^0.3.0"
+    "redux-saga": "1.1.1"
   },
   "devDependencies": {
     "@types/react": "16.8.6",
