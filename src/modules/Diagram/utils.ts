@@ -37,7 +37,7 @@ export const calculateOptimalViewport = (schema: IDiagramSchema, gridSize: numbe
   const xScale = (resolution.x2 - resolution.x1) / (x2 - x1)
   const yScale = (resolution.y2 - resolution.y1) / (y2 - y1)
 
-  const nextScale = Math.max(Math.min(Math.min(xScale, yScale) / Math.pow(1.03, 2), 8), 0.3)
+  const nextScale = Math.max(Math.min(Math.min(xScale, yScale) / Math.pow(1.03, 2), 12), 0.3)
 
   const normalizedDiffWidth = (resolution.x2 - resolution.x1) - (x2 - x1) * nextScale
   const normalizedDiffHeight = (resolution.y2 - resolution.y1) - (y2 - y1) * nextScale

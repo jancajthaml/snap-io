@@ -23,13 +23,26 @@ const loadSchema_A = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity'
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -45,13 +58,26 @@ const loadSchema_B = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity'
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -67,13 +93,26 @@ const loadSchema_C = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity'
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -89,13 +128,26 @@ const loadSchema_D = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity'
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -111,13 +163,26 @@ const loadSchema_E = (): IDiagramSchema => {
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity'
+    if (idx % 2 === 0) {
+      result[`image_${idx}`] = {
+        id: `image_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'image-entity',
+        url: 'https://bellard.org/bpg/2.png',
+      }
+    } else {
+      result[`box_${idx}`] = {
+        id: `box_${idx}`,
+        x: (idx % modulus) * 5,
+        y: Math.floor(idx / modulus) * 5,
+        width: 4,
+        height: 4,
+        type: 'box-entity',
+        color: ["red", "blue", "green"][(idx % 3)],
+      }
     }
   })
 
@@ -160,6 +225,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_A())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           tiny diagram
@@ -172,6 +238,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_B())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           small diagram
@@ -184,6 +251,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           medium diagram
@@ -196,6 +264,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           huge diagram
@@ -208,6 +277,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
+            window.dispatchEvent(new Event('engine-sync'));
           }}
         >
           masive diagram
@@ -255,7 +325,8 @@ const DebugPanel = (props: IProps) => {
           }}
           onClick={() => {
             props.zoomToFit()
-            window.dispatchEvent(new Event('canvas-update-composition'));
+            window.dispatchEvent(new Event('engine-sync'));
+            //window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         >
           zoom to fit
@@ -300,7 +371,8 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
-            window.dispatchEvent(new Event('canvas-update-composition'));
+            window.dispatchEvent(new Event('engine-sync'));
+            //window.dispatchEvent(new Event('canvas-update-composition'));
           }}
         />
       </p>

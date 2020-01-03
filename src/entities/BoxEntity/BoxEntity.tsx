@@ -1,18 +1,12 @@
 import React from 'react'
 
-import Engine from '../Engine'
+import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
+import { IEntitySchema } from './types'
 
-interface IProps {
+interface IProps extends IEntitySchema {
   engine: Engine;
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
 }
 
 interface IState {
@@ -29,12 +23,10 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    // FIXME this slows rendering significantly
     this.props.engine.addEntity(this)
   }
 
   componentWillUnmount() {
-    // FIXME this slows rendering significantly
     this.props.engine.removeEntity(this)
   }
 
@@ -49,10 +41,10 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.fillStyle = this.props.color
     }
 
-    const x = (viewport.x1 + this.props.x * gridSize) * viewport.z
-    const y = (viewport.y1 + this.props.y * gridSize) * viewport.z
-    const w = this.props.width * gridSize * viewport.z
-    const h = this.props.height * gridSize * viewport.z
+    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
+    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
+    const w = Math.round(this.props.width) * gridSize * viewport.z
+    const h = Math.round(this.props.height) * gridSize * viewport.z
 
     ctx.fillRect(x, y, w, h);
   }
@@ -88,6 +80,7 @@ class BoxEntity extends React.Component<IProps, IState> {
   serialize = () => ({
     id: this.props.id,
     type: this.props.type,
+    color: this.props.color,
     x: Math.round(this.props.x),
     y: Math.round(this.props.y),
     width: Math.round(this.props.width),

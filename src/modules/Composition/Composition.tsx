@@ -8,10 +8,18 @@ interface IProps {
   children?: ReactNode;
 }
 
+let times: number[] = []
+
 class Composition extends React.PureComponent<IProps> {
 
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { gridSize, viewport, elements, selection } = this.props.engine
+  draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
+    const now = performance.now();
+    while (times.length > 0 && times[0] <= now - 1000) {
+      times.shift();
+    }
+    times.push(now);
+
+    const { gridSize, viewport, visible, selection } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -35,18 +43,30 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    elements.forEach((element: any) => {
-      element.draw(ctx)
+    visible.forEach((element: any) => {
+      element.draw(ctx, timestamp)
     })
 
     selection.draw(ctx)
 
+    /*
     ctx.beginPath();
     ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
     ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
     ctx.lineWidth = 10;
     ctx.strokeStyle = "purple";
-    ctx.stroke();
+    ctx.stroke();*/
+
+    ctx.font = "12px Arial";
+    const w_t = ctx.measureText(`visible: ${visible.length}`).width + 10
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+    ctx.fillRect(5, 7, w_t, 50)
+    ctx.strokeRect(5, 7, w_t, 50)
+    ctx.fillStyle = "black";
+
+    ctx.fillText(`visible: ${visible.length}`, 10, 22);
+    ctx.fillText(`fps: ${times.length}`, 10, 42);
   }
 
   render() {
