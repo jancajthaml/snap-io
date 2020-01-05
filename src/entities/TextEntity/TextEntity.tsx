@@ -2,7 +2,6 @@ import React from 'react'
 
 import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
-import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
 import TextLibrary from './TextLibrary'
 
@@ -35,7 +34,9 @@ class TextEntity extends React.Component<IProps, IState> {
     return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+  draw = (ctx: CanvasRenderingContext2D) => {
+    const { viewport, gridSize } = this.props.engine
+
     const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
     const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
     const w = Math.round(this.props.width) * gridSize * viewport.z
@@ -43,12 +44,6 @@ class TextEntity extends React.Component<IProps, IState> {
 
     const image = TextLibrary.get(this.props.text, 12, Math.round(this.props.width) * gridSize, Math.round(this.props.height) * gridSize)
     ctx.drawImage(image, 0, 0, image.width, image.height, x, y, w, h);
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.engine
-
-    this.drawDetail(ctx, viewport, gridSize)
   }
 
   serialize = () => ({

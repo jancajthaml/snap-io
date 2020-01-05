@@ -15,47 +15,18 @@ class TextLibrary {
   }
 
   alloc = (text: string, fontSize: number, width: number, height: number) => {
-    const buffer = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D
+    const data = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:${fontSize/2}px; font-family: Arial;">${text}</div></foreignObject></svg>`;
 
-    // FIXME try to alloc SVG blob instead to 2d bitmap
+    const svg = new Blob([data], {
+      type: 'image/svg+xml;charset=utf-8'
+    });
+    const url = URL.createObjectURL(svg);
+    const image = new Image();
+    image.onload = function() {
+      URL.revokeObjectURL(url);
+    }
+    image.src = url;
 
-    const w = Math.max(1, width) * 2
-    const h = Math.max(1, height) * 2
-    const size = fontSize * 2
-
-    buffer.canvas.width = w
-    buffer.canvas.height = h
-    buffer.font = `lighter ${size}px Arial`
-
-    let textPadding = 0.2 * size
-    let textW = w - (2*textPadding)
-    let textY = size
-    let textH = textY + h - (2*textPadding) - size
-    let textX = textPadding
-    let textHeight = buffer.measureText('m').width * 0.4 + size * 0.6
-
-    text.split("\n").forEach((line) => {
-      const words = line.split(' ');
-      let printLine = ''
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = `${printLine}${words[n]} `;
-        var testWidth = buffer.measureText(testLine).width;
-        if (testWidth >= textW && n > 0) {
-          if (textY <= textH) {
-            buffer.fillText(printLine, textX, textY);
-          }
-          printLine = `${words[n]} `;
-          textY += textHeight;
-        } else {
-          printLine = testLine;
-        }
-      }
-      if (textY <= textH) {
-        buffer.fillText(printLine, textX, textY);
-      }
-      textY += textHeight;
-    })
     if (!this.underlying[text]) {
       this.underlying[text] = {
         [`${width}x${height}`]: {},
@@ -63,7 +34,7 @@ class TextLibrary {
     } else if (!(this.underlying[text] as any)[`${width}x${height}`]) {
       (this.underlying[text] as any)[`${width}x${height}`] = {}
     }
-    (this.underlying[text] as any)[`${width}x${height}`][fontSize] = buffer
+    (this.underlying[text] as any)[`${width}x${height}`][fontSize] = image
   }
 
   get = (text: string, fontSize: number, width: number, height: number) => {
@@ -82,7 +53,7 @@ class TextLibrary {
       this.alloc(text, fontSize, width, height)
       return this.nil
     }
-    return result.canvas
+    return result
   }
 
 }
