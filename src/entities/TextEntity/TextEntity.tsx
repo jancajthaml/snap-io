@@ -41,7 +41,7 @@ class TextEntity extends React.Component<IProps, IState> {
     const w = Math.round(this.props.width) * gridSize * viewport.z
     const h = Math.round(this.props.height) * gridSize * viewport.z
 
-    const image = TextLibrary.get(this.props.text, 12, w, h)
+    const image = TextLibrary.get(this.props.text, 12, Math.round(this.props.width) * gridSize, Math.round(this.props.height) * gridSize)
     ctx.drawImage(image, 0, 0, image.width, image.height, x, y, w, h);
   }
 
@@ -55,10 +55,10 @@ class TextEntity extends React.Component<IProps, IState> {
     id: this.props.id,
     type: this.props.type,
     text: this.props.text,
-    x: Math.round(this.props.x),
-    y: Math.round(this.props.y),
-    width: Math.round(this.props.width),
-    height: Math.round(this.props.height),
+    x: this.props.x,
+    y: this.props.y,
+    width: this.props.width,
+    height: this.props.height,
   })
 
   render() {

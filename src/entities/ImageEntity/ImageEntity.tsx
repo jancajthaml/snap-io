@@ -57,17 +57,16 @@ class ImageEntity extends React.Component<IProps, IState> {
       ctx.fillRect(x, y, w, h);
     }
     ctx.drawImage(image, 0, 0, w_i, h_i, x + (w - w_i * ratio) / 2, y + (h - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
-
   }
 
   serialize = () => ({
     id: this.props.id,
     type: this.props.type,
     url: this.props.url,
-    x: Math.round(this.props.x),
-    y: Math.round(this.props.y),
-    width: Math.round(this.props.width),
-    height: Math.round(this.props.height),
+    x: this.props.x,
+    y: this.props.y,
+    width: this.props.width,
+    height: this.props.height,
   })
 
   render() {

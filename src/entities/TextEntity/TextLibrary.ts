@@ -17,8 +17,10 @@ class TextLibrary {
   alloc = (text: string, fontSize: number, width: number, height: number) => {
     const buffer = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D
 
-    const w = 300 * 2
-    const h = w / (width/height)
+    // FIXME try to alloc SVG blob instead to 2d bitmap
+
+    const w = Math.max(1, width) * 2
+    const h = Math.max(1, height) * 2
     const size = fontSize * 2
 
     buffer.canvas.width = w
@@ -54,16 +56,14 @@ class TextLibrary {
       }
       textY += textHeight;
     })
-    const ref = this.underlying[text]
-    if (!ref) {
+    if (!this.underlying[text]) {
       this.underlying[text] = {
-        [width/height]: {},
+        [`${width}x${height}`]: {},
       }
-    } else if (!ref[width/height]) {
-      this.underlying[text][width/height] = {}
+    } else if (!(this.underlying[text] as any)[`${width}x${height}`]) {
+      (this.underlying[text] as any)[`${width}x${height}`] = {}
     }
-
-    this.underlying[text][width/height][fontSize] = buffer
+    (this.underlying[text] as any)[`${width}x${height}`][fontSize] = buffer
   }
 
   get = (text: string, fontSize: number, width: number, height: number) => {
@@ -72,7 +72,7 @@ class TextLibrary {
       this.alloc(text, fontSize, width, height)
       return this.nil
     }
-    const aspected = ref[width / height]
+    const aspected = (ref as any)[`${width}x${height}`]
     if (!aspected) {
       this.alloc(text, fontSize, width, height)
       return this.nil
