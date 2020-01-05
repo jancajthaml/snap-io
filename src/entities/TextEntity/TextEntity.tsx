@@ -4,6 +4,7 @@ import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
+import TextLibrary from './TextLibrary'
 
 interface IProps extends IEntitySchema {
   engine: Engine;
@@ -35,57 +36,13 @@ class TextEntity extends React.Component<IProps, IState> {
   }
 
   drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    if (this.state.selected) {
-      ctx.fillStyle = "black"
-    } else {
-      ctx.fillStyle = "orange"
-    }
-
     const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
     const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
     const w = Math.round(this.props.width) * gridSize * viewport.z
     const h = Math.round(this.props.height) * gridSize * viewport.z
 
-    ctx.fillRect(x, y, w, h);
-
-    const fontSize = 12 * 0.3 * viewport.z
-    ctx.font = `lighter ${fontSize}px Arial`
-
-    if (this.state.selected) {
-      ctx.fillStyle = "white"
-    } else {
-      ctx.fillStyle = "black"
-    }
-
-    let textPadding = 0.2 * fontSize
-    let textW = w - (2*textPadding)
-    let textY = y + fontSize
-    let textH = textY + h - (2*textPadding) - fontSize
-    let textX = x + textPadding
-    let textHeight = ctx.measureText('m').width * 0.75 + fontSize * 0.25
-
-    this.props.text.split("\n").forEach((line) => {
-      const words = line.split(' ');
-      let printLine = ''
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = `${printLine}${words[n]} `;
-        var testWidth = ctx.measureText(testLine).width;
-        if (testWidth >= textW && n > 0) {
-          if (textY <= textH) {
-            ctx.fillText(printLine, textX, textY);
-          }
-          printLine = `${words[n]} `;
-          textY += textHeight;
-        } else {
-          printLine = testLine;
-        }
-      }
-      if (textY <= textH) {
-        ctx.fillText(printLine, textX, textY);
-      }
-      textY += textHeight;
-    })
+    const image = TextLibrary.get(this.props.text, 12, w, h)
+    ctx.drawImage(image, 0, 0, image.width, image.height, x, y, w, h);
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {

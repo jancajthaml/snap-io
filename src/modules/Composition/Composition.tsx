@@ -43,6 +43,10 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
+
+    const fontSize = 12 * 0.3 * viewport.z
+    ctx.font = `lighter ${fontSize}px Arial`
+
     visible.forEach((element: any) => {
       element.draw(ctx, timestamp)
     })
