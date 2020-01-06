@@ -38,26 +38,24 @@ class Port extends React.Component<IProps, IState> {
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     if (this.state.selected) {
-      ctx.fillStyle = "black"
+      ctx.strokeStyle = "black"
     } else {
-      ctx.fillStyle = "blue"
+      ctx.strokeStyle = "blue"
     }
 
     const self = this as any
-    const s = 5 * viewport.z
+    const s = viewport.z * gridSize * 0.5
     const x = (viewport.x1 + Math.round(self.props.parent.props.x) * gridSize) * viewport.z
     const y = (viewport.y1 + Math.round(self.props.parent.props.y) * gridSize) * viewport.z
     const w = Math.round(self.props.parent.props.width) * this.props.x * gridSize * viewport.z
     const h = Math.round(self.props.parent.props.height) * this.props.y * gridSize * viewport.z
 
-    ctx.fillRect(x + w - s/2, y + h - s/2, s, s);
+    ctx.strokeRect(x + w - s/2, y + h - s/2, s, s);
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
     const { viewport, gridSize } = this.props.engine
 
-    //const s = this.props as any
-    //s.x += 0.01
     this.drawSimple(ctx, viewport, gridSize)
   }
 

@@ -18,7 +18,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 1000
+  const howMany = 10000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
@@ -40,27 +40,27 @@ const loadSchema_A = (): IDiagramSchema => {
         {
           id: `port_${idx}_port_top`,
           x: 0.5,
-          y: 0,
+          y: 0.1,
           in: [],
           out: [],
         },
         {
           id: `port_${idx}_port_bottom`,
           x: 0.5,
-          y: 1,
+          y: 0.9,
           in: [],
           out: [],
         },
         {
           id: `port_${idx}_port_left`,
-          x: 0,
+          x: 0.1,
           y: 0.5,
           in: [],
           out: [],
         },
         {
           id: `port_${idx}_port_right`,
-          x: 1,
+          x: 0.9,
           y: 0.5,
           in: [],
           out: [],
