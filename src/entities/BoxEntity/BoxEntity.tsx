@@ -81,10 +81,10 @@ class BoxEntity extends React.Component<IProps, IState> {
     id: this.props.id,
     type: this.props.type,
     color: this.props.color,
-    x: Math.round(this.props.x),
-    y: Math.round(this.props.y),
-    width: Math.round(this.props.width),
-    height: Math.round(this.props.height),
+    x: this.props.x,
+    y: this.props.y,
+    width: this.props.width,
+    height: this.props.height,
   })
 
   render() {

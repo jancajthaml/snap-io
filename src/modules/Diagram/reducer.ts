@@ -7,10 +7,12 @@ import { calculateOptimalViewport } from './utils'
 
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
+import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
 
 export type IEntitySchema =
   | IBoxEntitySchema
   | IImageEntitySchema
+  | ITextEntitySchema
 
 export interface IDiagramSchema {
   id: string;

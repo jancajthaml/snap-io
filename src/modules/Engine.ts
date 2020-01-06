@@ -297,7 +297,7 @@ class Engine {
 
   updateVisible = (viewport: Rectangle) => {
     const { gridSize } = this
-    this.visible = [...this.selected]
+    const nextVisible = new Set<any>(this.selected)
 
     this.elements.forEach((element) => {
       const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.props.x * gridSize) < 0
@@ -305,9 +305,10 @@ class Engine {
       const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.props.y * gridSize) < 0
       const outOfUp = (viewport.y1 + (element.props.y + element.props.height) * gridSize) < 0
       if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
-        this.visible.push(element)
+        nextVisible.add(element)
       }
     })
+    this.visible = [...nextVisible]
     this.visible.sort(function(x, y) {
       if (x.state.selected && y.state.selected) {
         return 0;
@@ -317,6 +318,7 @@ class Engine {
       }
       return -1;
     });
+
   }
 
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {

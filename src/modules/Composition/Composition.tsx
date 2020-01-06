@@ -46,16 +46,9 @@ class Composition extends React.PureComponent<IProps> {
     visible.forEach((element: any) => {
       element.draw(ctx, timestamp)
     })
-
     selection.draw(ctx)
 
-    /*
-    ctx.beginPath();
-    ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
-    ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = "purple";
-    ctx.stroke();*/
+    // FPS and visible entities info
 
     ctx.font = "12px Arial";
     const w_t = ctx.measureText(`visible: ${visible.length}`).width + 10
@@ -67,6 +60,15 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.fillText(`visible: ${visible.length}`, 10, 22);
     ctx.fillText(`fps: ${times.length}`, 10, 42);
+
+    // Mouse coordinates ribon
+
+    ctx.beginPath();
+    ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
+    ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "purple";
+    ctx.stroke();
   }
 
   render() {

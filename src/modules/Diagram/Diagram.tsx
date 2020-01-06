@@ -14,6 +14,9 @@ import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/type
 import ImageEntity from '../../entities/ImageEntity'
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
 
+import TextEntity from '../../entities/TextEntity'
+import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
+
 interface IProps {
   store: IReduxStore;
   schema: IDiagramSchema;
@@ -66,6 +69,19 @@ const Diagram = (props: IProps) => {
               width={entity.width}
               height={entity.height}
               url={(entity as IImageEntitySchema).url}
+            />
+          )
+        } else if (entity.type === 'text-entity') {
+          return (
+            <TextEntity
+              engine={engine as Engine}
+              type={entity.type}
+              id={entity.id}
+              x={entity.x}
+              y={entity.y}
+              width={entity.width}
+              height={entity.height}
+              text={(entity as ITextEntitySchema).text}
             />
           )
         } else {
