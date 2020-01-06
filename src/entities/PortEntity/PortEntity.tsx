@@ -4,7 +4,7 @@ import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
 //import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
-//import Port from './Port'
+import Port from './Port'
 
 interface IProps extends IEntitySchema {
   engine: Engine;
@@ -16,15 +16,15 @@ interface IState {
 
 class PortEntity extends React.Component<IProps, IState> {
 
-  //ports: Port[];
-  renderer: any;
+  ports: Port[];
+  //renderer: any;
 
   constructor(props: IProps) {
     super(props)
     this.state = {
       selected: false,
     }
-    //this.ports = props.ports.map((port) => new Port(port))
+    this.ports = props.ports.map((port) => new Port(port))
   }
 
   componentDidMount() {
@@ -61,7 +61,7 @@ class PortEntity extends React.Component<IProps, IState> {
 
     ctx.fillRect(x, y, w, h);
 
-    //this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, x, y, w, h))
+    this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, x, y, w, h))
   }
 
   serialize = () => ({
@@ -69,7 +69,7 @@ class PortEntity extends React.Component<IProps, IState> {
     type: this.props.type,
     x: this.props.x,
     y: this.props.y,
-    ports: this.props.ports,
+    ports: this.ports.map((port) => port.serialize()),
     width: this.props.width,
     height: this.props.height,
   })
