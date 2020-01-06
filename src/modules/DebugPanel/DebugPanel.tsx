@@ -17,7 +17,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 10000
+  const howMany = 10
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
