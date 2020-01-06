@@ -18,19 +18,55 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 1
+  const howMany = 1000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`text_${idx}`] = {
-      id: `text_${idx}`,
+    result[`port_${idx}`] = {
+      id: `port_${idx}`,
       x: (idx % modulus) * 5,
       y: Math.floor(idx / modulus) * 5,
       width: 4,
       height: 4,
-      type: 'text-entity',
-      text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
+      ports: [
+        {
+          id: `port_${idx}_port_center`,
+          x: 0.5,
+          y: 0.5,
+          in: [],
+          out: [],
+        },
+        {
+          id: `port_${idx}_port_top`,
+          x: 0.5,
+          y: 0,
+          in: [],
+          out: [],
+        },
+        {
+          id: `port_${idx}_port_bottom`,
+          x: 0.5,
+          y: 1,
+          in: [],
+          out: [],
+        },
+        {
+          id: `port_${idx}_port_left`,
+          x: 0,
+          y: 0.5,
+          in: [],
+          out: [],
+        },
+        {
+          id: `port_${idx}_port_right`,
+          x: 1,
+          y: 0.5,
+          in: [],
+          out: [],
+        },
+      ],
+      type: 'port-entity',
     }
   })
 
