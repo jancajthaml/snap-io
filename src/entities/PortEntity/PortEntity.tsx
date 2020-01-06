@@ -2,29 +2,29 @@ import React from 'react'
 
 import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
-import Rectangle from '../../atoms/Rectangle'
-import { IEntitySchema, IPortSchema } from './types'
+//import Rectangle from '../../atoms/Rectangle'
+import { IEntitySchema } from './types'
 //import Port from './Port'
 
 interface IProps extends IEntitySchema {
   engine: Engine;
-  children?: React.ReactElement<IPortSchema>[] | React.ReactElement<IPortSchema>;
 }
 
 interface IState {
   selected: boolean;
 }
 
-class PortEntity extends React.Component<Omit<IProps, "ports">, IState> {
+class PortEntity extends React.Component<IProps, IState> {
 
-  children: {[key: string]: any};
+  //ports: Port[];
+  renderer: any;
 
-  constructor(props: Omit<IProps, "ports">) {
+  constructor(props: IProps) {
     super(props)
     this.state = {
       selected: false,
     }
-    this.children = {}
+    //this.ports = props.ports.map((port) => new Port(port))
   }
 
   componentDidMount() {
@@ -39,7 +39,15 @@ class PortEntity extends React.Component<Omit<IProps, "ports">, IState> {
     return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+  //drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+
+
+    //this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, x, y, w, h))
+  //}
+
+  draw = (ctx: CanvasRenderingContext2D) => {
+    const { viewport, gridSize } = this.props.engine
+
     if (this.state.selected) {
       ctx.fillStyle = "black"
     } else {
@@ -53,13 +61,7 @@ class PortEntity extends React.Component<Omit<IProps, "ports">, IState> {
 
     ctx.fillRect(x, y, w, h);
 
-    Object.values(this.children).map((port: any) => port.draw(ctx))
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.engine
-
-    this.drawSimple(ctx, viewport, gridSize)
+    //this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, x, y, w, h))
   }
 
   serialize = () => ({
@@ -67,17 +69,13 @@ class PortEntity extends React.Component<Omit<IProps, "ports">, IState> {
     type: this.props.type,
     x: this.props.x,
     y: this.props.y,
-    ports: Object.values(this.children).map((port: any) => port.serialize()),
+    ports: this.props.ports,
     width: this.props.width,
     height: this.props.height,
   })
 
   render() {
-    return (
-      <React.Fragment>
-        {React.Children.map(this.props.children, (child: any) => React.cloneElement(child, { parent: this }))}
-      </React.Fragment>
-    )
+    return <React.Fragment />
   }
 }
 

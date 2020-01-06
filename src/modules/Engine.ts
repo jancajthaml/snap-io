@@ -15,7 +15,7 @@ class Engine {
 
   elements: any[];
   selected: any[];
-  visible: any[];
+  //visible: any[];
   delayedSync: any;
 
   constructor(store: IReduxStore) {
@@ -23,9 +23,13 @@ class Engine {
     this.store = store
     this.elements = []
     this.selected = []
-    this.visible = []
+    //this.visible = []
     this.delayedSync = null
     this.selection = new SelectionFascade(this)
+  }
+
+  get visible() {
+    return this.elements
   }
 
   get viewport() {
@@ -49,12 +53,12 @@ class Engine {
   }
 
   sync = () => {
-    if (this.delayedSync) {
-      clearTimeout(this.delayedSync)
-    }
-    this.delayedSync = setTimeout(() => {
-      this.updateVisible(this.viewport)
-    }, 1)
+    //if (this.delayedSync) {
+      //clearTimeout(this.delayedSync)
+    //}
+    //this.delayedSync = setTimeout(() => {
+      //this.updateVisible(this.viewport)
+    //}, 1)
   }
 
   teardown = () => {
@@ -156,7 +160,7 @@ class Engine {
     nextViewPort.y2 = nextViewPort.y1 + ((resolution.y2 - resolution.y1) / nextScale)
     nextViewPort.z = nextScale
 
-    this.updateVisible(nextViewPort)
+    //this.updateVisible(nextViewPort)
 
     this.store.dispatch(setViewPort(nextViewPort))
   }
@@ -221,7 +225,7 @@ class Engine {
         const nextViewPort = viewport.copy()
         nextViewPort.translate(xDelta, yDelta)
 
-        this.updateVisible(nextViewPort)
+        //this.updateVisible(nextViewPort)
 
         this.store.dispatch(setViewPort(nextViewPort))
 
@@ -290,11 +294,11 @@ class Engine {
   resize = (x: number, y: number, width: number, height: number) => {
     const nextViewPort = this.viewport.copy()
     nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
-    this.updateVisible(nextViewPort)
+    //this.updateVisible(nextViewPort)
     this.store.dispatch(setResolution(new Rectangle(x, y, width, height)))
     this.store.dispatch(setViewPort(nextViewPort))
   }
-
+/*
   updateVisible = (viewport: Rectangle) => {
     const { gridSize } = this
     const nextVisible = new Set<any>(this.selected)
@@ -320,7 +324,7 @@ class Engine {
     });
 
   }
-
+*/
   updateSelected = (selection: Rectangle, clearPrevious: boolean) => {
     const { gridSize } = this
     if (clearPrevious) {
@@ -357,7 +361,7 @@ class Engine {
 
   removeEntity = (entity: any) => {
     this.elements = this.elements.filter((value) => value !== entity)
-    this.visible = this.visible.filter((value) => value !== entity)
+    //this.visible = this.visible.filter((value) => value !== entity)
     this.selected = this.selected.filter((value) => value !== entity)
   }
 

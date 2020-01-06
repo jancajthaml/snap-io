@@ -18,8 +18,8 @@ import TextEntity from '../../entities/TextEntity'
 import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
 
 import PortEntity from '../../entities/PortEntity'
-import Port from '../../entities/PortEntity/Port'
-import { IEntitySchema as IPortEntitySchema, IPortSchema } from '../../entities/PortEntity/types'
+//import Port from '../../entities/PortEntity/Port'
+import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
 
 interface IProps {
   store: IReduxStore;
@@ -98,19 +98,8 @@ const Diagram = (props: IProps) => {
               y={(entity as IPortEntitySchema).y}
               width={(entity as IPortEntitySchema).width}
               height={(entity as IPortEntitySchema).height}
-            >
-              {(entity as IPortEntitySchema).ports.map((port) => (
-                <Port
-                  key={(port as IPortSchema).id}
-                  engine={engine as Engine}
-                  id={(port as IPortSchema).id}
-                  x={(port as IPortSchema).x}
-                  y={(port as IPortSchema).y}
-                  in={(port as IPortSchema).in}
-                  out={(port as IPortSchema).out}
-                />
-              ))}
-            </PortEntity>
+              ports={(entity as IPortEntitySchema).ports}
+            />
           )
         } else {
           return null

@@ -1,62 +1,24 @@
-import React from 'react'
 
-import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
-import Rectangle from '../../atoms/Rectangle'
 import { IPortSchema } from './types'
 
-interface IProps extends IPortSchema {
-  engine: Engine;
-}
+class Port  {
 
-interface IState {
-  selected: boolean;
-}
+  props: IPortSchema;
 
-class Port extends React.Component<IProps, IState> {
-
-  constructor(props: IProps) {
-    super(props)
-    this.state = {
-      selected: false,
-    }
-  }
-
-  componentDidMount() {
-    const self = this as any
-    self.props.parent.children[this.props.id] = this
-  }
-
-  componentWillUnmount() {
-    const self = this as any
-    delete self.props.parent.children[this.props.id]
+  constructor(props: IPortSchema) {
+    this.props = props
   }
 
   mouseDownCapture = (point: Point): boolean => {
     return point.x >= this.props.x && point.x <= (this.props.x + 1) && point.y >= this.props.y && point.y <= (this.props.y + 1);
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    if (this.state.selected) {
-      ctx.strokeStyle = "black"
-    } else {
-      ctx.strokeStyle = "blue"
-    }
+  draw = (ctx: CanvasRenderingContext2D, gridSize: number, scale: number, x: number, y: number, width: number, height: number) => {
+    ctx.fillStyle = "blue"
+    const s = scale * gridSize * 0.5
 
-    const self = this as any
-    const s = viewport.z * gridSize * 0.5
-    const x = (viewport.x1 + Math.round(self.props.parent.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(self.props.parent.props.y) * gridSize) * viewport.z
-    const w = Math.round(self.props.parent.props.width) * this.props.x * gridSize * viewport.z
-    const h = Math.round(self.props.parent.props.height) * this.props.y * gridSize * viewport.z
-
-    ctx.strokeRect(x + w - s/2, y + h - s/2, s, s);
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.engine
-
-    this.drawSimple(ctx, viewport, gridSize)
+    ctx.fillRect(x + (width * this.props.x) - s/2, y + (height * this.props.y) - s/2, s, s);
   }
 
   serialize = () => ({
@@ -67,9 +29,6 @@ class Port extends React.Component<IProps, IState> {
     out: this.props.out,
   })
 
-  render() {
-    return <React.Fragment />
-  }
 }
 
 export default Port
