@@ -27,20 +27,20 @@ class ResizerHandle  {
   }
 
   onMouseMove = (xDelta: number, yDelta: number): boolean => {
-    console.log(`ResizerHandle onMouseMove(${xDelta},${yDelta})`)
+    //console.log(`ResizerHandle onMouseMove(${xDelta},${yDelta})`)
     this.mutator(xDelta, yDelta)
     return false
   }
 
   onMouseUp = (): boolean => {
-    console.log(`ResizerHandle onMouseUp`)
+    //console.log(`ResizerHandle onMouseUp`)
     this.selected = false
     this.owner.mutateStop()
     return false
   }
 
   onMouseDown = (): boolean => {
-    console.log(`ResizerHandle onMouseDown`)
+    //console.log(`ResizerHandle onMouseDown`)
     this.owner.resizers.forEach((resizer: any) => {
       resizer.selected = false
     })

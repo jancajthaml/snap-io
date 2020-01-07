@@ -13,10 +13,10 @@ interface IProps extends IEntitySchema {
 interface IState {
   selected: boolean;
   mutating: boolean;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  xDelta: number;
+  yDelta: number;
+  wDelta: number;
+  hDelta: number;
 }
 
 class BoxEntity extends React.Component<IProps, IState> {
@@ -28,60 +28,60 @@ class BoxEntity extends React.Component<IProps, IState> {
     this.state = {
       selected: false,
       mutating: false,
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
+      xDelta: 0,
+      yDelta: 0,
+      wDelta: 0,
+      hDelta: 0,
     }
     this.resizers = [
       new ResizerHandle(this, 0, 0, (xDelta: number, yDelta: number) => { // top-left
         this.setState((prevState) => ({
-          x: prevState.x + xDelta,
-          width: prevState.width - xDelta,
-          y: prevState.y + yDelta,
-          height: prevState.height - yDelta,
+          xDelta: prevState.xDelta + xDelta,
+          wDelta: prevState.wDelta - xDelta,
+          yDelta: prevState.yDelta + yDelta,
+          hDelta: prevState.hDelta - yDelta,
         }))
       }),
       new ResizerHandle(this, 0.5, 0, (_: number, yDelta: number) => { // top
         this.setState((prevState) => ({
-          y: prevState.y + yDelta,
-          height: prevState.height - yDelta,
+          yDelta: prevState.yDelta + yDelta,
+          hDelta: prevState.hDelta - yDelta,
         }))
       }),
       new ResizerHandle(this, 1, 0, (xDelta: number, yDelta: number) => { //top-right
         this.setState((prevState) => ({
-          width: prevState.width + xDelta,
-          y: prevState.y + yDelta,
-          height: prevState.height - yDelta,
+          wDelta: prevState.wDelta + xDelta,
+          yDelta: prevState.yDelta + yDelta,
+          hDelta: prevState.hDelta - yDelta,
         }))
       }),
       new ResizerHandle(this, 0, 1, (xDelta: number, yDelta: number) => { // bottom-left
         this.setState((prevState) => ({
-          x: prevState.x + xDelta,
-          width: prevState.width - xDelta,
-          height: prevState.height + yDelta,
+          xDelta: prevState.xDelta + xDelta,
+          wDelta: prevState.wDelta - xDelta,
+          hDelta: prevState.hDelta + yDelta,
         }))
       }),
       new ResizerHandle(this, 0.5, 1, (_: number, yDelta: number) => { // bottom
         this.setState((prevState) => ({
-          height: prevState.height + yDelta,
+          hDelta: prevState.hDelta + yDelta,
         }))
       }),
       new ResizerHandle(this, 1, 1, (xDelta: number, yDelta: number) => { // bottom-right
         this.setState((prevState) => ({
-          width: prevState.width + xDelta,
-          height: prevState.height + yDelta,
+          wDelta: prevState.wDelta + xDelta,
+          hDelta: prevState.hDelta + yDelta,
         }))
       }),
       new ResizerHandle(this, 1, 0.5, (xDelta: number, _: number) => { // right
         this.setState((prevState) => ({
-          width: prevState.width + xDelta,
+          wDelta: prevState.wDelta + xDelta,
         }))
       }),
       new ResizerHandle(this, 0, 0.5, (xDelta: number, _: number) => { // left
         this.setState((prevState) => ({
-          x: prevState.x + xDelta,
-          width: prevState.width - xDelta,
+          xDelta: prevState.xDelta + xDelta,
+          wDelta: prevState.wDelta - xDelta,
         }))
       }),
     ]
@@ -98,23 +98,62 @@ class BoxEntity extends React.Component<IProps, IState> {
   mutateStart = (): void => {
     this.setState({
       mutating: true,
-      x: this.props.x,
-      y: this.props.y,
-      width: this.props.width,
-      height: this.props.height,
+      xDelta: 0,
+      yDelta: 0,
+      wDelta: 0,
+      hDelta: 0,
     })
   }
 
   mutateStop = (): void => {
+    let { xDelta, yDelta, wDelta, hDelta } = this.state
     this.setState({
       mutating: false,
+      xDelta: 0,
+      yDelta: 0,
+      wDelta: 0,
+      hDelta: 0,
     })
 
-    const self = this as any
-    self.props.x = this.state.x
-    self.props.y = this.state.y
-    self.props.width = this.state.width
-    self.props.height = this.state.height
+    if (hDelta + this.props.height <= 0) {
+      if (yDelta !== 0) {
+        yDelta = this.props.height - 1
+        hDelta = 1 - this.props.height
+      } else {
+        hDelta = 1 - this.props.height
+      }
+    }
+
+    if (wDelta + this.props.width <= 0) {
+      if (xDelta !== 0) {
+        xDelta = this.props.width - 1
+        wDelta = 1 - this.props.width
+      } else {
+        wDelta = 1 - this.props.width
+      }
+    }
+
+    if (xDelta === -0) {
+      xDelta = 0
+    }
+    if (yDelta === -0) {
+      yDelta = 0
+    }
+    if (wDelta === -0) {
+      wDelta = 0
+    }
+    if (hDelta === -0) {
+      hDelta = 0
+    }
+
+    if (xDelta !== 0 || yDelta !== 0 || wDelta !== 0 || hDelta !== 0) {
+      let nextSchema = this.serialize()
+      nextSchema.x += xDelta
+      nextSchema.y += yDelta
+      nextSchema.width += wDelta
+      nextSchema.height += hDelta
+      this.props.engine.elementUpdated(this.props.id, nextSchema)
+    }
   }
 
   onMouseDown = (): boolean => {
@@ -131,8 +170,8 @@ class BoxEntity extends React.Component<IProps, IState> {
   onMouseMove = (xDelta: number, yDelta: number): boolean => {
     if (this.state.selected) {
       this.setState((prevState) => ({
-        x: prevState.x + xDelta,
-        y: prevState.y + yDelta,
+        xDelta: prevState.xDelta + xDelta,
+        yDelta: prevState.yDelta + yDelta,
       }))
     }
     return false
@@ -192,7 +231,32 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.strokeStyle = this.props.color
     }
 
-    const { x, y, width, height } = (this.state.mutating ? this.state : this.props)
+    let { x, y, width, height } = this.props
+    if (this.state.mutating) {
+      let { xDelta, yDelta, wDelta, hDelta } = this.state
+      if (hDelta + height <= 0) {
+        if (yDelta !== 0) {
+          yDelta = height - 1
+          hDelta = 1 - height
+        } else {
+          hDelta = 1 - height
+        }
+      }
+
+      if (wDelta + width <= 0) {
+        if (xDelta !== 0) {
+          xDelta = width - 1
+          wDelta = 1 - width
+        } else {
+          wDelta = 1 - width
+        }
+      }
+
+      y += yDelta
+      x += xDelta
+      width += wDelta
+      height += hDelta
+    }
 
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
     const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
@@ -209,7 +273,32 @@ class BoxEntity extends React.Component<IProps, IState> {
     ctx.fillStyle = "black";
     ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
 
-    const { x, y, width, height } = (this.state.mutating ? this.state : this.props)
+    let { x, y, width, height } = this.props
+    if (this.state.mutating) {
+      let { xDelta, yDelta, wDelta, hDelta } = this.state
+      if (hDelta + height <= 0) {
+        if (yDelta !== 0) {
+          yDelta = height - 1
+          hDelta = 1 - height
+        } else {
+          hDelta = 1 - height
+        }
+      }
+
+      if (wDelta + width <= 0) {
+        if (xDelta !== 0) {
+          xDelta = width - 1
+          wDelta = 1 - width
+        } else {
+          wDelta = 1 - width
+        }
+      }
+
+      y += yDelta
+      x += xDelta
+      width += wDelta
+      height += hDelta
+    }
 
     const X = (viewport.x1 + Math.round(x) * gridSize - gridSize/2) * viewport.z
     const Y = (viewport.y1 + Math.round(y) * gridSize - gridSize/2) * viewport.z

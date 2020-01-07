@@ -3,8 +3,8 @@ import Point from '../atoms/Point'
 //import { MOUNT_NODE, MODE_SELECTION, MODE_RESIZE, MODE_TRANSLATE, MODE_SCENE_TRANSLATE } from '../global/constants'
 import { IReduxStore } from '../store'
 import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
-import { setViewPort, setResolution /*, patchSchema*/ } from './Diagram/actions'
-//import { IEntitySchema } from './Diagram/reducer'
+import { setViewPort, setResolution , patchSchema } from './Diagram/actions'
+import { IEntitySchema } from './Diagram/reducer'
 //import SelectionFascade from './SelectionFascade'
 
 class Engine {
@@ -214,7 +214,6 @@ class Engine {
 
 
 
-
     /*
     switch (this.currentMouseEventOwner === this) {
 
@@ -295,6 +294,10 @@ class Engine {
       }
     }
     */
+  }
+
+  elementUpdated = (id: string, newSchema: IEntitySchema) => {
+    this.store.dispatch(patchSchema({ [id]: newSchema }))
   }
 
   resize = (x: number, y: number, width: number, height: number) => {
