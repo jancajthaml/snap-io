@@ -12,7 +12,11 @@ interface IProps extends IEntitySchema {
 
 interface IState {
   selected: boolean;
-  isResizing?: string;
+  mutating: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 class BoxEntity extends React.Component<IProps, IState> {
@@ -23,16 +27,63 @@ class BoxEntity extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       selected: false,
+      mutating: false,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
     }
     this.resizers = [
-      new ResizerHandle(this, 0, 0, () => {}),    // top-left
-      new ResizerHandle(this, 0.5, 0, () => {}),  // left
-      new ResizerHandle(this, 1, 0, () => {}),    // bottom-left
-      new ResizerHandle(this, 0, 1, () => {}),    // top-right
-      new ResizerHandle(this, 0.5, 1, () => {}),  // right
-      new ResizerHandle(this, 1, 1, () => {}),    // bottom-right
-      new ResizerHandle(this, 1, 0.5, () => {}),  // right
-      new ResizerHandle(this, 0, 0.5, () => {}),  // left
+      new ResizerHandle(this, 0, 0, (xDelta: number, yDelta: number) => { // top-left
+        this.setState((prevState) => ({
+          x: prevState.x + xDelta,
+          width: prevState.width - xDelta,
+          y: prevState.y + yDelta,
+          height: prevState.height - yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 0.5, 0, (_: number, yDelta: number) => { // top
+        this.setState((prevState) => ({
+          y: prevState.y + yDelta,
+          height: prevState.height - yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 1, 0, (xDelta: number, yDelta: number) => { //top-right
+        this.setState((prevState) => ({
+          width: prevState.width + xDelta,
+          y: prevState.y + yDelta,
+          height: prevState.height - yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 0, 1, (xDelta: number, yDelta: number) => { // bottom-left
+        this.setState((prevState) => ({
+          x: prevState.x + xDelta,
+          width: prevState.width - xDelta,
+          height: prevState.height + yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 0.5, 1, (_: number, yDelta: number) => { // bottom
+        this.setState((prevState) => ({
+          height: prevState.height + yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 1, 1, (xDelta: number, yDelta: number) => { // bottom-right
+        this.setState((prevState) => ({
+          width: prevState.width + xDelta,
+          height: prevState.height + yDelta,
+        }))
+      }),
+      new ResizerHandle(this, 1, 0.5, (xDelta: number, _: number) => { // right
+        this.setState((prevState) => ({
+          width: prevState.width + xDelta,
+        }))
+      }),
+      new ResizerHandle(this, 0, 0.5, (xDelta: number, _: number) => { // left
+        this.setState((prevState) => ({
+          x: prevState.x + xDelta,
+          width: prevState.width - xDelta,
+        }))
+      }),
     ]
   }
 
@@ -44,25 +95,51 @@ class BoxEntity extends React.Component<IProps, IState> {
     this.props.engine.removeEntity(this)
   }
 
+  mutateStart = (): void => {
+    this.setState({
+      mutating: true,
+      x: this.props.x,
+      y: this.props.y,
+      width: this.props.width,
+      height: this.props.height,
+    })
+  }
+
+  mutateStop = (): void => {
+    this.setState({
+      mutating: false,
+    })
+
+    const self = this as any
+    self.props.x = this.state.x
+    self.props.y = this.state.y
+    self.props.width = this.state.width
+    self.props.height = this.state.height
+  }
+
   onMouseDown = (): boolean => {
     if (this.state.selected) {
+      this.mutateStart()
       return true
     } else {
       this.props.engine.setSelected(this)
+      this.mutateStart()
       return true
     }
   }
 
   onMouseMove = (xDelta: number, yDelta: number): boolean => {
     if (this.state.selected) {
-      const self = this as any
-      self.props.x += xDelta
-      self.props.y += yDelta
+      this.setState((prevState) => ({
+        x: prevState.x + xDelta,
+        y: prevState.y + yDelta,
+      }))
     }
     return false
   }
 
   onMouseUp = (): boolean => {
+    this.mutateStop()
     return false
   }
 
@@ -115,70 +192,36 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.strokeStyle = this.props.color
     }
 
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
-    const w = Math.round(this.props.width) * gridSize * viewport.z
-    const h = Math.round(this.props.height) * gridSize * viewport.z
+    const { x, y, width, height } = (this.state.mutating ? this.state : this.props)
+
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
 
     const offset = 3 * viewport.z
-    ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
-    ctx.strokeRect(x, y, w, h);
+    ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
+    ctx.strokeRect(X, Y, W, H);
   }
 
   drawSelection = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
     ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize - gridSize/2) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize - gridSize/2) * viewport.z
-    const w = (Math.round(this.props.width) * gridSize + gridSize) * viewport.z
-    const h = (Math.round(this.props.height) * gridSize + gridSize) * viewport.z
 
-    //const x = (viewport.x1 + this.bounds.x1 - 3) * viewport.z
-    //const y = (viewport.y1 + this.bounds.y1 - 3) * viewport.z
-    //const w = (this.bounds.x2 - this.bounds.x1 + 6) * viewport.z
-    //const h = (this.bounds.y2 - this.bounds.y1 + 6) * viewport.z
-    ctx.strokeRect(x, y, w, h);
+    const { x, y, width, height } = (this.state.mutating ? this.state : this.props)
+
+    const X = (viewport.x1 + Math.round(x) * gridSize - gridSize/2) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize - gridSize/2) * viewport.z
+    const W = (Math.round(width) * gridSize + gridSize) * viewport.z
+    const H = (Math.round(height) * gridSize + gridSize) * viewport.z
+
+    ctx.strokeRect(X, Y, W, H);
     ctx.setLineDash([]);
 
-    // resizers
     this.resizers.forEach((resizer) => {
-      resizer.draw(ctx, x, y, w, h)
+      resizer.draw(ctx, X, Y, W, H)
     })
-
-    /*
-    // TOP-LEFT
-    ctx.clearRect(x - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // TOP
-    ctx.clearRect(x + w/2 - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x + w/2 - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // TOP-RIGHT
-    ctx.clearRect(x + w - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x + w - (RESIZER_SIZE)/2, y - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // BOTTOM-LEFT
-    ctx.clearRect(x - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // BOTTOM
-    ctx.clearRect(x + w/2 - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x + w/2 - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // BOTTOM-RIGHT
-    ctx.clearRect(x + w - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x + w - (RESIZER_SIZE)/2, y + h - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // LEFT
-    ctx.clearRect(x - (RESIZER_SIZE)/2, y + h/2 - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x - (RESIZER_SIZE)/2, y + h/2 - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-
-    // RIGHT
-    ctx.clearRect(x + w - (RESIZER_SIZE)/2, y + h/2 - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    ctx.strokeRect(x + w - (RESIZER_SIZE)/2, y + h/2 - (RESIZER_SIZE)/2, RESIZER_SIZE, RESIZER_SIZE)
-    */
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {

@@ -8,9 +8,9 @@ class ResizerHandle  {
   x: number;
   y: number;
   selected: boolean;
-  mutator: () => void;
+  mutator: (xDelta: number, yDelta: number) => void;
 
-  constructor(owner: any, x: number, y: number, mutator: () => void) {
+  constructor(owner: any, x: number, y: number, mutator: (xDelta: number, yDelta: number) => void) {
     this.owner = owner
     this.x = x
     this.y = y
@@ -28,12 +28,14 @@ class ResizerHandle  {
 
   onMouseMove = (xDelta: number, yDelta: number): boolean => {
     console.log(`ResizerHandle onMouseMove(${xDelta},${yDelta})`)
+    this.mutator(xDelta, yDelta)
     return false
   }
 
   onMouseUp = (): boolean => {
     console.log(`ResizerHandle onMouseUp`)
     this.selected = false
+    this.owner.mutateStop()
     return false
   }
 
@@ -43,6 +45,7 @@ class ResizerHandle  {
       resizer.selected = false
     })
     this.selected = true
+    this.owner.mutateStart()
     return true
   }
 

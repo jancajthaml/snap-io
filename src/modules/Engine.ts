@@ -143,6 +143,12 @@ class Engine {
     }
 
     if (this.currentMouseEventOwner === this) {
+      if (
+        this.currentMouseCoordinates.x1 === this.currentMouseCoordinates.x2 &&
+        this.currentMouseCoordinates.y1 === this.currentMouseCoordinates.y2
+      ) {
+        this.setSelected()
+      }
     } else if (this.currentMouseEventOwner.onMouseUp) {
       this.currentMouseEventOwner.onMouseUp()
     }
@@ -188,11 +194,6 @@ class Engine {
 
       currentMouseCoordinates.x2 = event.clientX - resolution.x1
       currentMouseCoordinates.y2 = event.clientY - resolution.y1
-
-
-      //const { resolution, viewport, currentMouseCoordinates, gridSize } = this
-      //currentMouseCoordinates.x2 = event.clientX - resolution.x1
-      //currentMouseCoordinates.y2 = event.clientY - resolution.y1
 
       let xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
       let yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
