@@ -225,11 +225,7 @@ class Engine {
     const nextVisible = new Set<any>(this.selected)
 
     this.elements.forEach((element) => {
-      const outOfRight = (viewport.x2 - 2 * viewport.x1 - element.props.x * gridSize) < 0
-      const outOfLeft = (viewport.x1 + (element.props.x + element.props.width) * gridSize) < 0
-      const outOfBottom = (viewport.y2 - 2 * viewport.y1 - element.props.y * gridSize) < 0
-      const outOfUp = (viewport.y1 + (element.props.y + element.props.height) * gridSize) < 0
-      if (!(outOfRight || outOfLeft || outOfBottom || outOfUp)) {
+      if (element.isVisible(gridSize, viewport)) {
         nextVisible.add(element)
       }
     })

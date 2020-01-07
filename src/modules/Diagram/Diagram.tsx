@@ -6,8 +6,14 @@ import { IReduxStore } from '../../store'
 import { IDiagramSchema } from './reducer'
 import { getSchema } from '../Diagram/selectors'
 
+import { IParentSchema } from '../../@types/index'
+
 import Engine from '../Engine'
 import Composition from '../Composition'
+
+
+import ResizableEntity from '../../entities/ResizableEntity'
+
 import BoxEntity from '../../entities/BoxEntity'
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
 
@@ -51,55 +57,71 @@ const Diagram = (props: IProps) => {
       {Object.values(props.schema.root).map((entity) => {
         if (entity.type === 'box-entity') {
           return (
-            <BoxEntity
-              engine={engine as Engine}
-              type={(entity as IBoxEntitySchema).type}
-              id={(entity as IBoxEntitySchema).id}
-              x={(entity as IBoxEntitySchema).x}
-              y={(entity as IBoxEntitySchema).y}
-              width={(entity as IBoxEntitySchema).width}
-              height={(entity as IBoxEntitySchema).height}
-              color={(entity as IBoxEntitySchema).color}
-            />
+            <ResizableEntity
+              parent={engine as IParentSchema}
+            >
+              <BoxEntity
+                parent={engine as IParentSchema}
+                type={(entity as IBoxEntitySchema).type}
+                id={(entity as IBoxEntitySchema).id}
+                x={(entity as IBoxEntitySchema).x}
+                y={(entity as IBoxEntitySchema).y}
+                width={(entity as IBoxEntitySchema).width}
+                height={(entity as IBoxEntitySchema).height}
+                color={(entity as IBoxEntitySchema).color}
+              />
+            </ResizableEntity>
           )
         } else if (entity.type === 'image-entity') {
           return (
-            <ImageEntity
-              engine={engine as Engine}
-              type={(entity as IImageEntitySchema).type}
-              id={(entity as IImageEntitySchema).id}
-              x={(entity as IImageEntitySchema).x}
-              y={(entity as IImageEntitySchema).y}
-              width={(entity as IImageEntitySchema).width}
-              height={(entity as IImageEntitySchema).height}
-              url={(entity as IImageEntitySchema).url}
-            />
+            <ResizableEntity
+              parent={engine as IParentSchema}
+            >
+              <ImageEntity
+                parent={engine as IParentSchema}
+                type={(entity as IImageEntitySchema).type}
+                id={(entity as IImageEntitySchema).id}
+                x={(entity as IImageEntitySchema).x}
+                y={(entity as IImageEntitySchema).y}
+                width={(entity as IImageEntitySchema).width}
+                height={(entity as IImageEntitySchema).height}
+                url={(entity as IImageEntitySchema).url}
+              />
+            </ResizableEntity>
           )
         } else if (entity.type === 'text-entity') {
           return (
-            <TextEntity
-              engine={engine as Engine}
-              type={(entity as ITextEntitySchema).type}
-              id={(entity as ITextEntitySchema).id}
-              x={(entity as ITextEntitySchema).x}
-              y={(entity as ITextEntitySchema).y}
-              width={(entity as ITextEntitySchema).width}
-              height={(entity as ITextEntitySchema).height}
-              text={(entity as ITextEntitySchema).text}
-            />
+            <ResizableEntity
+              parent={engine as IParentSchema}
+            >
+              <TextEntity
+                parent={engine as IParentSchema}
+                type={(entity as ITextEntitySchema).type}
+                id={(entity as ITextEntitySchema).id}
+                x={(entity as ITextEntitySchema).x}
+                y={(entity as ITextEntitySchema).y}
+                width={(entity as ITextEntitySchema).width}
+                height={(entity as ITextEntitySchema).height}
+                text={(entity as ITextEntitySchema).text}
+              />
+            </ResizableEntity>
           )
         } else if (entity.type === 'port-entity') {
           return (
-            <PortEntity
-              engine={engine as Engine}
-              type={(entity as IPortEntitySchema).type}
-              id={(entity as IPortEntitySchema).id}
-              x={(entity as IPortEntitySchema).x}
-              y={(entity as IPortEntitySchema).y}
-              width={(entity as IPortEntitySchema).width}
-              height={(entity as IPortEntitySchema).height}
-              ports={(entity as IPortEntitySchema).ports}
-            />
+            <ResizableEntity
+              parent={engine as IParentSchema}
+            >
+              <PortEntity
+                parent={engine as IParentSchema}
+                type={(entity as IPortEntitySchema).type}
+                id={(entity as IPortEntitySchema).id}
+                x={(entity as IPortEntitySchema).x}
+                y={(entity as IPortEntitySchema).y}
+                width={(entity as IPortEntitySchema).width}
+                height={(entity as IPortEntitySchema).height}
+                ports={(entity as IPortEntitySchema).ports}
+              />
+            </ResizableEntity>
           )
         } else {
           return null

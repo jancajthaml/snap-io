@@ -1,16 +1,15 @@
 import React from 'react'
 
-import Engine from '../../modules/Engine'
-import Point from '../../atoms/Point'
+import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
 import ImageLibrary from './ImageLibrary'
+import { IParentSchema } from '../../@types/index'
 
 interface IProps extends IEntitySchema {
-  engine: Engine;
+  parent: IParentSchema;
 }
 
 interface IState {
-  selected: boolean;
 }
 
 class ImageEntity extends React.Component<IProps, IState> {
@@ -18,25 +17,18 @@ class ImageEntity extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props)
     this.state = {
-      selected: false,
     }
   }
 
   componentDidMount() {
-    this.props.engine.addEntity(this)
+    this.props.parent.addEntity(this)
   }
 
   componentWillUnmount() {
-    this.props.engine.removeEntity(this)
+    this.props.parent.removeEntity(this)
   }
 
-  mouseDownCapture = (point: Point): boolean => {
-    return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
-  }
-
-  draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
-    const { viewport, gridSize } = this.props.engine
-
+  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
     let image = ImageLibrary.get(this.props.url, timestamp)
 
     const w_i = image.width as number
@@ -44,19 +36,28 @@ class ImageEntity extends React.Component<IProps, IState> {
       return
     }
     const h_i = image.height as number
-    const w = Math.round(this.props.width) * gridSize * viewport.z
-    const h = Math.round(this.props.height) * gridSize * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
 
-    const ratio  = Math.min(w / w_i, h / h_i);
+    const ratio  = Math.min(W / w_i, H / h_i);
 
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
 
-    if (this.state.selected) {
-      ctx.fillStyle = "black"
-      ctx.fillRect(x, y, w, h);
-    }
-    ctx.drawImage(image, 0, 0, w_i, h_i, x + (w - w_i * ratio) / 2, y + (h - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
+    ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
+  }
+
+  draw = (ctx: CanvasRenderingContext2D) => {
+    const { viewport, gridSize } = this.props.parent
+    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
+  }
+
+  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
+    const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
+    const outOfLeft = (viewport.x1 + (this.props.x + this.props.width) * gridSize) < 0
+    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
+    const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
+    return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
 
   serialize = () => ({
