@@ -19,7 +19,7 @@ class Composition extends React.PureComponent<IProps> {
     }
     times.push(now);
 
-    const { gridSize, viewport, visible, selection } = this.props.engine
+    const { gridSize, viewport, visible /*, selection*/ } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -46,7 +46,7 @@ class Composition extends React.PureComponent<IProps> {
     visible.forEach((element: any) => {
       element.draw(ctx, timestamp)
     })
-    selection.draw(ctx)
+    //selection.draw(ctx)
 
     // FPS and visible entities info
 
