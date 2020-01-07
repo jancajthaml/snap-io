@@ -19,7 +19,7 @@ class Composition extends React.PureComponent<IProps> {
     }
     times.push(now);
 
-    const { gridSize, viewport, visible, selection } = this.props.engine
+    const { gridSize, viewport, visible } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -43,10 +43,11 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
+    // FIXME change to multiple priority paints so for example selected elements can render to upper
+    // layer and render on top
     visible.forEach((element: any) => {
       element.draw(ctx, timestamp)
     })
-    selection.draw(ctx)
 
     // FPS and visible entities info
 

@@ -17,11 +17,21 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 10
+  const howMany = 3
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }
   Array.from(Array(howMany).keys()).forEach((idx) => {
+    result[`box_${idx}`] = {
+      id: `box_${idx}`,
+      x: (idx % modulus) * 5,
+      y: Math.floor(idx / modulus) * 5,
+      width: 4,
+      height: 4,
+      type: 'box-entity',
+      color: ["red", "blue", "green"][(idx % 3)],
+    }
+    /*
     result[`port_${idx}`] = {
       id: `port_${idx}`,
       x: (idx % modulus) * 5,
@@ -67,6 +77,7 @@ const loadSchema_A = (): IDiagramSchema => {
       ],
       type: 'port-entity',
     }
+    */
   })
 
   return {

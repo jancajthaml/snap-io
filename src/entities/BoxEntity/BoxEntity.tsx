@@ -1,80 +1,78 @@
 import React from 'react'
 
-import Engine from '../../modules/Engine'
-import Point from '../../atoms/Point'
+import { IParentSchema } from '../../@types/index'
+
+//import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
+//import ResizerHandle from './ResizerHandle'
 
 interface IProps extends IEntitySchema {
-  engine: Engine;
+  parent: IParentSchema;
 }
 
 interface IState {
-  selected: boolean;
 }
 
 class BoxEntity extends React.Component<IProps, IState> {
 
   constructor(props: IProps) {
     super(props)
-    this.state = {
-      selected: false,
-    }
+    this.state = {}
   }
 
   componentDidMount() {
-    this.props.engine.addEntity(this)
+    this.props.parent.addEntity(this)
   }
 
   componentWillUnmount() {
-    this.props.engine.removeEntity(this)
+    this.props.parent.removeEntity(this)
   }
 
-  mouseDownCapture = (point: Point): boolean => {
-    return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+    ctx.fillStyle = this.props.color
+
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    ctx.fillRect(X, Y, W, H);
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    if (this.state.selected) {
-      ctx.fillStyle = "black"
-    } else {
-      ctx.fillStyle = this.props.color
-    }
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+    ctx.fillStyle = this.props.color
+    ctx.strokeStyle = this.props.color
 
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
-    const w = Math.round(this.props.width) * gridSize * viewport.z
-    const h = Math.round(this.props.height) * gridSize * viewport.z
-
-    ctx.fillRect(x, y, w, h);
-  }
-
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    if (this.state.selected) {
-      ctx.fillStyle = "black"
-      ctx.strokeStyle = "black"
-    } else {
-      ctx.fillStyle = this.props.color
-      ctx.strokeStyle = this.props.color
-    }
-
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
-    const w = Math.round(this.props.width) * gridSize * viewport.z
-    const h = Math.round(this.props.height) * gridSize * viewport.z
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
 
     const offset = 3 * viewport.z
-    ctx.fillRect(x + offset, y + offset, w - 2 * offset, h - 2 * offset);
-    ctx.strokeRect(x, y, w, h);
+    ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
+    ctx.strokeRect(X, Y, W, H);
+  }
+
+  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+    if (viewport.z <= 0.4) {
+      this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
+    } else {
+      this.drawDetail(ctx, viewport, gridSize, x, y, width, height, timestamp)
+    }
   }
 
   draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.engine
-    if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport, gridSize)
-    } else {
-      this.drawDetail(ctx, viewport, gridSize)
-    }
+    const { viewport, gridSize } = this.props.parent
+    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
+  }
+
+  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
+    const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
+    const outOfLeft = (viewport.x1 + (this.props.x + this.props.width) * gridSize) < 0
+    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
+    const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
+    return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
 
   serialize = () => ({
