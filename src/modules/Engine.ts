@@ -318,6 +318,7 @@ class Engine {
       }
     })
     this.visible = [...nextVisible]
+    /*
     this.visible.sort(function(x, y) {
       if (x.state.selected && y.state.selected) {
         return 0;
@@ -327,7 +328,7 @@ class Engine {
       }
       return -1;
     });
-
+    */
   }
 
   setSelected = (element?: any) => {
@@ -336,11 +337,14 @@ class Engine {
         selected: false,
       })
     })
+
     if (element) {
       this.selected = [element]
       element.setState({
         selected: true,
       })
+      /*
+      // FIXME too eager
       this.visible.sort(function(x, y) {
         if (x.state.selected && y.state.selected) {
           return 0;
@@ -350,11 +354,10 @@ class Engine {
         }
         return -1;
       });
+      */
     } else {
       this.selected = []
     }
-    //this.selection.compressSelected()
-    //this.selection.bounds.updateResizers()
   }
 
   /*

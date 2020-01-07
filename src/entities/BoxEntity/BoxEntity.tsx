@@ -46,17 +46,14 @@ class BoxEntity extends React.Component<IProps, IState> {
 
   onMouseDown = (): boolean => {
     if (this.state.selected) {
-      //console.log(`BoxEntity ${this.props.id} onMouseDown at ${point.x},${point.y} (selected)`)
       return true
     } else {
-      //console.log(`BoxEntity ${this.props.id} onMouseDown at ${point.x},${point.y}`)
       this.props.engine.setSelected(this)
       return true
     }
   }
 
   onMouseMove = (xDelta: number, yDelta: number): boolean => {
-    //console.log(`BoxEntity ${this.props.id} onMouseMove(${xDelta},${yDelta})`)
     if (this.state.selected) {
       const self = this as any
       self.props.x += xDelta
@@ -66,7 +63,6 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   onMouseUp = (): boolean => {
-    //console.log(`BoxEntity ${this.props.id} onMouseUp`)
     return false
   }
 
