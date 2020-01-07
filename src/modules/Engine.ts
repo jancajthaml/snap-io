@@ -38,6 +38,7 @@ class Engine {
 
   cleanup = () => {
     this.currentMouseEventOwner = undefined
+    this.setSelected()
     if (this.delayedSync) {
       clearTimeout(this.delayedSync)
     }
@@ -160,8 +161,6 @@ class Engine {
     this.currentMouseCoordinates.y2 = y
   }
 
-  // FIXME do not immediatelly dispatch delta x and delta y remember original position of
-  // mouse down and current position of mouse move and calculate delta based on that
   mouseMove = (event: MouseEvent) => {
     if (this.currentMouseEventOwner === undefined) {
       return
@@ -184,9 +183,7 @@ class Engine {
       this.updateVisible(nextViewPort)
 
       this.store.dispatch(setViewPort(nextViewPort))
-
     } else if (this.currentMouseEventOwner.onMouseMove) {
-
       currentMouseCoordinates.x2 = event.clientX - resolution.x1
       currentMouseCoordinates.y2 = event.clientY - resolution.y1
 
@@ -204,7 +201,7 @@ class Engine {
       }
 
       currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
-        currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+      currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
     }
   }
 
