@@ -2,7 +2,6 @@ import React from 'react'
 
 import Engine from '../../modules/Engine'
 import Point from '../../atoms/Point'
-//import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
 import Port from './Port'
 
@@ -17,7 +16,6 @@ interface IState {
 class PortEntity extends React.Component<IProps, IState> {
 
   ports: Port[];
-  //renderer: any;
 
   constructor(props: IProps) {
     super(props)
@@ -38,12 +36,6 @@ class PortEntity extends React.Component<IProps, IState> {
   mouseDownCapture = (point: Point): boolean => {
     return point.x >= this.props.x && point.x <= (this.props.x + this.props.width) && point.y >= this.props.y && point.y <= (this.props.y + this.props.height);
   }
-
-  //drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-
-
-    //this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, x, y, w, h))
-  //}
 
   draw = (ctx: CanvasRenderingContext2D) => {
     const { viewport, gridSize } = this.props.engine

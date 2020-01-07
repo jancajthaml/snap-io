@@ -214,12 +214,39 @@ class BoxEntity extends React.Component<IProps, IState> {
       ctx.fillStyle = this.props.color
     }
 
-    const x = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-    const y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
-    const w = Math.round(this.props.width) * gridSize * viewport.z
-    const h = Math.round(this.props.height) * gridSize * viewport.z
+    let { x, y, width, height } = this.props
+    if (this.state.mutating) {
+      let { xDelta, yDelta, wDelta, hDelta } = this.state
+      if (hDelta + height <= 0) {
+        if (yDelta !== 0) {
+          yDelta = height - 1
+          hDelta = 1 - height
+        } else {
+          hDelta = 1 - height
+        }
+      }
 
-    ctx.fillRect(x, y, w, h);
+      if (wDelta + width <= 0) {
+        if (xDelta !== 0) {
+          xDelta = width - 1
+          wDelta = 1 - width
+        } else {
+          wDelta = 1 - width
+        }
+      }
+
+      y += yDelta
+      x += xDelta
+      width += wDelta
+      height += hDelta
+    }
+
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    ctx.fillRect(X, Y, W, H);
   }
 
   drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {

@@ -19,7 +19,7 @@ class Composition extends React.PureComponent<IProps> {
     }
     times.push(now);
 
-    const { gridSize, viewport, visible /*, selection*/ } = this.props.engine
+    const { gridSize, viewport, visible } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
