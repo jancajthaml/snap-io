@@ -40,11 +40,6 @@ const Canvas = (props: IProps) => {
   const onKeyDown = (event: React.KeyboardEvent) => {
     event.preventDefault()
     props.onKeyDown(event.nativeEvent)
-
-    //if (event.nativeEvent.button === 0) {
-    //event.preventDefault()
-    //props.onMouseDown(event.nativeEvent)
-    //}
   }
 
   const onMouseDown = (event: React.MouseEvent) => {

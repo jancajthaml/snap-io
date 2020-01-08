@@ -2,7 +2,7 @@ import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, PATCH_SCHEMA, REMOVE_FROM_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
+import * as C from './constants'
 import { calculateOptimalViewport } from './utils'
 
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
@@ -36,28 +36,28 @@ export type IReduxState = typeof initialState
 export default (state: IReduxState = initialState, action: IAction): IReduxState => {
   switch (action.type) {
 
-    case SET_GRID_SIZE: {
+    case C.SET_GRID_SIZE: {
       return {
         ...state,
         gridSize: action.payload.gridSize,
       }
     }
 
-    case SET_SCHEMA: {
+    case C.SET_SCHEMA: {
       return {
         ...state,
         schema: action.payload.schema,
       }
     }
 
-    case SET_VIEWPORT: {
+    case C.SET_VIEWPORT: {
       return {
         ...state,
         viewport: action.payload.viewport,
       }
     }
 
-    case ZOOM_TO_FIT: {
+    case C.ZOOM_TO_FIT: {
       const viewport = calculateOptimalViewport(state.schema, state.gridSize, state.resolution)
       if (viewport === null) {
         return {
@@ -71,14 +71,14 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       }
     }
 
-    case SET_RESOLUTION: {
+    case C.SET_RESOLUTION: {
       return {
         ...state,
         resolution: action.payload.resolution,
       }
     }
 
-    case REMOVE_FROM_SCHEMA: {
+    case C.REMOVE_FROM_SCHEMA: {
       const root = { ...state.schema.root }
       delete root[action.payload.id]
 
@@ -91,7 +91,7 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       }
     }
 
-    case PATCH_SCHEMA: {
+    case C.PATCH_SCHEMA: {
       return {
         ...state,
         schema: {
