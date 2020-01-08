@@ -1,14 +1,13 @@
 import React from 'react'
 
-import { IParentSchema, IChildSchema } from '../../@types/index'
+import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
 
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
-//import { IEntitySchema } from './types'
 import ResizerHandle from './ResizerHandle'
 
 interface IProps {
-  parent: IParentSchema;
+  parent: ICanvasEntityWrapperSchema;
   children: React.ReactElement;
 }
 
@@ -23,7 +22,7 @@ interface IState {
 
 class ResizableEntity extends React.Component<IProps, IState> {
 
-  ref: React.RefObject<IChildSchema>;
+  ref: React.RefObject<ICanvasEntitySchema>;
   resizers: ResizerHandle[];
 
   constructor(props: IProps) {
@@ -126,7 +125,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
     if (this.ref.current === null) {
       return
     }
-    const ref = this.ref.current as IChildSchema
+    const ref = this.ref.current as ICanvasEntitySchema
 
     if (hDelta + ref.props.height <= 0) {
       if (yDelta !== 0) {
@@ -200,7 +199,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
       return undefined
     }
 
-    const ref = this.ref.current as IChildSchema
+    const ref = this.ref.current as ICanvasEntitySchema
 
     if (this.state.selected) {
       if (!(point.x >= ref.props.x - 1 && point.x <= (ref.props.x + ref.props.width + 1) && point.y >= ref.props.y - 1 && point.y <= (ref.props.y + ref.props.height + 1))) {
@@ -226,51 +225,55 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
   }
 
-  draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
+  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, timestamp: number) => {
     if (this.ref.current === null) {
       return undefined
     }
-    const { viewport, gridSize } = this.props.parent
-    const ref = this.ref.current as IChildSchema
 
-    let { x, y, width, height } = ref.props
+    const ref = this.ref.current as ICanvasEntitySchema
+
+    let X = ref.props.x
+    let Y = ref.props.y
+    let W = ref.props.width
+    let H = ref.props.height
+
     if (this.state.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this.state
-      if (hDelta + height <= 0) {
+      if (hDelta + H <= 0) {
         if (yDelta !== 0) {
-          yDelta = height - 1
-          hDelta = 1 - height
+          yDelta = H - 1
+          hDelta = 1 - H
         } else {
-          hDelta = 1 - height
+          hDelta = 1 - H
         }
       }
 
-      if (wDelta + width <= 0) {
+      if (wDelta + W <= 0) {
         if (xDelta !== 0) {
-          xDelta = width - 1
-          wDelta = 1 - width
+          xDelta = W - 1
+          wDelta = 1 - W
         } else {
-          wDelta = 1 - width
+          wDelta = 1 - W
         }
       }
 
-      y += yDelta
-      x += xDelta
-      width += wDelta
-      height += hDelta
+      X += xDelta
+      Y += yDelta
+      W += wDelta
+      H += hDelta
     }
 
-    ref.proxyDraw(ctx, viewport, gridSize, x, y, width, height, timestamp)
+    ref.draw(ctx, viewport, gridSize, X, Y, W, H, timestamp)
 
     if (this.state.selected) {
       ctx.strokeStyle = "black";
       ctx.fillStyle = "black";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
 
-      const X = (viewport.x1 + Math.round(x) * gridSize - gridSize/2) * viewport.z
-      const Y = (viewport.y1 + Math.round(y) * gridSize - gridSize/2) * viewport.z
-      const W = (Math.round(width) * gridSize + gridSize) * viewport.z
-      const H = (Math.round(height) * gridSize + gridSize) * viewport.z
+      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
+      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
+      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
+      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
 
       ctx.strokeRect(X, Y, W, H);
       ctx.setLineDash([]);
@@ -292,7 +295,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
     if (this.ref.current === null) {
       return false
     }
-    const ref = this.ref.current as IChildSchema
+    const ref = this.ref.current as ICanvasEntitySchema
     return ref.isVisible(gridSize, viewport)
   }
 
