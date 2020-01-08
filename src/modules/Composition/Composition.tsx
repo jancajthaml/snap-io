@@ -63,13 +63,14 @@ class Composition extends React.PureComponent<IProps> {
     ctx.fillText(`fps: ${times.length}`, 10, 42);
 
     // Mouse coordinates ribon
-
+    /*
     ctx.beginPath();
     ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
     ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
     ctx.lineWidth = 10;
     ctx.strokeStyle = "purple";
     ctx.stroke();
+    */
   }
 
   render() {

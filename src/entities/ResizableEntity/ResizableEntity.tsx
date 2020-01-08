@@ -180,36 +180,81 @@ class ResizableEntity extends React.Component<IProps, IState> {
         if (this.state.selected) {
           this.mutateStart()
         }
-        this.setState((prevState) => ({
-          xDelta: prevState.xDelta - 1,
-        }))
+        if (event.altKey) {
+          this.setState((prevState) => ({
+            wDelta: prevState.wDelta - 1,
+          }))
+        } else if (event.shiftKey) {
+          this.setState((prevState) => ({
+            xDelta: prevState.xDelta - 1,
+            wDelta: prevState.wDelta + 1,
+          }))
+        } else {
+          this.setState((prevState) => ({
+            xDelta: prevState.xDelta - 1,
+          }))
+        }
         break
       }
       case 'ArrowRight': {
         if (this.state.selected) {
           this.mutateStart()
         }
-        this.setState((prevState) => ({
-          xDelta: prevState.xDelta + 1,
-        }))
+        if (event.altKey) {
+          this.setState((prevState) => ({
+            xDelta: prevState.xDelta + 1,
+            wDelta: prevState.wDelta - 1,
+          }))
+        } else if (event.shiftKey) {
+          this.setState((prevState) => ({
+            wDelta: prevState.wDelta + 1,
+          }))
+        } else {
+          this.setState((prevState) => ({
+            xDelta: prevState.xDelta + 1,
+          }))
+        }
         break
       }
       case 'ArrowUp': {
         if (this.state.selected) {
           this.mutateStart()
         }
-        this.setState((prevState) => ({
-          yDelta: prevState.yDelta - 1,
-        }))
+        if (event.altKey) {
+          this.setState((prevState) => ({
+            hDelta: prevState.hDelta - 1,
+          }))
+        } else if (event.shiftKey) {
+          this.setState((prevState) => ({
+            yDelta: prevState.yDelta - 1,
+            hDelta: prevState.hDelta + 1,
+          }))
+        } else {
+          this.setState((prevState) => ({
+            yDelta: prevState.yDelta - 1,
+          }))
+        }
+
         break
       }
       case 'ArrowDown': {
         if (this.state.selected) {
           this.mutateStart()
         }
-        this.setState((prevState) => ({
-          yDelta: prevState.yDelta + 1,
-        }))
+        if (event.altKey) {
+          this.setState((prevState) => ({
+            yDelta: prevState.yDelta + 1,
+            hDelta: prevState.hDelta - 1,
+          }))
+        } else if (event.shiftKey) {
+          this.setState((prevState) => ({
+            hDelta: prevState.hDelta + 1,
+          }))
+        } else {
+          this.setState((prevState) => ({
+            yDelta: prevState.yDelta + 1,
+          }))
+        }
         break
       }
       default: {
