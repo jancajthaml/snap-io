@@ -2,7 +2,7 @@
 import { IDiagramSchema, IEntitySchema } from './reducer'
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
+import { SET_SCHEMA, PATCH_SCHEMA, REMOVE_FROM_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
 
 export const setGridSize = (gridSize: number) => ({
   type: SET_GRID_SIZE,
@@ -11,10 +11,17 @@ export const setGridSize = (gridSize: number) => ({
   },
 }) as const
 
-export const patchSchema = (update: { [key: string]: IEntitySchema }) => ({
+export const patchSchema = (update: { [id: string]: IEntitySchema }) => ({
   type: PATCH_SCHEMA,
   payload: {
     update,
+  },
+}) as const
+
+export const removeFromSchema = (id: string) => ({
+  type: REMOVE_FROM_SCHEMA,
+  payload: {
+    id,
   },
 }) as const
 
@@ -47,6 +54,7 @@ export const zoomToFit = () => ({
 export type IAction =
   | ReturnType<typeof setSchema>
   | ReturnType<typeof patchSchema>
+  | ReturnType<typeof removeFromSchema>
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
   | ReturnType<typeof zoomToFit>

@@ -4,6 +4,7 @@ export interface ICanvasEntityWrapperSchema {
   addEntity: (entity: any) => void;
   removeEntity: (entity: any) => void;
   elementUpdated: (id: string, newSchema: any) => void;
+  elementDeleted: (id: string) => void;
   setSelected:(element?: any) => void;
 }
 

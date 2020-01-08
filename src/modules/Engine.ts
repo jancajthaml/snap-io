@@ -2,7 +2,7 @@ import Rectangle from '../atoms/Rectangle'
 import Point from '../atoms/Point'
 import { IReduxStore } from '../store'
 import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
-import { setViewPort, setResolution , patchSchema } from './Diagram/actions'
+import { setViewPort, setResolution, patchSchema, removeFromSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
 import { ICanvasEntitySchema } from '../@types/index'
 
@@ -63,6 +63,22 @@ class Engine {
   bootstrap = () => {
     window.addEventListener('engine-cleanup', this.cleanup)
     window.addEventListener('engine-sync', this.sync)
+  }
+
+  keyUp = (event: KeyboardEvent) => {
+    this.selected.forEach((element) => {
+      if (element.onKeyUp) {
+        element.onKeyUp(event)
+      }
+    })
+  }
+
+  keyDown = (event: KeyboardEvent) => {
+    this.selected.forEach((element) => {
+      if (element.onKeyDown) {
+        element.onKeyDown(event)
+      }
+    })
   }
 
   mouseDown = (event: MouseEvent) => {
@@ -208,6 +224,11 @@ class Engine {
 
   elementUpdated = (id: string, newSchema: IEntitySchema) => {
     this.store.dispatch(patchSchema({ [id]: newSchema }))
+  }
+
+  elementDeleted = (id: string) => {
+    this.setSelected()
+    this.store.dispatch(removeFromSchema(id))
   }
 
   resize = (x: number, y: number, width: number, height: number) => {

@@ -80,6 +80,8 @@ class Composition extends React.PureComponent<IProps> {
           opaque={false}
           draw={this.draw}
           onResize={this.props.engine.resize}
+          onKeyUp={this.props.engine.keyUp}
+          onKeyDown={this.props.engine.keyDown}
           onMouseUp={this.props.engine.mouseUp}
           onMouseDown={this.props.engine.mouseDown}
           onMouseMove={this.props.engine.mouseMove}

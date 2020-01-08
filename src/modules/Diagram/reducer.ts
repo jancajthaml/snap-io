@@ -2,7 +2,7 @@ import { IAction } from './actions'
 
 import Rectangle from '../../atoms/Rectangle'
 
-import { SET_SCHEMA, PATCH_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
+import { SET_SCHEMA, PATCH_SCHEMA, REMOVE_FROM_SCHEMA, SET_VIEWPORT, SET_RESOLUTION, ZOOM_TO_FIT, SET_GRID_SIZE } from './constants'
 import { calculateOptimalViewport } from './utils'
 
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
@@ -75,6 +75,19 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       return {
         ...state,
         resolution: action.payload.resolution,
+      }
+    }
+
+    case REMOVE_FROM_SCHEMA: {
+      const root = { ...state.schema.root }
+      delete root[action.payload.id]
+
+      return {
+        ...state,
+        schema: {
+          id: state.schema.id,
+          root,
+        },
       }
     }
 
