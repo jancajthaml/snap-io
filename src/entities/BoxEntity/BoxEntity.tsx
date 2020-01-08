@@ -2,10 +2,8 @@ import React from 'react'
 
 import { IParentSchema } from '../../@types/index'
 
-//import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
-//import ResizerHandle from './ResizerHandle'
 
 interface IProps extends IEntitySchema {
   parent: IParentSchema;
@@ -54,17 +52,12 @@ class BoxEntity extends React.Component<IProps, IState> {
     ctx.strokeRect(X, Y, W, H);
   }
 
-  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
     if (viewport.z <= 0.4) {
       this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
     } else {
       this.drawDetail(ctx, viewport, gridSize, x, y, width, height, timestamp)
     }
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.parent
-    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
   }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {

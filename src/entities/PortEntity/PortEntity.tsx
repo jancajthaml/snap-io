@@ -31,7 +31,7 @@ class PortEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
-  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
     ctx.fillStyle = "orange"
 
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
@@ -42,11 +42,6 @@ class PortEntity extends React.Component<IProps, IState> {
     ctx.fillRect(X, Y, W, H);
 
     this.ports.forEach((port) => port.draw(ctx, gridSize, viewport.z, X, Y, W, H))
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.parent
-    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
   }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {

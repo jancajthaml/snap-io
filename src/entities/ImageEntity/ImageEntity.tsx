@@ -28,7 +28,7 @@ class ImageEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
-  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
     let image = ImageLibrary.get(this.props.url, timestamp)
 
     const w_i = image.width as number
@@ -45,11 +45,6 @@ class ImageEntity extends React.Component<IProps, IState> {
     const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
 
     ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
-  }
-
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.parent
-    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
   }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {

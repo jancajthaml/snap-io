@@ -28,7 +28,7 @@ class TextEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
-  proxyDraw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
     const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
     const W = Math.round(width) * gridSize * viewport.z
@@ -38,12 +38,6 @@ class TextEntity extends React.Component<IProps, IState> {
     ctx.drawImage(image, 0, 0, image.width, image.height, X, Y, W, H);
   }
 
-  draw = (ctx: CanvasRenderingContext2D) => {
-    const { viewport, gridSize } = this.props.parent
-    this.proxyDraw(ctx, viewport, gridSize, this.props.x, this.props.y, this.props.width, this.props.height, 0)
-  }
-
-
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
     const outOfLeft = (viewport.x1 + (this.props.x + this.props.width) * gridSize) < 0
@@ -51,7 +45,6 @@ class TextEntity extends React.Component<IProps, IState> {
     const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
-
 
   serialize = () => ({
     id: this.props.id,

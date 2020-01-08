@@ -4,6 +4,7 @@ import { IReduxStore } from '../store'
 import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
 import { setViewPort, setResolution , patchSchema } from './Diagram/actions'
 import { IEntitySchema } from './Diagram/reducer'
+import { ICanvasEntitySchema } from '../@types/index'
 
 class Engine {
   currentMouseEventOwner: any;
@@ -12,7 +13,7 @@ class Engine {
 
   elements: any[];
   selected: any[];
-  visible: any[];
+  visible: ICanvasEntitySchema[];
   delayedSync: any;
 
   constructor(store: IReduxStore) {

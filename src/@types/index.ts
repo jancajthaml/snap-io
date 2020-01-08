@@ -9,9 +9,9 @@ export interface IParentSchema {
   gridSize: number;
 }
 
-export interface IChildSchema {
+export interface ICanvasEntitySchema {
   serialize: () => any;
-  proxyDraw: (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => void;
+  draw: (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => void;
   isVisible: (gridSize: number, viewport: Rectangle) => boolean;
   props: {
     id: string;
