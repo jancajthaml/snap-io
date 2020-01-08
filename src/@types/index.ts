@@ -1,12 +1,10 @@
 import Rectangle from '../atoms/Rectangle'
 
-export interface IParentSchema {
+export interface ICanvasEntityWrapperSchema {
   addEntity: (entity: any) => void;
   removeEntity: (entity: any) => void;
   elementUpdated: (id: string, newSchema: any) => void;
   setSelected:(element?: any) => void;
-  viewport: Rectangle;
-  gridSize: number;
 }
 
 export interface ICanvasEntitySchema {

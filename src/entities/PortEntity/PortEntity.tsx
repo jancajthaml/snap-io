@@ -3,10 +3,10 @@ import React from 'react'
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
 import Port from './Port'
-import { IParentSchema } from '../../@types/index'
+import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
 interface IProps extends IEntitySchema {
-  parent: IParentSchema;
+  parent: ICanvasEntityWrapperSchema;
 }
 
 interface IState {

@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { IParentSchema } from '../../@types/index'
+import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
 import Rectangle from '../../atoms/Rectangle'
 import { IEntitySchema } from './types'
 
 interface IProps extends IEntitySchema {
-  parent: IParentSchema;
+  parent: ICanvasEntityWrapperSchema;
 }
 
 interface IState {

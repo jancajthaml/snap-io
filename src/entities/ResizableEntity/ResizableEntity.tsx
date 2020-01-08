@@ -1,13 +1,13 @@
 import React from 'react'
 
-import { IParentSchema, ICanvasEntitySchema } from '../../@types/index'
+import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
 
 import Point from '../../atoms/Point'
 import Rectangle from '../../atoms/Rectangle'
 import ResizerHandle from './ResizerHandle'
 
 interface IProps {
-  parent: IParentSchema;
+  parent: ICanvasEntityWrapperSchema;
   children: React.ReactElement;
 }
 
