@@ -5,6 +5,8 @@ interface IProps {
   opaque?: boolean;
   draw: (ctx: CanvasRenderingContext2D, timestamp: number) => void;
   onResize: (x: number, y: number, width: number, height: number) => void;
+  onKeyUp: (event: KeyboardEvent) => void;
+  onKeyDown: (event: KeyboardEvent) => void;
   onMouseUp: (event: MouseEvent) => void;
   onMouseDown: (event: MouseEvent) => void;
   onMouseMove: (event: MouseEvent) => void;
@@ -30,10 +32,23 @@ const Canvas = (props: IProps) => {
     props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
   }
 
-  const onMouseDown = (event: any) => {
+  const onKeyUp = (event: KeyboardEvent) => {
+    event.preventDefault()
+    props.onKeyUp(event)
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    event.preventDefault()
+    props.onKeyDown(event.nativeEvent)
+  }
+
+  const onMouseDown = (event: React.MouseEvent) => {
     if (event.nativeEvent.button === 0) {
       event.preventDefault()
       props.onMouseDown(event.nativeEvent)
+    }
+    if (ref.current !== null) {
+      ref.current.focus()
     }
   }
 
@@ -41,7 +56,7 @@ const Canvas = (props: IProps) => {
     props.onMouseUp(event)
   }
 
-  const onMouseMove = (event: any) => {
+  const onMouseMove = (event: React.MouseEvent) => {
     props.onMouseMove(event.nativeEvent)
   }
 
@@ -60,6 +75,7 @@ const Canvas = (props: IProps) => {
   }
 
   const removeListeners = () => {
+    window.removeEventListener('keyup', onKeyUp)
     window.removeEventListener('mouseup', onMouseUp)
     window.removeEventListener('resize', onResize)
     window.removeEventListener('wheel', onWheel)
@@ -67,8 +83,9 @@ const Canvas = (props: IProps) => {
   }
 
   const addListeners = () => {
-    window.addEventListener('resize', onResize)
+    window.addEventListener('keyup', onKeyUp)
     window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('resize', onResize)
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('contextmenu', onContextMenu)
   }
@@ -106,6 +123,8 @@ const Canvas = (props: IProps) => {
   return (
     <canvas
       ref={ref}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
     />

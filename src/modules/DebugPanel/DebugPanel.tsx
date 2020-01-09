@@ -270,7 +270,6 @@ const loadSchema_E = (): IDiagramSchema => {
 const DebugPanel = (props: IProps) => {
   return (
     <div
-      tabIndex={0}
       style={{
         fontFamily: 'Verdana',
         fontSize: 10,
