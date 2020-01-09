@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
-import { setGridSize, setEngineMode, setSchema, zoomToFit } from '../Diagram/actions'
+import { setGridSize, setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
 import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
 
 interface IProps {
@@ -15,6 +15,8 @@ interface IProps {
   gridSize: number;
   setGridSize: (gridSize: number) => void;
   zoomToFit: () => void;
+  zoomIn: (centerX: number, centerY: number, power: number) => void;
+  zoomOut: (centerX: number, centerY: number, power: number) => void;
   setSchema: (schema: IDiagramSchema) => void;
   setEngineMode: (engineMode: EngineMode) => void;
 }
@@ -414,37 +416,50 @@ const DebugPanel = (props: IProps) => {
           {`z: ${props.viewport.z.toFixed(2)}`}
           </li>
         </ul>
-        <button
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
+          {`zoom ( ${Math.round(((props.viewport.z - 0.3) * 100) / (12 - 0.3))}% )`}
+        </h5>
+        <div
           style={{
             display: 'block',
           }}
-          onClick={() => {
-            props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
-          }}
         >
-          zoom to fit
-        </button>
-        <button
-          style={{
-            display: 'block',
-          }}
-          onClick={() => {
-
-          }}
-        >
-          zoom in
-        </button>
-        <button
-          style={{
-            display: 'block',
-          }}
-          onClick={() => {
-
-          }}
-        >
-          zoom out
-        </button>
+          <button
+            style={{
+              display: 'inline-block',
+            }}
+            onClick={() => {
+              props.zoomToFit()
+              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            }}
+          >
+            fit
+          </button>
+          <button
+            style={{
+              display: 'inline-block',
+            }}
+            onClick={() => {
+              props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
+            }}
+          >
+            +
+          </button>
+          <button
+            style={{
+              display: 'inline-block',
+            }}
+            onClick={() => {
+              props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
+            }}
+          >
+            -
+          </button>
+        </div>
       </p>
       <p>
         <h5
@@ -506,6 +521,8 @@ const mapStateToProps = (state: IRootReduxState) => ({
 const mapDispatchToProps = {
   setGridSize,
   zoomToFit,
+  zoomIn,
+  zoomOut,
   setSchema,
   setEngineMode,
 }

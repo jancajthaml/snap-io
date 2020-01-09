@@ -54,6 +54,24 @@ export const setViewPort = (viewport: Rectangle) => ({
   },
 }) as const
 
+export const zoomIn = (centerX: number, centerY: number, power: number) => ({
+  type: C.ZOOM_IN,
+  payload: {
+    centerX,
+    centerY,
+    power,
+  },
+}) as const
+
+export const zoomOut = (centerX: number, centerY: number, power: number) => ({
+  type: C.ZOOM_OUT,
+  payload: {
+    centerX,
+    centerY,
+    power,
+  },
+}) as const
+
 export const zoomToFit = () => ({
   type: C.ZOOM_TO_FIT,
   payload: {},
@@ -66,5 +84,7 @@ export type IAction =
   | ReturnType<typeof removeFromSchema>
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
+  | ReturnType<typeof zoomIn>
+  | ReturnType<typeof zoomOut>
   | ReturnType<typeof zoomToFit>
   | ReturnType<typeof setGridSize>

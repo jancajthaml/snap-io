@@ -1,7 +1,7 @@
 import { Rectangle, Point } from '../../atoms'
 import { IReduxStore } from '../../store'
 import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
-import { setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
+import { zoomIn, zoomOut, setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
 import { IEntitySchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
@@ -121,37 +121,17 @@ class Engine {
   }
 
   mouseWheel = (event: WheelEvent) => {
-    const viewport = this.viewport
-    const prevScale = viewport.z
-    let nextScale = viewport.z
+    const { resolution } = this
+
+    const x = event.clientX - resolution.x1 / 2
+    const y = event.clientY - resolution.y1 / 2
 
     if (event.deltaY > 0) {
-      nextScale = Math.max(prevScale / 1.03, 0.3)
+      this.store.dispatch(zoomOut(x, y, 1))
     } else {
-      nextScale = Math.min(prevScale * 1.03, 12)
+      this.store.dispatch(zoomIn(x, y, 1))
     }
-
-    if (prevScale === nextScale) {
-      return
-    }
-
-    const resolution = this.resolution
-    const x = event.clientX - resolution.x1
-    const y = event.clientY - resolution.y1
-
-    const zoomX = (x - viewport.x1 * prevScale) / prevScale
-    const zoomY = (y - viewport.y1 * prevScale) / prevScale
-
-    const nextViewPort = viewport.copy()
-    nextViewPort.x1 = (-zoomX * nextScale + x) / nextScale
-    nextViewPort.x2 = nextViewPort.x1 + ((resolution.x2 - resolution.x1) / nextScale)
-    nextViewPort.y1 = (-zoomY * nextScale + y) / nextScale
-    nextViewPort.y2 = nextViewPort.y1 + ((resolution.y2 - resolution.y1) / nextScale)
-    nextViewPort.z = nextScale
-
-    this.updateVisible(nextViewPort)
-
-    this.store.dispatch(setViewPort(nextViewPort))
+    this.sync()
   }
 
   mouseUp = (event: MouseEvent) => {
