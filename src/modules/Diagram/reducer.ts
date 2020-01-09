@@ -1,6 +1,6 @@
-import { IAction } from './actions'
+import { Rectangle } from '../../atoms'
 
-import Rectangle from '../../atoms/Rectangle'
+import { IAction } from './actions'
 
 import * as C from './constants'
 import { calculateOptimalViewport } from './utils'

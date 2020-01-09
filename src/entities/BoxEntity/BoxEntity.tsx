@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
-import Rectangle from '../../atoms/Rectangle'
+import { Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 
 interface IProps extends IEntitySchema {

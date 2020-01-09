@@ -1,5 +1,5 @@
 import React from 'react'
-import Rectangle from '../../atoms/Rectangle'
+import { Rectangle } from '../../atoms'
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'

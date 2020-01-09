@@ -1,4 +1,4 @@
-import Rectangle from '../../atoms/Rectangle'
+import { Rectangle } from '../../atoms'
 import { IDiagramSchema } from './reducer'
 
 

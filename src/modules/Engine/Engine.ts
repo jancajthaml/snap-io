@@ -1,10 +1,9 @@
-import Rectangle from '../atoms/Rectangle'
-import Point from '../atoms/Point'
-import { IReduxStore } from '../store'
-import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
-import { setViewPort, setResolution, patchSchema, removeFromSchema } from './Diagram/actions'
-import { IEntitySchema } from './Diagram/reducer'
-import { ICanvasEntitySchema } from '../@types/index'
+import { Rectangle, Point } from '../../atoms'
+import { IReduxStore } from '../../store'
+import { getGridSize, getViewport, getResolution } from '../Diagram/selectors'
+import { setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
+import { IEntitySchema } from '../Diagram/reducer'
+import { ICanvasEntitySchema } from '../../@types/index'
 
 class Engine {
   currentMouseEventOwner: any;

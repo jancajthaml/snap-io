@@ -1,6 +1,7 @@
 
+import { Rectangle } from '../../atoms'
+
 import { IDiagramSchema, IEntitySchema } from './reducer'
-import Rectangle from '../../atoms/Rectangle'
 
 import * as C from './constants'
 

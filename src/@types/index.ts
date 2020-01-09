@@ -1,4 +1,4 @@
-import Rectangle from '../atoms/Rectangle'
+import { Rectangle } from '../atoms'
 
 export interface ICanvasEntityWrapperSchema {
   addEntity: (entity: any) => void;
