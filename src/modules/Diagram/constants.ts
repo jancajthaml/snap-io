@@ -13,3 +13,10 @@ export const REMOVE_FROM_SCHEMA = 'REMOVE_FROM_SCHEMA' as const
 export const ZOOM_TO_FIT = 'ZOOM_TO_FIT' as const
 
 export const SET_RESOLUTION = 'SET_RESOLUTION' as const
+
+export const SET_ENGINE_MODE = 'SET_ENGINE_MODE' as const
+
+export enum EngineMode {
+  VIEW = 'ENGINE_MODE_VIEW',
+  EDIT = 'ENGINE_MODE_EDIT',
+}

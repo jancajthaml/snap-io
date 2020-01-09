@@ -13,13 +13,15 @@ let times: number[] = []
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
+    // FIXME check if engine is in sync if not, skip this frame
+
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {
       times.shift();
     }
     times.push(now);
 
-    const { gridSize, viewport, visible } = this.props.engine
+    const { gridSize, viewport, visible, engineMode } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -51,16 +53,24 @@ class Composition extends React.PureComponent<IProps> {
 
     // FPS and visible entities info
 
+    const lines = [
+      `mode: ${engineMode}`,
+      `visible: ${visible.size}`,
+      `fps: ${times.length}`,
+    ]
+
     ctx.font = "12px Arial";
-    const w_t = ctx.measureText(`visible: ${visible.length}`).width + 10
+    const w_t = lines.reduce((result, current) => Math.max(result, ctx.measureText(current).width), 0) + 10
+
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
-    ctx.fillRect(5, 7, w_t, 50)
-    ctx.strokeRect(5, 7, w_t, 50)
+    ctx.fillRect(5, 7, w_t, 56)
+    ctx.strokeRect(5, 7, w_t, 56)
     ctx.fillStyle = "black";
 
-    ctx.fillText(`visible: ${visible.length}`, 10, 22);
-    ctx.fillText(`fps: ${times.length}`, 10, 42);
+    lines.forEach((line, idx) => {
+      ctx.fillText(line, 10, 22 + (16 * idx));
+    })
 
     // Mouse coordinates ribon
     /*

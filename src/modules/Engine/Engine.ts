@@ -1,10 +1,10 @@
-import Rectangle from '../atoms/Rectangle'
-import Point from '../atoms/Point'
-import { IReduxStore } from '../store'
-import { getGridSize, getViewport, getResolution } from './Diagram/selectors'
-import { setViewPort, setResolution, patchSchema, removeFromSchema } from './Diagram/actions'
-import { IEntitySchema } from './Diagram/reducer'
-import { ICanvasEntitySchema } from '../@types/index'
+import { Rectangle, Point } from '../../atoms'
+import { IReduxStore } from '../../store'
+import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
+import { setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
+import { IEntitySchema } from '../Diagram/reducer'
+import { EngineMode } from '../Diagram/constants'
+import { ICanvasEntitySchema } from '../../@types/index'
 
 class Engine {
   currentMouseEventOwner: any;
@@ -12,17 +12,19 @@ class Engine {
   store: IReduxStore;
 
   elements: any[];
-  selected: any[];
-  visible: ICanvasEntitySchema[];
-  delayedSync: any;
+  selected: Set<ICanvasEntitySchema>;
+  visible: Set<ICanvasEntitySchema>;
 
   constructor(store: IReduxStore) {
     this.currentMouseCoordinates = new Rectangle()
     this.store = store
     this.elements = []
-    this.selected = []
-    this.visible = []
-    this.delayedSync = null
+    this.selected = new Set<ICanvasEntitySchema>()
+    this.visible = new Set<ICanvasEntitySchema>()
+  }
+
+  get engineMode() {
+    return getEngineMode(this.store.getState())
   }
 
   get viewport() {
@@ -40,18 +42,10 @@ class Engine {
   cleanup = () => {
     this.currentMouseEventOwner = undefined
     this.setSelected()
-    if (this.delayedSync) {
-      clearTimeout(this.delayedSync)
-    }
   }
 
   sync = () => {
-    if (this.delayedSync) {
-      clearTimeout(this.delayedSync)
-    }
-    this.delayedSync = setTimeout(() => {
-      this.updateVisible(this.viewport)
-    }, 1)
+    this.updateVisible(this.viewport)
   }
 
   teardown = () => {
@@ -66,6 +60,9 @@ class Engine {
   }
 
   keyUp = (event: KeyboardEvent) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
     this.selected.forEach((element) => {
       if (element.onKeyUp) {
         element.onKeyUp(event)
@@ -74,6 +71,9 @@ class Engine {
   }
 
   keyDown = (event: KeyboardEvent) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
     this.selected.forEach((element) => {
       if (element.onKeyDown) {
         element.onKeyDown(event)
@@ -82,7 +82,7 @@ class Engine {
   }
 
   mouseDown = (event: MouseEvent) => {
-    const { resolution, viewport, elements, gridSize } = this
+    const { resolution } = this
 
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
@@ -92,25 +92,29 @@ class Engine {
     this.currentMouseCoordinates.x2 = x
     this.currentMouseCoordinates.y2 = y
 
-    const pointOfClick = new Point(
-      ((this.currentMouseCoordinates.x1 / viewport.z) - viewport.x1) / gridSize,
-      ((this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1) / gridSize,
-    )
+    if (this.engineMode === EngineMode.EDIT) {
+      const { viewport, elements, gridSize } = this
 
-    const capture = elements
-      .map((element) => element.mouseDownCapture
-        ? element.mouseDownCapture(pointOfClick, viewport, gridSize)
-        : undefined
-      ).filter((element) => element)[0]
+      const pointOfClick = new Point(
+        ((this.currentMouseCoordinates.x1 / viewport.z) - viewport.x1) / gridSize,
+        ((this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1) / gridSize,
+      )
 
-    let stopPropagation = false
-    if (capture && capture.onMouseDown) {
-      stopPropagation = capture.onMouseDown()
-    }
+      const capture = elements
+        .map((element) => element.mouseDownCapture
+          ? element.mouseDownCapture(pointOfClick, viewport, gridSize)
+          : undefined
+        ).filter((element) => element)[0]
 
-    if (stopPropagation) {
-      this.currentMouseEventOwner = capture
-      return
+      let stopPropagation = false
+      if (capture && capture.onMouseDown) {
+        stopPropagation = capture.onMouseDown()
+      }
+
+      if (stopPropagation) {
+        this.currentMouseEventOwner = capture
+        return
+      }
     }
 
     this.currentMouseEventOwner = this
@@ -223,10 +227,16 @@ class Engine {
   }
 
   elementUpdated = (id: string, newSchema: IEntitySchema) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
     this.store.dispatch(patchSchema({ [id]: newSchema }))
   }
 
   elementDeleted = (id: string) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
     this.setSelected()
     this.store.dispatch(removeFromSchema(id))
   }
@@ -241,14 +251,15 @@ class Engine {
 
   updateVisible = (viewport: Rectangle) => {
     const { gridSize } = this
-    const nextVisible = new Set<any>(this.selected)
+    const nextVisible = new Set<ICanvasEntitySchema>(this.selected)
 
     this.elements.forEach((element) => {
       if (element.isVisible(gridSize, viewport)) {
         nextVisible.add(element)
       }
     })
-    this.visible = [...nextVisible]
+    this.visible = nextVisible
+    //this.visible = [...nextVisible]
     /*
     this.visible.sort(function(x, y) {
       if (x.state.selected && y.state.selected) {
@@ -263,14 +274,20 @@ class Engine {
   }
 
   setSelected = (element?: any) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
+
     this.selected.forEach((element) => {
       element.setState({
         selected: false,
       })
     })
 
+    this.selected.clear()
+
     if (element) {
-      this.selected = [element]
+      this.selected.add(element)
       element.setState({
         selected: true,
       })
@@ -286,8 +303,6 @@ class Engine {
         return -1;
       });
       */
-    } else {
-      this.selected = []
     }
   }
 
@@ -297,8 +312,8 @@ class Engine {
 
   removeEntity = (entity: any) => {
     this.elements = this.elements.filter((value) => value !== entity)
-    this.visible = this.visible.filter((value) => value !== entity)
-    this.selected = this.selected.filter((value) => value !== entity)
+    this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
+    this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
   }
 
 }

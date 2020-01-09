@@ -2,8 +2,7 @@ import React from 'react'
 
 import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
 
-import Point from '../../atoms/Point'
-import Rectangle from '../../atoms/Rectangle'
+import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
 
 interface IProps {

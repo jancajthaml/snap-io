@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Rectangle from '../../atoms/Rectangle'
+import { Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 import TextLibrary from './TextLibrary'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'

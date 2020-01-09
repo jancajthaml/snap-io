@@ -1,5 +1,5 @@
 
-import Point from '../../atoms/Point'
+import { Point } from '../../atoms'
 import { IPortSchema } from './types'
 
 class Port  {

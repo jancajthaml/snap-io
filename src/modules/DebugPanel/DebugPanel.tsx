@@ -1,20 +1,26 @@
 import React from 'react'
-import Rectangle from '../../atoms/Rectangle'
+import { Rectangle } from '../../atoms'
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
-import { setGridSize, setSchema, zoomToFit } from '../Diagram/actions'
-import { getViewport, getResolution, getGridSize } from '../Diagram/selectors'
+import { EngineMode } from '../Diagram/constants'
+import { setGridSize, setEngineMode, setSchema, zoomToFit } from '../Diagram/actions'
+import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
 
 interface IProps {
+  engineMode: EngineMode;
   viewport: Rectangle;
   resolution: Rectangle;
   gridSize: number;
   setGridSize: (gridSize: number) => void;
   zoomToFit: () => void;
   setSchema: (schema: IDiagramSchema) => void;
+  setEngineMode: (engineMode: EngineMode) => void;
 }
+
+const ANIMATION_FRAME_DEADLINE = 16
+const WAIT_LAG = ANIMATION_FRAME_DEADLINE * 8
 
 const loadSchema_A = (): IDiagramSchema => {
   const howMany = 3
@@ -288,6 +294,33 @@ const DebugPanel = (props: IProps) => {
             margin: 0
           }}
         >
+          engine mode
+        </h5>
+
+        <button
+          onClick={(event) => {
+            event.preventDefault()
+            window.dispatchEvent(new Event('engine-cleanup'));
+            if (props.engineMode === EngineMode.EDIT) {
+              props.setEngineMode(EngineMode.VIEW)
+            } else {
+              props.setEngineMode(EngineMode.EDIT)
+            }
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+          }}
+        >
+          {props.engineMode === EngineMode.EDIT
+            ? 'switch to view'
+            : 'switch to edit'
+          }
+        </button>
+      </p>
+      <p>
+        <h5
+          style={{
+            margin: 0
+          }}
+        >
           schemas
         </h5>
         <button
@@ -298,7 +331,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_A())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           tiny diagram
@@ -311,7 +344,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_B())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           small diagram
@@ -324,7 +357,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           medium diagram
@@ -337,7 +370,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           huge diagram
@@ -350,7 +383,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           masive diagram
@@ -387,8 +420,7 @@ const DebugPanel = (props: IProps) => {
           }}
           onClick={() => {
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'));
-            //window.dispatchEvent(new Event('canvas-update-composition'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         >
           zoom to fit
@@ -433,8 +465,7 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
-            window.dispatchEvent(new Event('engine-sync'));
-            //window.dispatchEvent(new Event('canvas-update-composition'));
+            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
           }}
         />
       </p>
@@ -466,6 +497,7 @@ const DebugPanel = (props: IProps) => {
 }
 
 const mapStateToProps = (state: IRootReduxState) => ({
+  engineMode: getEngineMode(state),
   gridSize: getGridSize(state),
   viewport: getViewport(state),
   resolution: getResolution(state),
@@ -475,6 +507,7 @@ const mapDispatchToProps = {
   setGridSize,
   zoomToFit,
   setSchema,
+  setEngineMode,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DebugPanel)

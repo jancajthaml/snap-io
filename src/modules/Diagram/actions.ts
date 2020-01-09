@@ -1,6 +1,7 @@
 
+import { Rectangle } from '../../atoms'
+
 import { IDiagramSchema, IEntitySchema } from './reducer'
-import Rectangle from '../../atoms/Rectangle'
 
 import * as C from './constants'
 
@@ -32,6 +33,13 @@ export const setSchema = (schema: IDiagramSchema) => ({
   },
 }) as const
 
+export const setEngineMode = (engineMode: C.EngineMode) => ({
+  type: C.SET_ENGINE_MODE,
+  payload: {
+    engineMode,
+  },
+}) as const
+
 export const setResolution = (resolution: Rectangle) => ({
   type: C.SET_RESOLUTION,
   payload: {
@@ -52,6 +60,7 @@ export const zoomToFit = () => ({
 }) as const
 
 export type IAction =
+  | ReturnType<typeof setEngineMode>
   | ReturnType<typeof setSchema>
   | ReturnType<typeof patchSchema>
   | ReturnType<typeof removeFromSchema>
