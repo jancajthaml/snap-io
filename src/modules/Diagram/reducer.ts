@@ -3,7 +3,7 @@ import { Rectangle } from '../../atoms'
 import { IAction } from './actions'
 
 import * as C from './constants'
-import { calculateOptimalViewport } from './utils'
+import { calculateOptimalViewport, calculateZoomedViewport } from './utils'
 
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
@@ -62,6 +62,20 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       return {
         ...state,
         viewport: action.payload.viewport,
+      }
+    }
+
+    case C.ZOOM_IN: {
+      return {
+        ...state,
+        viewport: calculateZoomedViewport(state.viewport, state.resolution, action.payload.centerX, action.payload.centerY, 1, action.payload.power),
+      }
+    }
+
+    case C.ZOOM_OUT: {
+      return {
+        ...state,
+        viewport: calculateZoomedViewport(state.viewport, state.resolution, action.payload.centerX, action.payload.centerY, -1, action.payload.power),
       }
     }
 
