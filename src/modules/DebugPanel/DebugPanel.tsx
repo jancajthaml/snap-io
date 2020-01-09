@@ -445,6 +445,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
+              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
             }}
           >
             +
@@ -455,6 +456,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
+              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
             }}
           >
             -
