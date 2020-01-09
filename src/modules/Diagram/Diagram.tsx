@@ -4,9 +4,11 @@ import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
 import { IReduxStore } from '../../store'
 import { IDiagramSchema } from './reducer'
-import { getSchema } from '../Diagram/selectors'
+import { getEngineMode, getSchema } from '../Diagram/selectors'
 
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
+
+import { EngineMode } from '../Diagram/constants'
 
 import Engine from '../Engine'
 import Composition from '../Composition'
@@ -28,6 +30,7 @@ import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/ty
 interface IProps {
   store: IReduxStore;
   schema: IDiagramSchema;
+  engineMode: EngineMode;
 }
 
 const Diagram = (props: IProps) => {
@@ -47,8 +50,6 @@ const Diagram = (props: IProps) => {
   if (engine === null) {
     return null
   }
-
-  // FIXME factory here
 
   return (
     <Composition engine={engine as Engine}>
@@ -131,6 +132,7 @@ const Diagram = (props: IProps) => {
 
 const mapStateToProps = (state: IRootReduxState) => ({
   schema: getSchema(state),
+  engineMode: getEngineMode(state),
 })
 
 const mapDispatchToProps = {

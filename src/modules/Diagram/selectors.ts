@@ -8,4 +8,6 @@ export const getResolution = (state: IRootReduxState) => state[COMPONENT_NAME].r
 
 export const getSchema = (state: IRootReduxState) => state[COMPONENT_NAME].schema
 
+export const getEngineMode = (state: IRootReduxState) => state[COMPONENT_NAME].engineMode
+
 export const getGridSize = (state: IRootReduxState) => state[COMPONENT_NAME].gridSize

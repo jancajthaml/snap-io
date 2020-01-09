@@ -22,6 +22,7 @@ export interface IDiagramSchema {
 }
 
 export const initialState = {
+  engineMode: C.EngineMode.VIEW as C.EngineMode,
   schema: {
     id: '',
     root: {}
@@ -35,6 +36,13 @@ export type IReduxState = typeof initialState
 
 export default (state: IReduxState = initialState, action: IAction): IReduxState => {
   switch (action.type) {
+
+    case C.SET_ENGINE_MODE: {
+      return {
+        ...state,
+        engineMode: action.payload.engineMode,
+      }
+    }
 
     case C.SET_GRID_SIZE: {
       return {
