@@ -1,4 +1,4 @@
-import { Rectangle } from '../atoms'
+import { Point, Rectangle } from '../atoms'
 
 export interface ICanvasEntityWrapperSchema {
   addEntity: (entity: any) => void;
@@ -11,6 +11,7 @@ export interface ICanvasEntityWrapperSchema {
 export interface ICanvasEntitySchema {
   serialize: () => any;
   draw: (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => void;
+  mouseDownCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
   isVisible: (gridSize: number, viewport: Rectangle) => boolean;
   onKeyUp?: (event: KeyboardEvent) => void;
   onKeyDown?: (event: KeyboardEvent) => void;

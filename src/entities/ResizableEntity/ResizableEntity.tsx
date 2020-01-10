@@ -101,6 +101,10 @@ class ResizableEntity extends React.Component<IProps, IState> {
 
   removeEntity = (_: any) => {}
 
+  setSelected = (element: any) => {
+    this.props.parent.setSelected(element)
+  }
+
   mutateStart = (): void => {
     if (this.state.mutating) {
       return
@@ -316,6 +320,12 @@ class ResizableEntity extends React.Component<IProps, IState> {
       if (!(point.x >= ref.props.x - 1 && point.x <= (ref.props.x + ref.props.width + 1) && point.y >= ref.props.y - 1 && point.y <= (ref.props.y + ref.props.height + 1))) {
         return undefined
       }
+      if (ref.mouseDownCapture) {
+        const capture = ref.mouseDownCapture(point, viewport, gridSize)
+        if (capture) {
+          return capture
+        }
+      }
       const x = (Math.round(ref.props.x) * gridSize - gridSize/2) * viewport.z
       const y = (Math.round(ref.props.y) * gridSize - gridSize/2) * viewport.z
       const w = (Math.round(ref.props.width) * gridSize + gridSize) * viewport.z
@@ -330,9 +340,16 @@ class ResizableEntity extends React.Component<IProps, IState> {
       }
       return undefined
     } else {
-      if (point.x >= ref.props.x && point.x <= (ref.props.x + ref.props.width) && point.y >= ref.props.y && point.y <= (ref.props.y + ref.props.height)) {
-        return this
+      if (!(point.x >= ref.props.x && point.x <= (ref.props.x + ref.props.width) && point.y >= ref.props.y && point.y <= (ref.props.y + ref.props.height))) {
+        return undefined
       }
+      if (ref.mouseDownCapture) {
+        const capture = ref.mouseDownCapture(point, viewport, gridSize)
+        if (capture) {
+          return capture
+        }
+      }
+      return this
     }
   }
 

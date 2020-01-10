@@ -22,7 +22,7 @@ export interface IDiagramSchema {
 }
 
 export const initialState = {
-  engineMode: C.EngineMode.VIEW as C.EngineMode,
+  engineMode: C.EngineMode.EDIT as C.EngineMode,
   schema: {
     id: '',
     root: {}
