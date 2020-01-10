@@ -92,32 +92,23 @@ class PortEntity extends React.Component<IProps, IState> {
     return undefined
   }
 
-   //onMouseMove = (xDelta: number, yDelta: number): boolean => {
-    //console.log('moving mouse over port entity', xDelta, yDelta)
-    //if (this.state.selected) {
-      //this.setState((prevState) => ({
-        //xDelta: prevState.xDelta + xDelta,
-        //yDelta: prevState.yDelta + yDelta,
-      //}))
-    //}
-    //return false
-  //}
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _timestamp: number) => {
+    if (layer === 1) {
+      ctx.fillStyle = "orange"
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _timestamp: number) => {
-    ctx.fillStyle = "orange"
+      const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+      const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+      const W = Math.round(width) * gridSize * viewport.z
+      const H = Math.round(height) * gridSize * viewport.z
 
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
+      ctx.fillRect(X, Y, W, H);
 
-    ctx.fillRect(X, Y, W, H);
+      this.ports.forEach((port) => {
+        port.draw(ctx, viewport, gridSize, X, Y, W, H)
+      })
+    }
 
-    this.ports.forEach((port) => {
-      port.draw(ctx, viewport, gridSize, X, Y, W, H)
-    })
-
-    if (this.state.connecting) {
+    if (layer === 3 && this.state.connecting) {
       const line = this.props.parent.currentMouseCoordinates.original
       ctx.beginPath();
       ctx.moveTo(line.x1, line.y1);

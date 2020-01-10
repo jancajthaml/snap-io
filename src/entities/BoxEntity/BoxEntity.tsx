@@ -52,7 +52,10 @@ class BoxEntity extends React.Component<IProps, IState> {
     ctx.strokeRect(X, Y, W, H);
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+    if (layer !== 1) {
+      return
+    }
     if (viewport.z <= 0.4) {
       this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
     } else {

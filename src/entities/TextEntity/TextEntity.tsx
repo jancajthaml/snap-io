@@ -28,7 +28,10 @@ class TextEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+    if (layer !== 1) {
+      return
+    }
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
     const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
     const W = Math.round(width) * gridSize * viewport.z

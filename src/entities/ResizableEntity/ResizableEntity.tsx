@@ -359,7 +359,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, timestamp: number) => {
     if (this.ref.current === null) {
       return undefined
     }
@@ -397,9 +397,9 @@ class ResizableEntity extends React.Component<IProps, IState> {
       H += hDelta
     }
 
-    ref.draw(ctx, viewport, gridSize, X, Y, W, H, timestamp)
+    ref.draw(this.state.selected ? layer - 1 : layer, ctx, viewport, gridSize, X, Y, W, H, timestamp)
 
-    if (this.state.selected) {
+    if (layer === 2 && this.state.selected) {
       ctx.strokeStyle = "black";
       ctx.fillStyle = "black";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);

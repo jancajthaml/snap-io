@@ -28,7 +28,10 @@ class ImageEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+    if (layer !== 1) {
+      return
+    }
     let image = ImageLibrary.get(this.props.url, timestamp)
 
     const w_i = image.width as number

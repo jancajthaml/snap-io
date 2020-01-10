@@ -45,10 +45,11 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
-    // FIXME change to multiple priority paints so for example selected elements can render to upper
-    // layer and render on top
-    visible.forEach((element) => {
-      element.draw(ctx, viewport, gridSize, element.props.x, element.props.y, element.props.width, element.props.height, timestamp)
+    const layers = [1, 2, 3, 4]
+    layers.forEach((layer) => {
+      visible.forEach((element) => {
+        element.draw(layer, ctx, viewport, gridSize, element.props.x, element.props.y, element.props.width, element.props.height, timestamp)
+      })
     })
 
     // FPS and visible entities info
