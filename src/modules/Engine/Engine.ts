@@ -61,7 +61,7 @@ class Engine {
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
     } else {
-      this.visible = new Set([...this.elements])
+      this.visible = new Set(this.elements)
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
       }, 100)
