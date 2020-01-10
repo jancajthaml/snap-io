@@ -17,6 +17,7 @@ class Engine {
   elements: any[];
   selected: Set<ICanvasEntitySchema>;
   visible: Set<ICanvasEntitySchema>;
+  delayedSync?: any;
 
   constructor(store: IReduxStore) {
     this.currentMouseCoordinates = {
@@ -47,11 +48,25 @@ class Engine {
 
   cleanup = () => {
     this.currentMouseEventOwner = undefined
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
     this.setSelected()
   }
 
-  sync = () => {
-    this.updateVisible(this.viewport)
+  sync = (event: CustomEventInit) => {
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
+    if (event.detail && event.detail.hardSync === false) {
+      this.updateVisible(this.viewport)
+    } else {
+      this.visible = new Set([...this.elements])
+      this.delayedSync = setTimeout(() => {
+        this.updateVisible(this.viewport)
+      }, 100)
+
+    }
   }
 
   teardown = () => {
@@ -142,7 +157,11 @@ class Engine {
     } else {
       this.store.dispatch(zoomIn(x, y, 1))
     }
-    this.sync()
+    this.sync({
+      detail: {
+        hardSync: false,
+      },
+    })
   }
 
   mouseUp = (event: MouseEvent) => {

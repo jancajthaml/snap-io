@@ -21,8 +21,8 @@ interface IProps {
   setEngineMode: (engineMode: EngineMode) => void;
 }
 
-const ANIMATION_FRAME_DEADLINE = 16
-const WAIT_LAG = ANIMATION_FRAME_DEADLINE * 8
+//const ANIMATION_FRAME_DEADLINE = 16
+//const WAIT_LAG = ANIMATION_FRAME_DEADLINE * 8
 
 const loadSchema_A = (): IDiagramSchema => {
   const howMany = 2
@@ -297,7 +297,7 @@ const DebugPanel = (props: IProps) => {
             } else {
               props.setEngineMode(EngineMode.EDIT)
             }
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           {props.engineMode === EngineMode.EDIT
@@ -322,7 +322,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_A())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           tiny diagram
@@ -335,7 +335,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_B())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           small diagram
@@ -348,7 +348,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           medium diagram
@@ -361,7 +361,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           huge diagram
@@ -374,7 +374,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           masive diagram
@@ -423,7 +423,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomToFit()
-              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             fit
@@ -434,7 +434,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
-              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             +
@@ -445,7 +445,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
-              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             -
@@ -471,7 +471,7 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         />
       </p>
