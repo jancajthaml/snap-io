@@ -2,10 +2,15 @@ import { Point, Rectangle } from '../atoms'
 
 export interface ICanvasEntityWrapperSchema {
   addEntity: (entity: any) => void;
+  connectEntities: () => void;
   removeEntity: (entity: any) => void;
   elementUpdated: (id: string, newSchema: any) => void;
   elementDeleted: (id: string) => void;
   setSelected:(element?: any) => void;
+  currentMouseCoordinates: {
+    original: Rectangle;
+    scaled: Rectangle;
+  };
 }
 
 export interface ICanvasEntitySchema {

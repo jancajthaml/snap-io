@@ -97,6 +97,12 @@ class ResizableEntity extends React.Component<IProps, IState> {
     this.props.parent.removeEntity(this)
   }
 
+  get currentMouseCoordinates() {
+    return this.props.parent.currentMouseCoordinates
+  }
+
+  connectEntities = () => this.props.parent.connectEntities()
+
   addEntity = (_: any) => {}
 
   removeEntity = (_: any) => {}

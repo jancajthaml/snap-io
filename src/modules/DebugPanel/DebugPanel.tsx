@@ -25,7 +25,7 @@ const ANIMATION_FRAME_DEADLINE = 16
 const WAIT_LAG = ANIMATION_FRAME_DEADLINE * 8
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 1
+  const howMany = 2
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const result = {} as { [key: string]: IEntitySchema }

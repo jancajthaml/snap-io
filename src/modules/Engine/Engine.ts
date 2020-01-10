@@ -8,7 +8,10 @@ import { ICanvasEntitySchema } from '../../@types/index'
 
 class Engine {
   currentMouseEventOwner: any;
-  currentMouseCoordinates: Rectangle;
+  currentMouseCoordinates: {
+    original: Rectangle;
+    scaled: Rectangle;
+  };
   store: IReduxStore;
 
   elements: any[];
@@ -16,7 +19,10 @@ class Engine {
   visible: Set<ICanvasEntitySchema>;
 
   constructor(store: IReduxStore) {
-    this.currentMouseCoordinates = new Rectangle()
+    this.currentMouseCoordinates = {
+      original: new Rectangle(),
+      scaled: new Rectangle(),
+    }
     this.store = store
     this.elements = []
     this.selected = new Set<ICanvasEntitySchema>()
@@ -87,17 +93,22 @@ class Engine {
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
 
-    this.currentMouseCoordinates.x1 = x
-    this.currentMouseCoordinates.y1 = y
-    this.currentMouseCoordinates.x2 = x
-    this.currentMouseCoordinates.y2 = y
+    this.currentMouseCoordinates.original.x1 = x
+    this.currentMouseCoordinates.original.y1 = y
+    this.currentMouseCoordinates.original.x2 = x
+    this.currentMouseCoordinates.original.y2 = y
+
+    this.currentMouseCoordinates.scaled.x1 = x
+    this.currentMouseCoordinates.scaled.y1 = y
+    this.currentMouseCoordinates.scaled.x2 = x
+    this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
       const { viewport, elements, gridSize } = this
 
       const pointOfClick = new Point(
-        ((this.currentMouseCoordinates.x1 / viewport.z) - viewport.x1) / gridSize,
-        ((this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
       )
 
       const capture = elements
@@ -141,8 +152,8 @@ class Engine {
 
     if (this.currentMouseEventOwner === this) {
       if (
-        this.currentMouseCoordinates.x1 === this.currentMouseCoordinates.x2 &&
-        this.currentMouseCoordinates.y1 === this.currentMouseCoordinates.y2
+        this.currentMouseCoordinates.original.x1 === this.currentMouseCoordinates.original.x2 &&
+        this.currentMouseCoordinates.original.y1 === this.currentMouseCoordinates.original.y2
       ) {
         this.setSelected()
       }
@@ -156,10 +167,15 @@ class Engine {
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
 
-    this.currentMouseCoordinates.x1 = x
-    this.currentMouseCoordinates.y1 = y
-    this.currentMouseCoordinates.x2 = x
-    this.currentMouseCoordinates.y2 = y
+    this.currentMouseCoordinates.scaled.x1 = x
+    this.currentMouseCoordinates.scaled.y1 = y
+    this.currentMouseCoordinates.scaled.x2 = x
+    this.currentMouseCoordinates.scaled.y2 = y
+
+    this.currentMouseCoordinates.original.x1 = x
+    this.currentMouseCoordinates.original.y1 = y
+    this.currentMouseCoordinates.original.x2 = x
+    this.currentMouseCoordinates.original.y2 = y
   }
 
   mouseMove = (event: MouseEvent) => {
@@ -169,14 +185,12 @@ class Engine {
 
     const { resolution, viewport, currentMouseCoordinates, gridSize } = this
 
-    if (this.currentMouseEventOwner === this) {
-      const x = event.clientX - resolution.x1
-      const y = event.clientY - resolution.y1
-      const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-      const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
+    const x = event.clientX - resolution.x1
+    const y = event.clientY - resolution.y1
 
-      currentMouseCoordinates.x2 = x
-      currentMouseCoordinates.y2 = y
+    if (this.currentMouseEventOwner === this) {
+      const xDelta = (x - currentMouseCoordinates.original.x2) / viewport.z
+      const yDelta = (y - currentMouseCoordinates.original.y2) / viewport.z
 
       const nextViewPort = viewport.copy()
       nextViewPort.translate(xDelta, yDelta)
@@ -185,11 +199,11 @@ class Engine {
 
       this.store.dispatch(setViewPort(nextViewPort))
     } else if (this.currentMouseEventOwner.onMouseMove) {
-      currentMouseCoordinates.x2 = event.clientX - resolution.x1
-      currentMouseCoordinates.y2 = event.clientY - resolution.y1
+      currentMouseCoordinates.scaled.x2 = event.clientX - resolution.x1
+      currentMouseCoordinates.scaled.y2 = event.clientY - resolution.y1
 
-      let xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
-      let yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+      let xDelta = Math.round((currentMouseCoordinates.scaled.x2 - currentMouseCoordinates.scaled.x1) / gridSize / viewport.z)
+      let yDelta = Math.round((currentMouseCoordinates.scaled.y2 - currentMouseCoordinates.scaled.y1) / gridSize / viewport.z)
 
       if (xDelta === -0) {
         xDelta = 0
@@ -201,9 +215,12 @@ class Engine {
         this.currentMouseEventOwner.onMouseMove(xDelta, yDelta)
       }
 
-      currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
-      currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+      currentMouseCoordinates.scaled.x1 += xDelta * gridSize * viewport.z
+      currentMouseCoordinates.scaled.y1 += yDelta * gridSize * viewport.z
     }
+
+    currentMouseCoordinates.original.x2 = x
+    currentMouseCoordinates.original.y2 = y
   }
 
   elementUpdated = (id: string, newSchema: IEntitySchema) => {
@@ -251,6 +268,10 @@ class Engine {
       return -1;
     });
     */
+  }
+
+  connectEntities = () => {
+    console.log('engine will now try to connect two entities')
   }
 
   setSelected = (element?: any) => {

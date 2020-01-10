@@ -11,14 +11,9 @@ interface IProps extends IEntitySchema {
 }
 
 interface IState {
-  selected: boolean;
-  mutating: boolean;
-  /*
-  xDelta: number;
-  yDelta: number;
-  wDelta: number;
-  hDelta: number;
-  */
+  //selected: boolean;
+  connecting: boolean;
+  //startPort: any;
 }
 
 class PortEntity extends React.Component<IProps, IState> {
@@ -28,17 +23,12 @@ class PortEntity extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props)
     this.state = {
-      selected: false,
-      mutating: false,
-      /*
-      xDelta: 0,
-      yDelta: 0,
-      wDelta: 0,
-      hDelta: 0,
-      */
+      connecting: false,
+      //selected: false,
+      //mutating: false,
+      //startPort: null,
     }
-
-    this.ports = props.ports.map((port) => new PortHandle(this, port.x, port.y))
+    this.ports = props.ports.map((port) => new PortHandle(this, port.id, port.x, port.y))
   }
 
   componentDidMount() {
@@ -53,61 +43,36 @@ class PortEntity extends React.Component<IProps, IState> {
 
   removeEntity = (_: any) => {}
 
-  mutateStart = (): void => {
-    if (this.state.mutating) {
+  portConnectStart = (): void => {
+    if (this.state.connecting) {
       return
     }
     this.setState({
-      mutating: true,
-      /*
-      xDelta: 0,
-      yDelta: 0,
-      wDelta: 0,
-      hDelta: 0,
-      */
+      connecting: true,
+      //startPort: port,
     })
+    //console.log('now notify engine that we are connecting two ports')
+    //console.log('start is', port)
+    //this.props.parent.start()
   }
 
-  mutateStop = (): void => {
-    if (!this.state.mutating) {
+  portConnectStop = (): void => {
+    if (!this.state.connecting) {
       return
     }
-    //let { xDelta, yDelta, wDelta, hDelta } = this.state
+    //if (!this.state.mutating) {
+      //return
+    //}
+    //console.log('now notify engine that we are connecting two ports')
+    this.props.parent.connectEntities()
+    //console.log(`start: ${this.state.startPort.id} , end: ${port.id}`)
+    //this.props.parent.connect()
+
     this.setState({
-      mutating: false,
-      /*
-      xDelta: 0,
-      yDelta: 0,
-      wDelta: 0,
-      hDelta: 0,
-      */
+      connecting: false,
+      //mutating: false,
+      //startPort: null,
     })
-  }
-
-  onMouseDown = (): boolean => {
-    if (this.state.selected) {
-      this.mutateStart()
-      return true
-    } else {
-      this.props.parent.setSelected(this)
-      this.mutateStart()
-      return true
-    }
-  }
-
-  onMouseMove = (_xDelta: number, _yDelta: number): boolean => {
-    if (this.state.selected) {
-      //this.setState((prevState) => ({
-        //xDelta: prevState.xDelta + xDelta,
-        //yDelta: prevState.yDelta + yDelta,
-      //}))
-    }
-    return false
-  }
-
-  onMouseUp = (): boolean => {
-    this.mutateStop()
-    return false
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
@@ -127,6 +92,17 @@ class PortEntity extends React.Component<IProps, IState> {
     return undefined
   }
 
+   //onMouseMove = (xDelta: number, yDelta: number): boolean => {
+    //console.log('moving mouse over port entity', xDelta, yDelta)
+    //if (this.state.selected) {
+      //this.setState((prevState) => ({
+        //xDelta: prevState.xDelta + xDelta,
+        //yDelta: prevState.yDelta + yDelta,
+      //}))
+    //}
+    //return false
+  //}
+
   draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _timestamp: number) => {
     ctx.fillStyle = "orange"
 
@@ -140,6 +116,17 @@ class PortEntity extends React.Component<IProps, IState> {
     this.ports.forEach((port) => {
       port.draw(ctx, viewport, gridSize, X, Y, W, H)
     })
+
+    if (this.state.connecting) {
+      const line = this.props.parent.currentMouseCoordinates.original
+      ctx.beginPath();
+      ctx.moveTo(line.x1, line.y1);
+      ctx.lineTo(line.x2, line.y2);
+      ctx.lineWidth = 2 * viewport.z;
+      ctx.strokeStyle = "purple";
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
   }
 
   serialize = () => ({

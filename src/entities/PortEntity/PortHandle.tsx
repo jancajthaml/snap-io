@@ -36,22 +36,21 @@ export default Port
 
 
 import { Point, Rectangle } from '../../atoms'
-//import { PORT_SIZE } from './constants'
-//import { IPortSchema } from './types'
-
 
 class PortHandle  {
 
   owner: any;
+  id: string;
   x: number;
   y: number;
-  selected: boolean;
+  //selected: boolean;
 
-  constructor(owner: any, x: number, y: number) {
+  constructor(owner: any, id: string, x: number, y: number) {
     this.owner = owner
+    this.id = id
     this.x = x
     this.y = y
-    this.selected = false
+    //this.selected = false
   }
 
   mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point): any => {
@@ -65,23 +64,25 @@ class PortHandle  {
       : undefined
   }
 
-  onMouseMove = (xDelta: number, yDelta: number): boolean => {
-    console.log('handle mouse moving', xDelta, yDelta)
-    return false
-  }
+  //onMouseMove = (xDelta: number, yDelta: number): boolean => {
+    //this.owner.onMouseMove(xDelta, yDelta)
+    //console.log('handle mouse moving', xDelta, yDelta)
+    //return false
+  //}
 
   onMouseUp = (): boolean => {
-    this.selected = false
-    this.owner.mutateStop()
+    //this.selected = false
+
+    this.owner.portConnectStop()
     return false
   }
 
   onMouseDown = (): boolean => {
-    this.owner.ports.forEach((port: any) => {
-      port.selected = false
-    })
-    this.selected = true
-    this.owner.mutateStart()
+    //this.owner.ports.forEach((port: any) => {
+      //port.selected = false
+    //})
+    //this.selected = true
+    this.owner.portConnectStart()
     return true
   }
 
@@ -90,18 +91,13 @@ class PortHandle  {
     const X = x + (width * this.x) - PORT_SIZE/2
     const Y = y + (height * this.y) - PORT_SIZE/2
 
-    //ctx.fillStyle = "blue"
-
-
-    //ctx.fillRect(x + (width * x) - s/2, y + (height * y) - s/2, s, s);
-
-    if (this.selected) {
-      ctx.fillStyle = "black"
-      ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
-    } else {
-      ctx.fillStyle = "blue"
-      ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
-    }
+    //if (this.selected) {
+      //ctx.fillStyle = "black"
+      //ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
+    //} else {
+    ctx.fillStyle = "blue"
+    ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
+    //}
   }
 
   serialize = () => ({
