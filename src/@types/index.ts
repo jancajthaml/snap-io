@@ -23,6 +23,9 @@ export interface ICanvasEntitySchema {
   onMouseDown?: () => void;
   onMouseUp?: () => void;
   onMouseMove?: (xDelta: number, yDelta: number) => void;
+  canBeLinked: () => boolean;
+  createLink?: (other: any) => void;
+  acceptLink?: (other: any) => void;
   setState: (nextState: any) => void;
   props: {
     id: string;

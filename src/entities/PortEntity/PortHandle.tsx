@@ -43,14 +43,16 @@ class PortHandle  {
   id: string;
   x: number;
   y: number;
-  //selected: boolean;
+  outgoing: string[];
+  incoming: string[];
 
-  constructor(owner: any, id: string, x: number, y: number) {
+  constructor(owner: any, id: string, x: number, y: number, outgoing: string[], incoming: string[]) {
     this.owner = owner
     this.id = id
     this.x = x
     this.y = y
-    //this.selected = false
+    this.outgoing = outgoing
+    this.incoming = incoming
   }
 
   mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point): any => {
@@ -64,24 +66,12 @@ class PortHandle  {
       : undefined
   }
 
-  //onMouseMove = (xDelta: number, yDelta: number): boolean => {
-    //this.owner.onMouseMove(xDelta, yDelta)
-    //console.log('handle mouse moving', xDelta, yDelta)
-    //return false
-  //}
-
   onMouseUp = (): boolean => {
-    //this.selected = false
-
     this.owner.portConnectStop()
     return false
   }
 
   onMouseDown = (): boolean => {
-    //this.owner.ports.forEach((port: any) => {
-      //port.selected = false
-    //})
-    //this.selected = true
     this.owner.portConnectStart()
     return true
   }
@@ -91,18 +81,27 @@ class PortHandle  {
     const X = x + (width * this.x) - PORT_SIZE/2
     const Y = y + (height * this.y) - PORT_SIZE/2
 
-    //if (this.selected) {
-      //ctx.fillStyle = "black"
-      //ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
-    //} else {
     ctx.fillStyle = "blue"
     ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
-    //}
   }
 
-  serialize = () => ({
+  canBeLinked = () => true
 
-  })
+  createLink = (other: any) => {
+    if (this.outgoing.indexOf(other.id) !== -1) {
+      return
+    }
+    this.outgoing.push(other.id)
+  }
+
+  acceptLink = (other: any) => {
+    if (this.incoming.indexOf(other.id) !== -1) {
+      return
+    }
+    this.incoming.push(other.id)
+  }
+
+  serialize = () => this.owner.serialize()
 
 }
 

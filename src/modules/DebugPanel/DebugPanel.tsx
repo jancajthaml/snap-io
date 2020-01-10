@@ -41,36 +41,36 @@ const loadSchema_A = (): IDiagramSchema => {
           id: `port_${idx}_port_center`,
           x: 0.5,
           y: 0.5,
-          in: [],
-          out: [],
+          incoming: [],
+          outgoing: [],
         },
         {
           id: `port_${idx}_port_top`,
           x: 0.5,
           y: 0.1,
-          in: [],
-          out: [],
+          incoming: [],
+          outgoing: [],
         },
         {
           id: `port_${idx}_port_bottom`,
           x: 0.5,
           y: 0.9,
-          in: [],
-          out: [],
+          incoming: [],
+          outgoing: [],
         },
         {
           id: `port_${idx}_port_left`,
           x: 0.1,
           y: 0.5,
-          in: [],
-          out: [],
+          incoming: [],
+          outgoing: [],
         },
         {
           id: `port_${idx}_port_right`,
           x: 0.9,
           y: 0.5,
-          in: [],
-          out: [],
+          incoming: [],
+          outgoing: [],
         },
       ],
       type: 'port-entity',
@@ -80,6 +80,7 @@ const loadSchema_A = (): IDiagramSchema => {
   return {
     id: 'schema-tiny',
     root: result,
+    links: {},
   }
 }
 
@@ -125,6 +126,7 @@ const loadSchema_B = (): IDiagramSchema => {
   return {
     id: 'schema-small',
     root: result,
+    links: {},
   }
 }
 
@@ -170,6 +172,7 @@ const loadSchema_C = (): IDiagramSchema => {
   return {
     id: 'schema-medium',
     root: result,
+    links: {},
   }
 }
 
@@ -215,6 +218,7 @@ const loadSchema_D = (): IDiagramSchema => {
   return {
     id: 'schema-huge',
     root: result,
+    links: {},
   }
 }
 
@@ -260,6 +264,7 @@ const loadSchema_E = (): IDiagramSchema => {
   return {
     id: 'schema-masive',
     root: result,
+    links: {},
   }
 }
 

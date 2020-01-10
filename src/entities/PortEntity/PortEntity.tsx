@@ -11,9 +11,7 @@ interface IProps extends IEntitySchema {
 }
 
 interface IState {
-  //selected: boolean;
   connecting: boolean;
-  //startPort: any;
 }
 
 class PortEntity extends React.Component<IProps, IState> {
@@ -24,11 +22,8 @@ class PortEntity extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       connecting: false,
-      //selected: false,
-      //mutating: false,
-      //startPort: null,
     }
-    this.ports = props.ports.map((port) => new PortHandle(this, port.id, port.x, port.y))
+    this.ports = props.ports.map((port) => new PortHandle(this, port.id, port.x, port.y, port.outgoing, port.incoming))
   }
 
   componentDidMount() {
@@ -43,35 +38,28 @@ class PortEntity extends React.Component<IProps, IState> {
 
   removeEntity = (_: any) => {}
 
+  connectionAdded = () => {
+    this.props.parent.elementUpdated(this.props.id, this.serialize())
+  }
+
   portConnectStart = (): void => {
     if (this.state.connecting) {
       return
     }
     this.setState({
       connecting: true,
-      //startPort: port,
     })
-    //console.log('now notify engine that we are connecting two ports')
-    //console.log('start is', port)
-    //this.props.parent.start()
   }
 
   portConnectStop = (): void => {
     if (!this.state.connecting) {
       return
     }
-    //if (!this.state.mutating) {
-      //return
-    //}
-    //console.log('now notify engine that we are connecting two ports')
+
     this.props.parent.connectEntities()
-    //console.log(`start: ${this.state.startPort.id} , end: ${port.id}`)
-    //this.props.parent.connect()
 
     this.setState({
       connecting: false,
-      //mutating: false,
-      //startPort: null,
     })
   }
 
@@ -125,7 +113,13 @@ class PortEntity extends React.Component<IProps, IState> {
     type: this.props.type,
     x: this.props.x,
     y: this.props.y,
-    ports: this.ports.map((port) => port.serialize()),
+    ports: this.ports.map((port) => ({
+      id: port.id,
+      x: port.x,
+      y: port.y,
+      outgoing: port.outgoing,
+      incoming: port.incoming,
+    })),
     width: this.props.width,
     height: this.props.height,
   })
@@ -137,6 +131,8 @@ class PortEntity extends React.Component<IProps, IState> {
     const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
+
+  canBeLinked = () => false
 
   render() {
     return (

@@ -71,6 +71,8 @@ class BoxEntity extends React.Component<IProps, IState> {
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
 
+  canBeLinked = () => false
+
   serialize = () => ({
     id: this.props.id,
     type: this.props.type,

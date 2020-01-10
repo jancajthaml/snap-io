@@ -14,7 +14,9 @@ class Engine {
   };
   store: IReduxStore;
 
+  // FIXME cannot be array must be hashmap :/
   elements: any[];
+
   selected: Set<ICanvasEntitySchema>;
   visible: Set<ICanvasEntitySchema>;
   delayedSync?: any;
@@ -290,7 +292,52 @@ class Engine {
   }
 
   connectEntities = () => {
-    console.log('engine will now try to connect two entities')
+    const { viewport, elements, gridSize } = this
+
+
+    const startCoordinates = new Point(
+      ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
+      ((this.currentMouseCoordinates.original.y1 / viewport.z) - viewport.y1) / gridSize,
+    )
+
+    const endCoordinates = new Point(
+      ((this.currentMouseCoordinates.original.x2 / viewport.z) - viewport.x1) / gridSize,
+      ((this.currentMouseCoordinates.original.y2 / viewport.z) - viewport.y1) / gridSize,
+    )
+
+    const startCapture = elements
+      .map((element) => element.mouseDownCapture
+        ? element.mouseDownCapture(startCoordinates, viewport, gridSize)
+        : undefined
+      ).filter((element) => element && element.createLink && element.canBeLinked())[0]
+
+    const endCapture = elements
+      .map((element) => element.mouseDownCapture
+        ? element.mouseDownCapture(endCoordinates, viewport, gridSize)
+        : undefined
+      ).filter((element) => element && element.acceptLink && element.canBeLinked())[0]
+
+    if (startCapture && endCapture) {
+      startCapture.createLink(endCapture)
+      endCapture.acceptLink(startCapture)
+
+      const startSchema = startCapture.serialize()
+      const endSchema = endCapture.serialize()
+
+      const newSchema = {
+        [startSchema.id]: startSchema,
+        [endSchema.id]: endSchema,
+        [`${startCapture.id}-${endCapture.id}`]: {
+          id: `${startCapture.id}-${endCapture.id}`,
+          type: 'link-entity',
+          from: `${startSchema.id}/${startCapture.id}`,
+          to: `${endSchema.id}/${endCapture.id}`,
+        }
+      }
+
+      this.store.dispatch(patchSchema(newSchema))
+
+    }
   }
 
   setSelected = (element?: any) => {

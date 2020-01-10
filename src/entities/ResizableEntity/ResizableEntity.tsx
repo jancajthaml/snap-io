@@ -103,13 +103,15 @@ class ResizableEntity extends React.Component<IProps, IState> {
 
   connectEntities = () => this.props.parent.connectEntities()
 
+  elementUpdated = (id: string, newSchema: any) =>
+    this.props.parent.elementUpdated(id, newSchema)
+
   addEntity = (_: any) => {}
 
   removeEntity = (_: any) => {}
 
-  setSelected = (element: any) => {
+  setSelected = (element: any) =>
     this.props.parent.setSelected(element)
-  }
 
   mutateStart = (): void => {
     if (this.state.mutating) {
@@ -431,6 +433,14 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
     const ref = this.ref.current as ICanvasEntitySchema
     return ref.isVisible(gridSize, viewport)
+  }
+
+  canBeLinked = () => {
+    if (this.ref.current === null) {
+      return false
+    }
+    const ref = this.ref.current as ICanvasEntitySchema
+    return ref.canBeLinked()
   }
 
   render() {

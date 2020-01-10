@@ -9,6 +9,7 @@ import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/type
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
 import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
 import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
+import { IEntitySchema as ILinkSchema } from '../../entities/LinkEntity/types'
 
 export type IEntitySchema =
   | IBoxEntitySchema
@@ -19,13 +20,15 @@ export type IEntitySchema =
 export interface IDiagramSchema {
   id: string;
   root: { [key: string]: IEntitySchema };
+  links: { [key: string]: ILinkSchema };
 }
 
 export const initialState = {
   engineMode: C.EngineMode.EDIT as C.EngineMode,
   schema: {
     id: '',
-    root: {}
+    root: {},
+    links: {},
   } as IDiagramSchema,
   gridSize: 12 as number,
   viewport: new Rectangle() as Rectangle,
@@ -109,11 +112,15 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
         schema: {
           id: state.schema.id,
           root,
+          links: state.schema.links,  // FIXME
         },
       }
     }
 
+    // FIXME id + payload not json
     case C.PATCH_SCHEMA: {
+      console.log('schema patch', action.payload.update)
+
       return {
         ...state,
         schema: {
@@ -122,6 +129,7 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
             ...state.schema.root,
             ...action.payload.update,
           },
+          links: state.schema.links,  // FIXME
         },
       }
     }
