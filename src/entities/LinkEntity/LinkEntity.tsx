@@ -33,36 +33,27 @@ class LinkEntity extends React.Component<IProps, IState> {
       const toRef = this.props.parent.getEntityByID(this.props.to[0])
 
       if (fromRef && toRef) {
-        const fromPoint = fromRef.getCenter(viewport, gridSize, this.props.from)
-        const toPoint = toRef.getCenter(viewport, gridSize, this.props.to)
+        const fromPoint = fromRef.getCenter(viewport, gridSize, this.props.from, fromRef.props.x, fromRef.props.y, fromRef.props.width, fromRef.props.height)
+        const toPoint = toRef.getCenter(viewport, gridSize, this.props.to, toRef.props.x, toRef.props.y, toRef.props.width, toRef.props.height)
+
         ctx.beginPath();
         ctx.moveTo(fromPoint.x, fromPoint.y);
         ctx.lineTo(toPoint.x, toPoint.y);
         ctx.lineWidth = 1
         ctx.strokeStyle = "black";
         ctx.stroke();
-
       }
     }
   }
 
   isVisible = (_gridSize: number, _viewport: Rectangle): boolean => {
-    //console.log('check if link entity is visible')
-    /*
-    const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
-    const outOfLeft = (viewport.x1 + (this.props.x + this.props.width) * gridSize) < 0
-    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
-    const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
-    return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
-    */
     return true
   }
 
   canBeLinked = () => false
 
-  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[]) => {
+  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[], _x: number, _y: number, _width: number, _height: number) => {
     return new Point()
-    //return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
   }
 
   serialize = () => ({

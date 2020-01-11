@@ -152,22 +152,21 @@ class PortEntity extends React.Component<IProps, IState> {
 
   canBeLinked = () => false
 
-  getCenter = (viewport: Rectangle, gridSize: number, ids: string[]) => {
+  getCenter = (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
     const port = this.ports.get(ids[1])
     if (port) {
-
-      const X = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
-      const Y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
-      const W = Math.round(this.props.width) * gridSize * viewport.z
-      const H = Math.round(this.props.height) * gridSize * viewport.z
-
       const PORT_SIZE = viewport.z * gridSize * 0.5
       const PORT_X = X + (W * port.x) - PORT_SIZE/2
       const PORT_Y = Y + (H * port.y) - PORT_SIZE/2
 
       return new Point(PORT_X + PORT_SIZE / 2, PORT_Y + PORT_SIZE / 2)
     } else {
-      return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
+      return new Point(X + W / 2, Y + H / 2)
     }
   }
 

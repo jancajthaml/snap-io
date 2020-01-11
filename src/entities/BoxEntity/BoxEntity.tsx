@@ -71,8 +71,13 @@ class BoxEntity extends React.Component<IProps, IState> {
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
 
-  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[]) => {
-    return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
+  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    return new Point(X + W / 2, Y + H / 2)
   }
 
   canBeLinked = () => false

@@ -19,7 +19,8 @@ export interface ICanvasEntitySchema {
   draw: (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => void;
   mouseDownCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
   isVisible: (gridSize: number, viewport: Rectangle) => boolean;
-  getCenter: (viewport: Rectangle, gridSize: number, ids: string[]) => Point;
+  getCenter: (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => Point;
+
   onKeyUp?: (event: KeyboardEvent) => boolean;
   onKeyDown?: (event: KeyboardEvent) => boolean;
   onMouseDown?: () => boolean;

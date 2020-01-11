@@ -439,19 +439,36 @@ class ResizableEntity extends React.Component<IProps, IState> {
     return ref.isVisible(gridSize, viewport)
   }
 
-  getCenter = (viewport: Rectangle, gridSize: number, ids: string[]) => {
+  getCenter = (viewport: Rectangle, gridSize: number, ids: string[], _x: number, _y: number, _width: number, _height: number) => {
     if (this.ref.current === null) {
       return new Point()
     }
     const ref = this.ref.current as ICanvasEntitySchema
-    const center = ref.getCenter(viewport, gridSize, ids)
 
     if (this.state.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this.state
-      center.x += (xDelta + wDelta / 2) * gridSize * viewport.z
-      center.y += (yDelta + hDelta / 2) * gridSize * viewport.z
+      if (hDelta + ref.props.height <= 0) {
+        if (yDelta !== 0) {
+          yDelta = ref.props.height - 1
+          hDelta = 1 - ref.props.height
+        } else {
+          hDelta = 1 - ref.props.height
+        }
+      }
+
+      if (wDelta + ref.props.width <= 0) {
+        if (xDelta !== 0) {
+          xDelta = ref.props.width - 1
+          wDelta = 1 - ref.props.width
+        } else {
+          wDelta = 1 - ref.props.width
+        }
+      }
+
+      return ref.getCenter(viewport, gridSize, ids, ref.props.x + xDelta, ref.props.y + yDelta, ref.props.width + wDelta, ref.props.height + hDelta)
+    } else {
+      return ref.getCenter(viewport, gridSize, ids, ref.props.x, ref.props.y, ref.props.width, ref.props.height)
     }
-    return center
   }
 
   canBeLinked = () => {
