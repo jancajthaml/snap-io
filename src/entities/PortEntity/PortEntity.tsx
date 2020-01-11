@@ -16,22 +16,25 @@ interface IState {
 
 class PortEntity extends React.Component<IProps, IState> {
 
-  ports: PortHandle[];
+  ports: Map<string, PortHandle>;
 
   constructor(props: IProps) {
     super(props)
     this.state = {
       connecting: false,
     }
-    this.ports = props.ports.map((port) => new PortHandle(this, port.id, port.x, port.y, port.outgoing, port.incoming))
+    this.ports = new Map<string, PortHandle>()
+    props.ports.forEach((port) => {
+      this.ports.set(port.id, new PortHandle(this, port.id, port.x, port.y, port.outgoing, port.incoming))
+    })
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addEntity(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeEntity(this.props.id)
   }
 
   addEntity = (_: any) => {}
@@ -72,8 +75,16 @@ class PortEntity extends React.Component<IProps, IState> {
     const w = (Math.round(this.props.width) * gridSize) * viewport.z
     const h = (Math.round(this.props.height) * gridSize) * viewport.z
     const pointScaled = point.multiply(viewport.z).multiply(gridSize)
-    const capture = this.ports.map((port) => port.mouseDownCapture(viewport, gridSize, x, y, w, h, pointScaled)).filter((value) => value)[0]
-    if (capture) {
+    const captures: PortHandle[] = []
+    this.ports.forEach((port) => {
+      const candidate = port.mouseDownCapture(viewport, gridSize, x, y, w, h, pointScaled)
+      if (candidate) {
+        captures.push(candidate)
+      }
+    })
+    const capture = captures[0]
+
+    if (captures) {
       return capture
     }
 
@@ -108,21 +119,28 @@ class PortEntity extends React.Component<IProps, IState> {
     }
   }
 
-  serialize = () => ({
-    id: this.props.id,
-    type: this.props.type,
-    x: this.props.x,
-    y: this.props.y,
-    ports: this.ports.map((port) => ({
-      id: port.id,
-      x: port.x,
-      y: port.y,
-      outgoing: port.outgoing,
-      incoming: port.incoming,
-    })),
-    width: this.props.width,
-    height: this.props.height,
-  })
+  serialize = () => {
+    const ports: any[] = []
+    this.ports.forEach((port) => {
+      ports.push({
+        id: port.id,
+        x: port.x,
+        y: port.y,
+        outgoing: port.outgoing,
+        incoming: port.incoming,
+      })
+    })
+
+    return {
+      id: this.props.id,
+      type: this.props.type,
+      x: this.props.x,
+      y: this.props.y,
+      ports,
+      width: this.props.width,
+      height: this.props.height,
+    }
+  }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
@@ -133,6 +151,25 @@ class PortEntity extends React.Component<IProps, IState> {
   }
 
   canBeLinked = () => false
+
+  getCenter = (viewport: Rectangle, gridSize: number, ids: string[]) => {
+    const port = this.ports.get(ids[1])
+    if (port) {
+
+      const X = (viewport.x1 + Math.round(this.props.x) * gridSize) * viewport.z
+      const Y = (viewport.y1 + Math.round(this.props.y) * gridSize) * viewport.z
+      const W = Math.round(this.props.width) * gridSize * viewport.z
+      const H = Math.round(this.props.height) * gridSize * viewport.z
+
+      const PORT_SIZE = viewport.z * gridSize * 0.5
+      const PORT_X = X + (W * port.x) - PORT_SIZE/2
+      const PORT_Y = Y + (H * port.y) - PORT_SIZE/2
+
+      return new Point(PORT_X + PORT_SIZE / 2, PORT_Y + PORT_SIZE / 2)
+    } else {
+      return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
+    }
+  }
 
   render() {
     return (

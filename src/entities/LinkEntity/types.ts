@@ -1,6 +1,11 @@
 
 export interface IEntitySchema {
   id: string;
-  start: string;
-  end: string;
+  type: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  from: string[];
+  to: string[];
 }

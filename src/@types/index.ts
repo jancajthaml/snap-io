@@ -1,10 +1,11 @@
 import { Point, Rectangle } from '../atoms'
 
 export interface ICanvasEntityWrapperSchema {
-  addEntity: (entity: any) => void;
+  addEntity: (id: string, entity: any) => void;
   connectEntities: () => void;
-  removeEntity: (entity: any) => void;
+  removeEntity: (id: string) => void;
   elementUpdated: (id: string, newSchema: any) => void;
+  getEntityByID: (id: string) => any;
   elementDeleted: (id: string) => void;
   setSelected:(element?: any) => void;
   currentMouseCoordinates: {
@@ -18,11 +19,12 @@ export interface ICanvasEntitySchema {
   draw: (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => void;
   mouseDownCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
   isVisible: (gridSize: number, viewport: Rectangle) => boolean;
-  onKeyUp?: (event: KeyboardEvent) => void;
-  onKeyDown?: (event: KeyboardEvent) => void;
-  onMouseDown?: () => void;
-  onMouseUp?: () => void;
-  onMouseMove?: (xDelta: number, yDelta: number) => void;
+  getCenter: (viewport: Rectangle, gridSize: number, ids: string[]) => Point;
+  onKeyUp?: (event: KeyboardEvent) => boolean;
+  onKeyDown?: (event: KeyboardEvent) => boolean;
+  onMouseDown?: () => boolean;
+  onMouseUp?: () => boolean;
+  onMouseMove?: (xDelta: number, yDelta: number) => boolean;
   canBeLinked: () => boolean;
   createLink?: (other: any) => void;
   acceptLink?: (other: any) => void;

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 
 interface IProps extends IEntitySchema {
@@ -20,11 +20,11 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addEntity(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeEntity(this.props.id)
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
@@ -69,6 +69,10 @@ class BoxEntity extends React.Component<IProps, IState> {
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
     const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
+  }
+
+  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[]) => {
+    return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
   }
 
   canBeLinked = () => false

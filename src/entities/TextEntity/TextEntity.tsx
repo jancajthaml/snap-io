@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 import TextLibrary from './TextLibrary'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
@@ -21,11 +21,11 @@ class TextEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addEntity(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeEntity(this.props.id)
   }
 
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
@@ -50,6 +50,10 @@ class TextEntity extends React.Component<IProps, IState> {
   }
 
   canBeLinked = () => false
+
+  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[]) => {
+    return new Point(this.props.x + this.props.width / 2, this.props.y + this.props.height / 2)
+  }
 
   serialize = () => ({
     id: this.props.id,

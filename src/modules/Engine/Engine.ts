@@ -14,8 +14,7 @@ class Engine {
   };
   store: IReduxStore;
 
-  // FIXME cannot be array must be hashmap :/
-  elements: any[];
+  elements: Map<string, ICanvasEntitySchema>;
 
   selected: Set<ICanvasEntitySchema>;
   visible: Set<ICanvasEntitySchema>;
@@ -27,7 +26,7 @@ class Engine {
       scaled: new Rectangle(),
     }
     this.store = store
-    this.elements = []
+    this.elements = new Map<string, ICanvasEntitySchema>()
     this.selected = new Set<ICanvasEntitySchema>()
     this.visible = new Set<ICanvasEntitySchema>()
   }
@@ -63,7 +62,7 @@ class Engine {
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
     } else {
-      this.visible = new Set(this.elements)
+      this.visible = new Set(this.elements.values())
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
       }, 100)
@@ -128,11 +127,18 @@ class Engine {
         ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
       )
 
-      const capture = elements
-        .map((element) => element.mouseDownCapture
-          ? element.mouseDownCapture(pointOfClick, viewport, gridSize)
-          : undefined
-        ).filter((element) => element)[0]
+      const captures: ICanvasEntitySchema[] = []
+
+      elements.forEach((element) => {
+        if (element.mouseDownCapture) {
+          const candidate = element.mouseDownCapture(pointOfClick, viewport, gridSize)
+          if (candidate) {
+            captures.push(candidate)
+          }
+        }
+      })
+
+      const capture = captures[0]
 
       let stopPropagation = false
       if (capture && capture.onMouseDown) {
@@ -305,17 +311,26 @@ class Engine {
       ((this.currentMouseCoordinates.original.y2 / viewport.z) - viewport.y1) / gridSize,
     )
 
-    const startCapture = elements
-      .map((element) => element.mouseDownCapture
-        ? element.mouseDownCapture(startCoordinates, viewport, gridSize)
-        : undefined
-      ).filter((element) => element && element.createLink && element.canBeLinked())[0]
+    const startCaptures: ICanvasEntitySchema[] = []
+    const endCaptures: ICanvasEntitySchema[] = []
 
-    const endCapture = elements
-      .map((element) => element.mouseDownCapture
-        ? element.mouseDownCapture(endCoordinates, viewport, gridSize)
-        : undefined
-      ).filter((element) => element && element.acceptLink && element.canBeLinked())[0]
+    elements.forEach((element) => {
+      if (element.mouseDownCapture) {
+        const candidate = element.mouseDownCapture(startCoordinates, viewport, gridSize)
+        if (candidate && candidate.createLink && candidate.canBeLinked()) {
+          startCaptures.push(candidate)
+        }
+      }
+      if (element.mouseDownCapture) {
+        const candidate = element.mouseDownCapture(endCoordinates, viewport, gridSize)
+        if (candidate && candidate.acceptLink && candidate.canBeLinked()) {
+          endCaptures.push(candidate)
+        }
+      }
+    })
+
+    const startCapture: any = startCaptures[0]
+    const endCapture: any = endCaptures[0]
 
     if (startCapture && endCapture) {
       startCapture.createLink(endCapture)
@@ -330,8 +345,8 @@ class Engine {
         [`${startCapture.id}-${endCapture.id}`]: {
           id: `${startCapture.id}-${endCapture.id}`,
           type: 'link-entity',
-          from: `${startSchema.id}/${startCapture.id}`,
-          to: `${endSchema.id}/${endCapture.id}`,
+          from: [`${startSchema.id}`, `${startCapture.id}`],
+          to: [`${endSchema.id}`, `${endCapture.id}`],
         }
       }
 
@@ -373,16 +388,23 @@ class Engine {
     }
   }
 
-  addEntity = (entity: any) => {
-    this.elements.push(entity)
+  addEntity = (id: string, entity: any) => {
+    this.elements.set(id, entity)
+    this.visible.add(entity)
   }
 
-  removeEntity = (entity: any) => {
-    this.elements = this.elements.filter((value) => value !== entity)
-    this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
-    this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+  removeEntity = (id: string) => {
+    const entity = this.elements.get(id)
+    if (entity) {
+      this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)
+      this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
+      this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+    }
   }
 
+  getEntityByID = (id: string) => {
+    return this.elements.get(id)
+  }
 }
 
 export default Engine

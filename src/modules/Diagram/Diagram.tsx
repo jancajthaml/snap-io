@@ -27,6 +27,9 @@ import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/ty
 import PortEntity from '../../entities/PortEntity'
 import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
 
+import LinkEntity from '../../entities/LinkEntity'
+import { IEntitySchema as ILinkEntitySchema } from '../../entities/LinkEntity/types'
+
 interface IProps {
   store: IReduxStore;
   schema: IDiagramSchema;
@@ -57,6 +60,7 @@ const Diagram = (props: IProps) => {
         if (entity.type === 'box-entity') {
           return (
             <ResizableEntity
+              id={(entity as IBoxEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <BoxEntity
@@ -71,9 +75,24 @@ const Diagram = (props: IProps) => {
               />
             </ResizableEntity>
           )
+        } else if (entity.type === 'link-entity') {
+          return (
+            <LinkEntity
+              parent={engine as ICanvasEntityWrapperSchema}
+              type={(entity as ILinkEntitySchema).type}
+              id={(entity as ILinkEntitySchema).id}
+              x={(entity as ILinkEntitySchema).x}
+              y={(entity as ILinkEntitySchema).y}
+              width={(entity as ILinkEntitySchema).width}
+              height={(entity as ILinkEntitySchema).height}
+              from={(entity as ILinkEntitySchema).from}
+              to={(entity as ILinkEntitySchema).to}
+            />
+          )
         } else if (entity.type === 'image-entity') {
           return (
             <ResizableEntity
+              id={(entity as IImageEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <ImageEntity
@@ -91,6 +110,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'text-entity') {
           return (
             <ResizableEntity
+              id={(entity as ITextEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <TextEntity
@@ -108,6 +128,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'port-entity') {
           return (
             <ResizableEntity
+              id={(entity as IPortEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <PortEntity

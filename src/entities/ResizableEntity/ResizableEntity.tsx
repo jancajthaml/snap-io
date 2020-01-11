@@ -6,6 +6,7 @@ import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
 
 interface IProps {
+  id: string;
   parent: ICanvasEntityWrapperSchema;
   children: React.ReactElement;
 }
@@ -90,11 +91,11 @@ class ResizableEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addEntity(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeEntity(this.props.id)
   }
 
   get currentMouseCoordinates() {
@@ -112,6 +113,9 @@ class ResizableEntity extends React.Component<IProps, IState> {
 
   setSelected = (element: any) =>
     this.props.parent.setSelected(element)
+
+  getEntityByID = (id: string) =>
+    this.props.parent.getEntityByID(id)
 
   mutateStart = (): void => {
     if (this.state.mutating) {
@@ -433,6 +437,21 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
     const ref = this.ref.current as ICanvasEntitySchema
     return ref.isVisible(gridSize, viewport)
+  }
+
+  getCenter = (viewport: Rectangle, gridSize: number, ids: string[]) => {
+    if (this.ref.current === null) {
+      return new Point()
+    }
+    const ref = this.ref.current as ICanvasEntitySchema
+    const center = ref.getCenter(viewport, gridSize, ids)
+
+    if (this.state.mutating) {
+      let { xDelta, yDelta, wDelta, hDelta } = this.state
+      center.x += (xDelta + wDelta / 2) * gridSize * viewport.z
+      center.y += (yDelta + hDelta / 2) * gridSize * viewport.z
+    }
+    return center
   }
 
   canBeLinked = () => {
