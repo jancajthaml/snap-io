@@ -2,6 +2,7 @@
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import TextLibrary from './TextLibrary'
+import { ENTITY_TYPE } from './constants'
 
 class TextEntityCompation {
 
@@ -11,6 +12,7 @@ class TextEntityCompation {
   width: number;
   height: number;
   text: string;
+  buffer: HTMLImageElement | null;
 
   constructor(props: IEntitySchema) {
     this.id = props.id
@@ -19,6 +21,7 @@ class TextEntityCompation {
     this.width = props.width
     this.height = props.height
     this.text = props.text
+    this.buffer = null
   }
 
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
@@ -31,7 +34,12 @@ class TextEntityCompation {
     const H = Math.round(this.height) * gridSize * viewport.z
 
     const image = TextLibrary.get(this.text, 12, Math.round(this.width) * gridSize, Math.round(this.height) * gridSize)
-    ctx.drawImage(image, 0, 0, image.width, image.height, X, Y, W, H);
+    if (image) {
+      this.buffer = image
+    }
+    if (this.buffer) {
+      ctx.drawImage(this.buffer, 0, 0, this.buffer.width, this.buffer.height, X, Y, W, H);
+    }
   }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {
@@ -54,26 +62,13 @@ class TextEntityCompation {
 
   serialize = () => ({
     id: this.id,
-    type: 'text-entity',
+    type: ENTITY_TYPE,
     text: this.text,
     x: this.x,
     y: this.y,
     width: this.width,
     height: this.height,
   })
-
-  // FIXME delete in future use instance attributes
-  get props() {
-    return {
-      id: this.id,
-      type: 'text-entity',
-      text: this.text,
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-    }
-  }
 }
 
 export default TextEntityCompation

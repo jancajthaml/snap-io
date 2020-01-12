@@ -20,17 +20,16 @@ const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as LinkEntityCompation
-    c.id = props.id
-    c.from = props.from
-    c.to = props.to
+    companion.current.id = props.id
+    companion.current.from = props.from
+    companion.current.to = props.to
   }, [companion.current, props.id, '|', ...props.from, '|', ...props.to])
 
   useEffect(() => {
-    if (ref === null || companion.current === null) {
+    if (!ref || !companion.current) {
       return
     }
     ref.current = companion.current

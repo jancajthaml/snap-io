@@ -1,6 +1,7 @@
 
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
+import { ENTITY_TYPE } from './constants'
 
 class BoxEntityCompation {
 
@@ -76,26 +77,13 @@ class BoxEntityCompation {
 
   serialize = () => ({
     id: this.id,
-    type: 'box-entity',
+    type: ENTITY_TYPE,
     color: this.color,
     x: this.x,
     y: this.y,
     width: this.width,
     height: this.height,
   })
-
-  // FIXME delete in future use instance attributes
-  get props() {
-    return {
-      id: this.id,
-      type: 'box-entity',
-      color: this.color,
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-    }
-  }
 }
 
 export default BoxEntityCompation

@@ -1,6 +1,7 @@
 
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
+import { ENTITY_TYPE } from './constants'
 
 class LinkEntityCompation {
 
@@ -50,20 +51,10 @@ class LinkEntityCompation {
 
   serialize = () => ({
     id: this.id,
-    type: 'link-entity',
+    type: ENTITY_TYPE,
     from: this.from,
     to: this.to,
   })
-
-  // FIXME delete in future use instance attributes
-  get props() {
-    return {
-      id: this.id,
-      type: 'link-entity',
-      from: this.from,
-      to: this.to,
-    }
-  }
 }
 
 export default LinkEntityCompation

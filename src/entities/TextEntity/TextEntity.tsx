@@ -20,27 +20,25 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as TextEntityCompation
-    c.x = props.x
-    c.y = props.y
-    c.width = props.width
-    c.height = props.height
+    companion.current.x = props.x
+    companion.current.y = props.y
+    companion.current.width = props.width
+    companion.current.height = props.height
   }, [companion.current, props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as TextEntityCompation
-    c.id = props.id
-    c.text = props.text
+    companion.current.id = props.id
+    companion.current.text = props.text
   }, [companion.current, props.id, props.text])
 
   useEffect(() => {
-    if (ref === null || companion.current === null) {
+    if (!ref || !companion.current) {
       return
     }
     ref.current = companion.current

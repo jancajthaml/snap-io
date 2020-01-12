@@ -21,30 +21,29 @@ const PortEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as PortEntityCompation
-    c.x = props.x
-    c.y = props.y
-    c.width = props.width
-    c.height = props.height
+    companion.current.x = props.x
+    companion.current.y = props.y
+    companion.current.width = props.width
+    companion.current.height = props.height
   }, [companion.current, props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as PortEntityCompation
-    c.id = props.id
-    c.ports = new Map<string, PortHandle>()
+    companion.current.id = props.id
+    const ports = new Map<string, PortHandle>()
     props.ports.forEach((port) => {
-      c.ports.set(port.id, new PortHandle(c, port.id, port.x, port.y))
+      ports.set(port.id, new PortHandle(companion.current, port.id, port.x, port.y))
     })
+    companion.current.ports = ports
   }, [companion.current, props.id, props.ports])
 
   useEffect(() => {
-    if (ref === null || companion.current === null) {
+    if (!ref || !companion.current) {
       return
     }
     ref.current = companion.current

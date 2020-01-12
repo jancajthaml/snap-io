@@ -150,28 +150,6 @@ class PortEntityCompation {
       height: this.height,
     }
   }
-
-  // FIXME delete in future use instance attributes
-  get props() {
-    const ports: any[] = []
-    this.ports.forEach((port) => {
-      ports.push({
-        id: port.id,
-        x: port.x,
-        y: port.y,
-      })
-    })
-
-    return {
-      id: this.id,
-      type: 'port-entity',
-      x: this.x,
-      y: this.y,
-      ports,
-      width: this.width,
-      height: this.height,
-    }
-  }
 }
 
 export default PortEntityCompation

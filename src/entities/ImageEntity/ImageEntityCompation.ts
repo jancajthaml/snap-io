@@ -2,6 +2,7 @@
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import ImageLibrary from './ImageLibrary'
+import { ENTITY_TYPE } from './constants'
 
 class ImageEntityCompation {
 
@@ -63,26 +64,13 @@ class ImageEntityCompation {
 
   serialize = () => ({
     id: this.id,
-    type: 'image-entity',
+    type: ENTITY_TYPE,
     url: this.url,
     x: this.x,
     y: this.y,
     width: this.width,
     height: this.height,
   })
-
-  // FIXME delete in future use instance attributes
-  get props() {
-    return {
-      id: this.id,
-      type: 'image-entity',
-      url: this.url,
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-    }
-  }
 }
 
 export default ImageEntityCompation

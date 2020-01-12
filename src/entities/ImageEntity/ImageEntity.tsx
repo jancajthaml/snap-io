@@ -20,27 +20,25 @@ const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as ImageEntityCompation
-    c.x = props.x
-    c.y = props.y
-    c.width = props.width
-    c.height = props.height
+    companion.current.x = props.x
+    companion.current.y = props.y
+    companion.current.width = props.width
+    companion.current.height = props.height
   }, [companion.current, props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (!companion.current) {
       return
     }
-    const c = companion.current as ImageEntityCompation
-    c.id = props.id
-    c.url = props.url
+    companion.current.id = props.id
+    companion.current.url = props.url
   }, [companion.current, props.id, props.url])
 
   useEffect(() => {
-    if (ref === null || companion.current === null) {
+    if (!ref || !companion.current) {
       return
     }
     ref.current = companion.current

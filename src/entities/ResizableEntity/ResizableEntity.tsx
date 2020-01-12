@@ -187,6 +187,10 @@ class ResizableEntity extends React.Component<IProps, IState> {
       nextSchema.width += wDelta
       nextSchema.height += hDelta
       this.props.parent.entityUpdated(ref.id, nextSchema)
+      ref.x += xDelta
+      ref.y += yDelta
+      ref.width += wDelta
+      ref.height += hDelta
     }
   }
 
@@ -416,7 +420,6 @@ class ResizableEntity extends React.Component<IProps, IState> {
     } else {
       ref.draw(this.state.selected ? layer - 1 : layer, ctx, viewport, gridSize, timestamp)
     }
-
 
     if (layer === 2 && this.state.selected) {
       ctx.strokeStyle = "black";
