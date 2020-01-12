@@ -1,71 +1,42 @@
-import React from 'react'
-
+import React, { useRef, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
-
-import { Point, Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
+import LinkEntityCompation from './LinkEntityCompation'
 
 interface IProps extends IEntitySchema {
   parent: ICanvasEntityWrapperSchema;
 }
 
-interface IState {
-}
+const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
+  const companion = useRef<LinkEntityCompation | null>()
 
-class LinkEntity extends React.Component<IProps, IState> {
-
-  constructor(props: IProps) {
-    super(props)
-    this.state = {}
-  }
-
-  componentDidMount() {
-    this.props.parent.addNode(this.props.id, this)
-  }
-
-  componentWillUnmount() {
-    this.props.parent.removeNode(this.props.id)
-  }
-
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, _timestamp: number) => {
-    if (layer === 3) {
-      const fromRef = this.props.parent.getEntityByID(this.props.from[0])
-      const toRef = this.props.parent.getEntityByID(this.props.to[0])
-
-      if (fromRef && toRef) {
-        const fromPoint = fromRef.getCenter(viewport, gridSize, this.props.from, fromRef.props.x, fromRef.props.y, fromRef.props.width, fromRef.props.height)
-        const toPoint = toRef.getCenter(viewport, gridSize, this.props.to, toRef.props.x, toRef.props.y, toRef.props.width, toRef.props.height)
-
-        ctx.beginPath();
-        ctx.moveTo(fromPoint.x, fromPoint.y);
-        ctx.lineTo(toPoint.x, toPoint.y);
-        ctx.lineWidth = 1
-        ctx.strokeStyle = "black";
-        ctx.stroke();
-      }
+  useEffect(() => {
+    const { parent, id } = props
+    companion.current = new LinkEntityCompation(props, props.parent.getEntityByID)
+    parent.addNode(id, companion.current)
+    return () => {
+      parent.removeNode(id)
     }
-  }
+  }, [])
 
-  isVisible = (_gridSize: number, _viewport: Rectangle): boolean => {
-    return true
-  }
+  useEffect(() => {
+    if (companion.current === null) {
+      return
+    }
+    const c = companion.current as LinkEntityCompation
+    c.id = props.id
+    c.from = props.from
+    c.to = props.to
+  }, [companion.current, props.id, '|', ...props.from, '|', ...props.to])
 
-  canBeLinked = () => false
+  useEffect(() => {
+    if (ref === null || companion.current === null) {
+      return
+    }
+    ref.current = companion.current
+  }, [ref, companion.current])
 
-  getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[], _x: number, _y: number, _width: number, _height: number) => {
-    return new Point()
-  }
-
-  serialize = () => ({
-    id: this.props.id,
-    type: this.props.type,
-    from: this.props.from,
-    to: this.props.to,
-  })
-
-  render() {
-    return <React.Fragment />
-  }
-}
+  return <React.Fragment />
+})
 
 export default LinkEntity

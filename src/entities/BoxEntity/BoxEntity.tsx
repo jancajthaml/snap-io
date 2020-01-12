@@ -23,24 +23,24 @@ const BoxEntity = React.forwardRef((props: IProps, ref: any) => {
     if (companion.current === null) {
       return
     }
-    const ref = companion.current as BoxEntityCompation
-    ref.x = props.x
-    ref.y = props.y
-    ref.width = props.width
-    ref.height = props.height
-  }, [companion.current, props.x, props.y, props.width, props.height, props.color])
+    const c = companion.current as BoxEntityCompation
+    c.x = props.x
+    c.y = props.y
+    c.width = props.width
+    c.height = props.height
+  }, [companion.current, props.x, props.y, props.width, props.height])
 
   useEffect(() => {
     if (companion.current === null) {
       return
     }
-    const ref = companion.current as BoxEntityCompation
-    ref.id = props.id
-    ref.color = props.color
+    const c = companion.current as BoxEntityCompation
+    c.id = props.id
+    c.color = props.color
   }, [companion.current, props.id, props.color])
 
   useEffect(() => {
-    if (companion.current === null) {
+    if (ref === null || companion.current === null) {
       return
     }
     ref.current = companion.current

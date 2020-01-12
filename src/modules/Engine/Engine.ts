@@ -18,7 +18,7 @@ class Engine {
 
   selected: Set<ICanvasEntitySchema>;
   visible: Set<ICanvasEntitySchema>;
-  //delayedSync?: any;
+  delayedSync?: any;
 
   constructor(store: IReduxStore) {
     this.currentMouseCoordinates = {
@@ -49,12 +49,23 @@ class Engine {
 
   cleanup = () => {
     this.currentMouseEventOwner = undefined
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
     this.setSelected()
   }
 
   sync = (event: CustomEventInit) => {
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
+    } else {
+      this.visible = new Set(this.elements.values())
+      this.delayedSync = setTimeout(() => {
+        this.updateVisible(this.viewport)
+      }, 1000)
     }
   }
 
@@ -389,6 +400,7 @@ class Engine {
   }
 
   addNode = (id: string, entity: any) => {
+    //console.log('adding node', id, entity)
     this.elements.set(id, entity)
     this.visible.add(entity)
   }
@@ -396,9 +408,9 @@ class Engine {
   removeNode = (id: string) => {
     const entity = this.elements.get(id)
     if (entity) {
-      this.elements.delete(id)
-      this.visible.delete(entity)
-      this.selected.delete(entity)
+      this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)
+      this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
+      this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
     }
   }
 

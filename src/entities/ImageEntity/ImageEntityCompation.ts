@@ -1,15 +1,16 @@
 
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
+import ImageLibrary from './ImageLibrary'
 
-class BoxEntityCompation {
+class ImageEntityCompation {
 
   id: string;
   x: number;
   y: number;
   width: number;
   height: number;
-  color: string;
+  url: string;
 
   constructor(props: IEntitySchema) {
     this.id = props.id
@@ -17,43 +18,29 @@ class BoxEntityCompation {
     this.y = props.y
     this.width = props.width
     this.height = props.height
-    this.color = props.color
-  }
-
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
-    ctx.fillStyle = this.color
-
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
-
-    ctx.fillRect(X, Y, W, H);
-  }
-
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
-    ctx.fillStyle = this.color
-    ctx.strokeStyle = this.color
-
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
-
-    const offset = 3 * viewport.z
-    ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
-    ctx.strokeRect(X, Y, W, H);
+    this.url = props.url
   }
 
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
     if (layer !== 1) {
       return
     }
-    if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
-    } else {
-      this.drawDetail(ctx, viewport, gridSize, x, y, width, height, timestamp)
+    let image = ImageLibrary.get(this.url, timestamp)
+
+    const w_i = image.width as number
+    if (w_i === 0) {
+      return
     }
+    const h_i = image.height as number
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    const ratio  = Math.min(W / w_i, H / h_i);
+
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+
+    ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
   }
 
   isVisible = (gridSize: number, viewport: Rectangle): boolean => {
@@ -76,8 +63,8 @@ class BoxEntityCompation {
 
   serialize = () => ({
     id: this.id,
-    type: 'box-entity',
-    color: this.color,
+    type: 'image-entity',
+    url: this.url,
     x: this.x,
     y: this.y,
     width: this.width,
@@ -88,8 +75,8 @@ class BoxEntityCompation {
   get props() {
     return {
       id: this.id,
-      type: 'box-entity',
-      color: this.color,
+      type: 'image-entity',
+      url: this.url,
       x: this.x,
       y: this.y,
       width: this.width,
@@ -98,4 +85,4 @@ class BoxEntityCompation {
   }
 }
 
-export default BoxEntityCompation
+export default ImageEntityCompation
