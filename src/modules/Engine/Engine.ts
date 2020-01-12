@@ -1,24 +1,32 @@
 import { Rectangle, Point } from '../../atoms'
 import { IReduxStore } from '../../store'
 import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
-import { zoomIn, zoomOut, setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
-import { IEntitySchema } from '../Diagram/reducer'
+import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLinkSchema, removeEntityFromSchema, removeLinkFromSchema } from '../Diagram/actions'
+import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
 
 class Engine {
   currentMouseEventOwner: any;
-  currentMouseCoordinates: Rectangle;
+  currentMouseCoordinates: {
+    original: Rectangle;
+    scaled: Rectangle;
+  };
   store: IReduxStore;
 
-  elements: any[];
+  elements: Map<string, ICanvasEntitySchema>;
+
   selected: Set<ICanvasEntitySchema>;
   visible: Set<ICanvasEntitySchema>;
+  delayedSync?: any;
 
   constructor(store: IReduxStore) {
-    this.currentMouseCoordinates = new Rectangle()
+    this.currentMouseCoordinates = {
+      original: new Rectangle(),
+      scaled: new Rectangle(),
+    }
     this.store = store
-    this.elements = []
+    this.elements = new Map<string, ICanvasEntitySchema>()
     this.selected = new Set<ICanvasEntitySchema>()
     this.visible = new Set<ICanvasEntitySchema>()
   }
@@ -41,11 +49,25 @@ class Engine {
 
   cleanup = () => {
     this.currentMouseEventOwner = undefined
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
     this.setSelected()
   }
 
-  sync = () => {
-    this.updateVisible(this.viewport)
+  sync = (event: CustomEventInit) => {
+    if (this.delayedSync !== undefined) {
+      clearTimeout(this.delayedSync)
+    }
+    if (event.detail && event.detail.hardSync === false) {
+      this.updateVisible(this.viewport)
+    } else {
+      this.visible = new Set(this.elements.values())
+      this.delayedSync = setTimeout(() => {
+        this.updateVisible(this.viewport)
+      }, 100)
+
+    }
   }
 
   teardown = () => {
@@ -87,24 +109,36 @@ class Engine {
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
 
-    this.currentMouseCoordinates.x1 = x
-    this.currentMouseCoordinates.y1 = y
-    this.currentMouseCoordinates.x2 = x
-    this.currentMouseCoordinates.y2 = y
+    this.currentMouseCoordinates.original.x1 = x
+    this.currentMouseCoordinates.original.y1 = y
+    this.currentMouseCoordinates.original.x2 = x
+    this.currentMouseCoordinates.original.y2 = y
+
+    this.currentMouseCoordinates.scaled.x1 = x
+    this.currentMouseCoordinates.scaled.y1 = y
+    this.currentMouseCoordinates.scaled.x2 = x
+    this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
       const { viewport, elements, gridSize } = this
 
       const pointOfClick = new Point(
-        ((this.currentMouseCoordinates.x1 / viewport.z) - viewport.x1) / gridSize,
-        ((this.currentMouseCoordinates.y1 / viewport.z) - viewport.y1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
       )
 
-      const capture = elements
-        .map((element) => element.mouseDownCapture
-          ? element.mouseDownCapture(pointOfClick, viewport, gridSize)
-          : undefined
-        ).filter((element) => element)[0]
+      const captures: ICanvasEntitySchema[] = []
+
+      elements.forEach((element) => {
+        if (element.mouseDownCapture) {
+          const candidate = element.mouseDownCapture(pointOfClick, viewport, gridSize)
+          if (candidate) {
+            captures.push(candidate)
+          }
+        }
+      })
+
+      const capture = captures[0]
 
       let stopPropagation = false
       if (capture && capture.onMouseDown) {
@@ -131,7 +165,11 @@ class Engine {
     } else {
       this.store.dispatch(zoomIn(x, y, 1))
     }
-    this.sync()
+    this.sync({
+      detail: {
+        hardSync: false,
+      },
+    })
   }
 
   mouseUp = (event: MouseEvent) => {
@@ -141,8 +179,8 @@ class Engine {
 
     if (this.currentMouseEventOwner === this) {
       if (
-        this.currentMouseCoordinates.x1 === this.currentMouseCoordinates.x2 &&
-        this.currentMouseCoordinates.y1 === this.currentMouseCoordinates.y2
+        this.currentMouseCoordinates.original.x1 === this.currentMouseCoordinates.original.x2 &&
+        this.currentMouseCoordinates.original.y1 === this.currentMouseCoordinates.original.y2
       ) {
         this.setSelected()
       }
@@ -156,10 +194,15 @@ class Engine {
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
 
-    this.currentMouseCoordinates.x1 = x
-    this.currentMouseCoordinates.y1 = y
-    this.currentMouseCoordinates.x2 = x
-    this.currentMouseCoordinates.y2 = y
+    this.currentMouseCoordinates.scaled.x1 = x
+    this.currentMouseCoordinates.scaled.y1 = y
+    this.currentMouseCoordinates.scaled.x2 = x
+    this.currentMouseCoordinates.scaled.y2 = y
+
+    this.currentMouseCoordinates.original.x1 = x
+    this.currentMouseCoordinates.original.y1 = y
+    this.currentMouseCoordinates.original.x2 = x
+    this.currentMouseCoordinates.original.y2 = y
   }
 
   mouseMove = (event: MouseEvent) => {
@@ -169,14 +212,12 @@ class Engine {
 
     const { resolution, viewport, currentMouseCoordinates, gridSize } = this
 
-    if (this.currentMouseEventOwner === this) {
-      const x = event.clientX - resolution.x1
-      const y = event.clientY - resolution.y1
-      const xDelta = (x - currentMouseCoordinates.x2) / viewport.z
-      const yDelta = (y - currentMouseCoordinates.y2) / viewport.z
+    const x = event.clientX - resolution.x1
+    const y = event.clientY - resolution.y1
 
-      currentMouseCoordinates.x2 = x
-      currentMouseCoordinates.y2 = y
+    if (this.currentMouseEventOwner === this) {
+      const xDelta = (x - currentMouseCoordinates.original.x2) / viewport.z
+      const yDelta = (y - currentMouseCoordinates.original.y2) / viewport.z
 
       const nextViewPort = viewport.copy()
       nextViewPort.translate(xDelta, yDelta)
@@ -185,11 +226,11 @@ class Engine {
 
       this.store.dispatch(setViewPort(nextViewPort))
     } else if (this.currentMouseEventOwner.onMouseMove) {
-      currentMouseCoordinates.x2 = event.clientX - resolution.x1
-      currentMouseCoordinates.y2 = event.clientY - resolution.y1
+      currentMouseCoordinates.scaled.x2 = event.clientX - resolution.x1
+      currentMouseCoordinates.scaled.y2 = event.clientY - resolution.y1
 
-      let xDelta = Math.round((currentMouseCoordinates.x2 - currentMouseCoordinates.x1) / gridSize / viewport.z)
-      let yDelta = Math.round((currentMouseCoordinates.y2 - currentMouseCoordinates.y1) / gridSize / viewport.z)
+      let xDelta = Math.round((currentMouseCoordinates.scaled.x2 - currentMouseCoordinates.scaled.x1) / gridSize / viewport.z)
+      let yDelta = Math.round((currentMouseCoordinates.scaled.y2 - currentMouseCoordinates.scaled.y1) / gridSize / viewport.z)
 
       if (xDelta === -0) {
         xDelta = 0
@@ -201,24 +242,42 @@ class Engine {
         this.currentMouseEventOwner.onMouseMove(xDelta, yDelta)
       }
 
-      currentMouseCoordinates.x1 += xDelta * gridSize * viewport.z
-      currentMouseCoordinates.y1 += yDelta * gridSize * viewport.z
+      currentMouseCoordinates.scaled.x1 += xDelta * gridSize * viewport.z
+      currentMouseCoordinates.scaled.y1 += yDelta * gridSize * viewport.z
     }
+
+    currentMouseCoordinates.original.x2 = x
+    currentMouseCoordinates.original.y2 = y
   }
 
-  elementUpdated = (id: string, newSchema: IEntitySchema) => {
+  entityUpdated = (id: string, newSchema: IEntitySchema) => {
     if (this.engineMode !== EngineMode.EDIT) {
       return
     }
-    this.store.dispatch(patchSchema({ [id]: newSchema }))
+    this.store.dispatch(patchEntitySchema({ [id]: newSchema }))
   }
 
-  elementDeleted = (id: string) => {
+  linkUpdated = (id: string, newSchema: ILinkSchema) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
+    this.store.dispatch(patchLinkSchema({ [id]: newSchema }))
+  }
+
+  entityDeleted = (id: string) => {
     if (this.engineMode !== EngineMode.EDIT) {
       return
     }
     this.setSelected()
-    this.store.dispatch(removeFromSchema(id))
+    this.store.dispatch(removeEntityFromSchema(id))
+  }
+
+  linkDeleted = (id: string) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
+    this.setSelected()
+    this.store.dispatch(removeLinkFromSchema(id))
   }
 
   resize = (x: number, y: number, width: number, height: number) => {
@@ -251,6 +310,60 @@ class Engine {
       return -1;
     });
     */
+  }
+
+  connectEntities = () => {
+    const { viewport, elements, gridSize } = this
+
+
+    const startCoordinates = new Point(
+      ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
+      ((this.currentMouseCoordinates.original.y1 / viewport.z) - viewport.y1) / gridSize,
+    )
+
+    const endCoordinates = new Point(
+      ((this.currentMouseCoordinates.original.x2 / viewport.z) - viewport.x1) / gridSize,
+      ((this.currentMouseCoordinates.original.y2 / viewport.z) - viewport.y1) / gridSize,
+    )
+
+    const startCaptures: ICanvasEntitySchema[] = []
+    const endCaptures: ICanvasEntitySchema[] = []
+
+    elements.forEach((element) => {
+      if (element.mouseDownCapture) {
+        const candidate = element.mouseDownCapture(startCoordinates, viewport, gridSize)
+        if (candidate && candidate.canBeLinked()) {
+          startCaptures.push(candidate)
+        }
+      }
+      if (element.mouseDownCapture) {
+        const candidate = element.mouseDownCapture(endCoordinates, viewport, gridSize)
+        if (candidate && candidate.canBeLinked()) {
+          endCaptures.push(candidate)
+        }
+      }
+    })
+
+    const startCapture: any = startCaptures[0]
+    const endCapture: any = endCaptures[0]
+
+    if (startCapture && endCapture) {
+      const startSchema = startCapture.serialize()
+      const endSchema = endCapture.serialize()
+
+      const newSchema = {
+        [`${startCapture.id}-${endCapture.id}`]: {
+          id: `${startCapture.id}-${endCapture.id}`,
+          type: 'link-entity',
+          from: [`${startSchema.id}`, `${startCapture.id}`],
+          to: [`${endSchema.id}`, `${endCapture.id}`],
+          breaks: [],
+        }
+      }
+
+      this.store.dispatch(patchLinkSchema(newSchema))
+
+    }
   }
 
   setSelected = (element?: any) => {
@@ -286,16 +399,23 @@ class Engine {
     }
   }
 
-  addEntity = (entity: any) => {
-    this.elements.push(entity)
+  addNode = (id: string, entity: any) => {
+    this.elements.set(id, entity)
+    this.visible.add(entity)
   }
 
-  removeEntity = (entity: any) => {
-    this.elements = this.elements.filter((value) => value !== entity)
-    this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
-    this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+  removeNode = (id: string) => {
+    const entity = this.elements.get(id)
+    if (entity) {
+      this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)
+      this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
+      this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+    }
   }
 
+  getEntityByID = (id: string) => {
+    return this.elements.get(id)
+  }
 }
 
 export default Engine

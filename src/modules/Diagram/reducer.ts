@@ -9,6 +9,7 @@ import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/type
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
 import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
 import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
+import { IEntitySchema as ILinkEntitySchema } from '../../entities/LinkEntity/types'
 
 export type IEntitySchema =
   | IBoxEntitySchema
@@ -16,16 +17,21 @@ export type IEntitySchema =
   | ITextEntitySchema
   | IPortEntitySchema
 
+export type ILinkSchema =
+  | ILinkEntitySchema
+
 export interface IDiagramSchema {
   id: string;
-  root: { [key: string]: IEntitySchema };
+  entities: { [key: string]: IEntitySchema };
+  links: { [key: string]: ILinkSchema };
 }
 
 export const initialState = {
-  engineMode: C.EngineMode.VIEW as C.EngineMode,
+  engineMode: C.EngineMode.EDIT as C.EngineMode,
   schema: {
     id: '',
-    root: {}
+    entities: {},
+    links: {},
   } as IDiagramSchema,
   gridSize: 12 as number,
   viewport: new Rectangle() as Rectangle,
@@ -100,28 +106,58 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       }
     }
 
-    case C.REMOVE_FROM_SCHEMA: {
-      const root = { ...state.schema.root }
-      delete root[action.payload.id]
+    case C.REMOVE_LINK_FROM_SCHEMA: {
+      const links = { ...state.schema.links }
+      delete links[action.payload.id]
 
       return {
         ...state,
         schema: {
           id: state.schema.id,
-          root,
+          entities: state.schema.entities,
+          links,
         },
       }
     }
 
-    case C.PATCH_SCHEMA: {
+    case C.REMOVE_ENTITY_FROM_SCHEMA: {
+      const entities = { ...state.schema.entities }
+      delete entities[action.payload.id]
+
       return {
         ...state,
         schema: {
           id: state.schema.id,
-          root: {
-            ...state.schema.root,
+          entities,
+          links: state.schema.links,
+        },
+      }
+    }
+
+    case C.PATCH_LINK_SCHEMA: {
+      return {
+        ...state,
+        schema: {
+          id: state.schema.id,
+          entities: state.schema.entities,
+          links: {
+            ...state.schema.links,
             ...action.payload.update,
           },
+        },
+      }
+    }
+
+    case C.PATCH_ENTITY_SCHEMA: {
+      return {
+        ...state,
+        schema: {
+          id: state.schema.id,
+          entities: {
+            ...state.schema.entities,
+            ...action.payload.update,
+          },
+          links: state.schema.links,
         },
       }
     }

@@ -3,7 +3,7 @@ import { Rectangle } from '../../atoms'
 
 import { connect } from 'react-redux'
 import { IRootReduxState } from '../../reducer'
-import { IDiagramSchema, IEntitySchema } from '../Diagram/reducer'
+import { IDiagramSchema, IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { setGridSize, setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
 import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
@@ -21,26 +21,15 @@ interface IProps {
   setEngineMode: (engineMode: EngineMode) => void;
 }
 
-const ANIMATION_FRAME_DEADLINE = 16
-const WAIT_LAG = ANIMATION_FRAME_DEADLINE * 8
-
 const loadSchema_A = (): IDiagramSchema => {
   const howMany = 3
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as { [key: string]: IEntitySchema }
+  const entities = {} as { [key: string]: IEntitySchema }
+  const links = {}  as { [key: string]: ILinkSchema }
+
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    result[`box_${idx}`] = {
-      id: `box_${idx}`,
-      x: (idx % modulus) * 5,
-      y: Math.floor(idx / modulus) * 5,
-      width: 4,
-      height: 4,
-      type: 'box-entity',
-      color: ["red", "blue", "green"][(idx % 3)],
-    }
-    /*
-    result[`port_${idx}`] = {
+    entities[`port_${idx}`] = {
       id: `port_${idx}`,
       x: (idx % modulus) * 5,
       y: Math.floor(idx / modulus) * 5,
@@ -51,46 +40,44 @@ const loadSchema_A = (): IDiagramSchema => {
           id: `port_${idx}_port_center`,
           x: 0.5,
           y: 0.5,
-          in: [],
-          out: [],
         },
         {
           id: `port_${idx}_port_top`,
           x: 0.5,
           y: 0.1,
-          in: [],
-          out: [],
         },
         {
           id: `port_${idx}_port_bottom`,
           x: 0.5,
           y: 0.9,
-          in: [],
-          out: [],
         },
         {
           id: `port_${idx}_port_left`,
           x: 0.1,
           y: 0.5,
-          in: [],
-          out: [],
         },
         {
           id: `port_${idx}_port_right`,
           x: 0.9,
           y: 0.5,
-          in: [],
-          out: [],
         },
       ],
       type: 'port-entity',
     }
-    */
+
+    links[`port_${idx}_port_center-port_${idx+1}_port_center`] = {
+      id: `port_${idx}_port_center-port_${idx+1}_port_center`,
+      type: 'link-entity',
+      from: [`port_${idx}`, 'port_center'],
+      to: [`port_${idx + 1}`, 'port_center'],
+      breaks: [],
+    }
   })
 
   return {
     id: 'schema-tiny',
-    root: result,
+    entities,
+    links,
   }
 }
 
@@ -98,10 +85,12 @@ const loadSchema_B = (): IDiagramSchema => {
   const howMany = 10
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as { [key: string]: IEntitySchema }
+  const entities = {} as { [key: string]: IEntitySchema }
+  const links = {}  as { [key: string]: ILinkSchema }
+
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      result[`text_${idx}`] = {
+      entities[`text_${idx}`] = {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -111,7 +100,7 @@ const loadSchema_B = (): IDiagramSchema => {
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       }
     } else if (idx % 2 === 0) {
-      result[`image_${idx}`] = {
+      entities[`image_${idx}`] = {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -121,7 +110,7 @@ const loadSchema_B = (): IDiagramSchema => {
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
-      result[`box_${idx}`] = {
+      entities[`box_${idx}`] = {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -135,7 +124,8 @@ const loadSchema_B = (): IDiagramSchema => {
 
   return {
     id: 'schema-small',
-    root: result,
+    entities,
+    links,
   }
 }
 
@@ -143,10 +133,12 @@ const loadSchema_C = (): IDiagramSchema => {
   const howMany = 100
   const modulus = Math.min(howMany, Math.round(Math.pow(howMany, 0.5)))
 
-  const result = {} as { [key: string]: IEntitySchema }
+  const entities = {} as { [key: string]: IEntitySchema }
+  const links = {}  as { [key: string]: ILinkSchema }
+
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      result[`text_${idx}`] = {
+      entities[`text_${idx}`] = {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -156,7 +148,7 @@ const loadSchema_C = (): IDiagramSchema => {
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       }
     } else if (idx % 2 === 0) {
-      result[`image_${idx}`] = {
+      entities[`image_${idx}`] = {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -166,7 +158,7 @@ const loadSchema_C = (): IDiagramSchema => {
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
-      result[`box_${idx}`] = {
+      entities[`box_${idx}`] = {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -180,7 +172,8 @@ const loadSchema_C = (): IDiagramSchema => {
 
   return {
     id: 'schema-medium',
-    root: result,
+    entities,
+    links,
   }
 }
 
@@ -188,10 +181,12 @@ const loadSchema_D = (): IDiagramSchema => {
   const howMany = 1000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as { [key: string]: IEntitySchema }
+  const entities = {} as { [key: string]: IEntitySchema }
+  const links = {}  as { [key: string]: ILinkSchema }
+
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      result[`text_${idx}`] = {
+      entities[`text_${idx}`] = {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -201,7 +196,7 @@ const loadSchema_D = (): IDiagramSchema => {
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       }
     } else if (idx % 2 === 0) {
-      result[`image_${idx}`] = {
+      entities[`image_${idx}`] = {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -211,7 +206,7 @@ const loadSchema_D = (): IDiagramSchema => {
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
-      result[`box_${idx}`] = {
+      entities[`box_${idx}`] = {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -225,7 +220,8 @@ const loadSchema_D = (): IDiagramSchema => {
 
   return {
     id: 'schema-huge',
-    root: result,
+    entities,
+    links,
   }
 }
 
@@ -233,10 +229,12 @@ const loadSchema_E = (): IDiagramSchema => {
   const howMany = 10000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const result = {} as { [key: string]: IEntitySchema }
+  const entities = {} as { [key: string]: IEntitySchema }
+  const links = {}  as { [key: string]: ILinkSchema }
+
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      result[`text_${idx}`] = {
+      entities[`text_${idx}`] = {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -246,7 +244,7 @@ const loadSchema_E = (): IDiagramSchema => {
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       }
     } else if (idx % 2 === 0) {
-      result[`image_${idx}`] = {
+      entities[`image_${idx}`] = {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -256,7 +254,7 @@ const loadSchema_E = (): IDiagramSchema => {
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       }
     } else {
-      result[`box_${idx}`] = {
+      entities[`box_${idx}`] = {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -270,7 +268,8 @@ const loadSchema_E = (): IDiagramSchema => {
 
   return {
     id: 'schema-masive',
-    root: result,
+    entities,
+    links,
   }
 }
 
@@ -308,7 +307,7 @@ const DebugPanel = (props: IProps) => {
             } else {
               props.setEngineMode(EngineMode.EDIT)
             }
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           {props.engineMode === EngineMode.EDIT
@@ -333,7 +332,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_A())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           tiny diagram
@@ -346,7 +345,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_B())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           small diagram
@@ -359,7 +358,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           medium diagram
@@ -372,7 +371,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           huge diagram
@@ -385,7 +384,7 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           masive diagram
@@ -434,7 +433,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomToFit()
-              setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             fit
@@ -445,6 +444,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             +
@@ -455,6 +455,7 @@ const DebugPanel = (props: IProps) => {
             }}
             onClick={() => {
               props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
+              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             -
@@ -480,7 +481,7 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
-            setTimeout(() => window.dispatchEvent(new Event('engine-sync')), WAIT_LAG)
+            window.dispatchEvent(new Event('engine-sync'))
           }}
         />
       </p>

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 
 interface IProps extends IEntitySchema {
@@ -20,11 +20,11 @@ class BoxEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addNode(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeNode(this.props.id)
   }
 
   drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
@@ -52,7 +52,10 @@ class BoxEntity extends React.Component<IProps, IState> {
     ctx.strokeRect(X, Y, W, H);
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+    if (layer !== 1) {
+      return
+    }
     if (viewport.z <= 0.4) {
       this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
     } else {
@@ -67,6 +70,17 @@ class BoxEntity extends React.Component<IProps, IState> {
     const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
+
+  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    return new Point(X + W / 2, Y + H / 2)
+  }
+
+  canBeLinked = () => false
 
   serialize = () => ({
     id: this.props.id,

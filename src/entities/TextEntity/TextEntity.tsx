@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IEntitySchema } from './types'
 import TextLibrary from './TextLibrary'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
@@ -21,14 +21,17 @@ class TextEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this)
+    this.props.parent.addNode(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this)
+    this.props.parent.removeNode(this.props.id)
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+    if (layer !== 1) {
+      return
+    }
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
     const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
     const W = Math.round(width) * gridSize * viewport.z
@@ -44,6 +47,17 @@ class TextEntity extends React.Component<IProps, IState> {
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
     const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
+  }
+
+  canBeLinked = () => false
+
+  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
+    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
+    const W = Math.round(width) * gridSize * viewport.z
+    const H = Math.round(height) * gridSize * viewport.z
+
+    return new Point(X + W / 2, Y + H / 2)
   }
 
   serialize = () => ({

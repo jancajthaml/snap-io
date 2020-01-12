@@ -3,8 +3,6 @@ export interface IPortSchema {
   id: string;
   x: number;
   y: number;
-  in: string[];
-  out: string[];
 }
 
 export interface IEntitySchema {

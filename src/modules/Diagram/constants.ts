@@ -6,9 +6,13 @@ export const SET_VIEWPORT = 'SET_VIEWPORT' as const
 
 export const SET_SCHEMA = 'SET_SCHEMA' as const
 
-export const PATCH_SCHEMA = 'PATCH_SCHEMA' as const
+export const PATCH_LINK_SCHEMA = 'PATCH_LINK_SCHEMA' as const
 
-export const REMOVE_FROM_SCHEMA = 'REMOVE_FROM_SCHEMA' as const
+export const PATCH_ENTITY_SCHEMA = 'PATCH_ENTITY_SCHEMA' as const
+
+export const REMOVE_LINK_FROM_SCHEMA = 'REMOVE_LINK_FROM_SCHEMA' as const
+
+export const REMOVE_ENTITY_FROM_SCHEMA = 'REMOVE_ENTITY_FROM_SCHEMA' as const
 
 export const SET_RESOLUTION = 'SET_RESOLUTION' as const
 

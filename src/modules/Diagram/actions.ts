@@ -1,7 +1,7 @@
 
 import { Rectangle } from '../../atoms'
 
-import { IDiagramSchema, IEntitySchema } from './reducer'
+import { IDiagramSchema, IEntitySchema, ILinkSchema } from './reducer'
 
 import * as C from './constants'
 
@@ -12,15 +12,29 @@ export const setGridSize = (gridSize: number) => ({
   },
 }) as const
 
-export const patchSchema = (update: { [id: string]: IEntitySchema }) => ({
-  type: C.PATCH_SCHEMA,
+export const patchEntitySchema = (update: { [id: string]: IEntitySchema }) => ({
+  type: C.PATCH_ENTITY_SCHEMA,
   payload: {
     update,
   },
 }) as const
 
-export const removeFromSchema = (id: string) => ({
-  type: C.REMOVE_FROM_SCHEMA,
+export const patchLinkSchema = (update: { [id: string]: ILinkSchema }) => ({
+  type: C.PATCH_LINK_SCHEMA,
+  payload: {
+    update,
+  },
+}) as const
+
+export const removeEntityFromSchema = (id: string) => ({
+  type: C.REMOVE_ENTITY_FROM_SCHEMA,
+  payload: {
+    id,
+  },
+}) as const
+
+export const removeLinkFromSchema = (id: string) => ({
+  type: C.REMOVE_LINK_FROM_SCHEMA,
   payload: {
     id,
   },
@@ -80,8 +94,10 @@ export const zoomToFit = () => ({
 export type IAction =
   | ReturnType<typeof setEngineMode>
   | ReturnType<typeof setSchema>
-  | ReturnType<typeof patchSchema>
-  | ReturnType<typeof removeFromSchema>
+  | ReturnType<typeof patchEntitySchema>
+  | ReturnType<typeof patchLinkSchema>
+  | ReturnType<typeof removeEntityFromSchema>
+  | ReturnType<typeof removeLinkFromSchema>
   | ReturnType<typeof setViewPort>
   | ReturnType<typeof setResolution>
   | ReturnType<typeof zoomIn>

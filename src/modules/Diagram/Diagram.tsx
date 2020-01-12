@@ -27,6 +27,9 @@ import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/ty
 import PortEntity from '../../entities/PortEntity'
 import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
 
+import LinkEntity from '../../entities/LinkEntity'
+import { IEntitySchema as ILinkEntitySchema } from '../../entities/LinkEntity/types'
+
 interface IProps {
   store: IReduxStore;
   schema: IDiagramSchema;
@@ -53,10 +56,11 @@ const Diagram = (props: IProps) => {
 
   return (
     <Composition engine={engine as Engine}>
-      {Object.values(props.schema.root).map((entity) => {
+      {Object.values(props.schema.entities).map((entity) => {
         if (entity.type === 'box-entity') {
           return (
             <ResizableEntity
+              id={(entity as IBoxEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <BoxEntity
@@ -74,6 +78,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'image-entity') {
           return (
             <ResizableEntity
+              id={(entity as IImageEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <ImageEntity
@@ -91,6 +96,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'text-entity') {
           return (
             <ResizableEntity
+              id={(entity as ITextEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <TextEntity
@@ -108,6 +114,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'port-entity') {
           return (
             <ResizableEntity
+              id={(entity as IPortEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
               <PortEntity
@@ -121,6 +128,22 @@ const Diagram = (props: IProps) => {
                 ports={(entity as IPortEntitySchema).ports}
               />
             </ResizableEntity>
+          )
+        } else {
+          return null
+        }
+      })}
+      {Object.values(props.schema.links).map((link) => {
+        if (link.type === 'link-entity') {
+          return (
+            <LinkEntity
+              parent={engine as ICanvasEntityWrapperSchema}
+              type={(link as ILinkEntitySchema).type}
+              id={(link as ILinkEntitySchema).id}
+              from={(link as ILinkEntitySchema).from}
+              to={(link as ILinkEntitySchema).to}
+              breaks={(link as ILinkEntitySchema).breaks}
+            />
           )
         } else {
           return null
