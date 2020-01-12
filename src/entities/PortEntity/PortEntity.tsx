@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
-import PortEntityCompation from './PortEntityCompation'
+import PortEntityRenderer from './PortEntityRenderer'
 import PortHandle from './PortHandle'
 
 interface IProps extends IEntitySchema {
@@ -9,11 +9,11 @@ interface IProps extends IEntitySchema {
 }
 
 const PortEntity = React.forwardRef((props: IProps, ref: any) => {
-  const companion = useRef<PortEntityCompation | null>()
+  const companion = useRef<PortEntityRenderer | null>()
 
   useEffect(() => {
     const { parent, id } = props
-    companion.current = new PortEntityCompation(props, () => props.parent.currentMouseCoordinates.original, props.parent.connectEntities)
+    companion.current = new PortEntityRenderer(props, () => props.parent.currentMouseCoordinates.original, props.parent.connectEntities)
     parent.addNode(id, companion.current)
     return () => {
       parent.removeNode(id)

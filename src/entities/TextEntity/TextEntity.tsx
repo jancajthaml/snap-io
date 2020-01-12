@@ -1,18 +1,18 @@
 import React, { useRef, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
-import TextEntityCompation from './TextEntityCompation'
+import TextEntityRenderer from './TextEntityRenderer'
 
 interface IProps extends IEntitySchema {
   parent: ICanvasEntityWrapperSchema;
 }
 
 const TextEntity = React.forwardRef((props: IProps, ref: any) => {
-  const companion = useRef<TextEntityCompation | null>()
+  const companion = useRef<TextEntityRenderer | null>()
 
   useEffect(() => {
     const { parent, id } = props
-    companion.current = new TextEntityCompation(props)
+    companion.current = new TextEntityRenderer(props)
     parent.addNode(id, companion.current)
     return () => {
       parent.removeNode(id)

@@ -4,7 +4,7 @@ import { Point, Rectangle } from '../../atoms'
 import TextLibrary from './TextLibrary'
 import { ENTITY_TYPE } from './constants'
 
-class TextEntityCompation {
+class TextEntityRenderer {
 
   id: string;
   x: number;
@@ -71,4 +71,4 @@ class TextEntityCompation {
   })
 }
 
-export default TextEntityCompation
+export default TextEntityRenderer

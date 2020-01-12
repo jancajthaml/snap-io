@@ -3,7 +3,7 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 
-class BoxEntityCompation {
+class BoxEntityRenderer {
 
   id: string;
   x: number;
@@ -86,4 +86,4 @@ class BoxEntityCompation {
   })
 }
 
-export default BoxEntityCompation
+export default BoxEntityRenderer

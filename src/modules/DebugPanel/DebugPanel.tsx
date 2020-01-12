@@ -65,6 +65,10 @@ const loadSchema_A = (): IDiagramSchema => {
       type: 'port-entity',
     }
 
+
+  })
+
+  Array.from(Array(howMany - 1).keys()).forEach((idx) => {
     links[`port_${idx}_port_center-port_${idx+1}_port_center`] = {
       id: `port_${idx}_port_center-port_${idx+1}_port_center`,
       type: 'link-entity',

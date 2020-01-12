@@ -60,6 +60,7 @@ const Diagram = (props: IProps) => {
         if (entity.type === 'box-entity') {
           return (
             <ResizableEntity
+              key={(entity as IBoxEntitySchema).id}
               id={(entity as IBoxEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -78,6 +79,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'image-entity') {
           return (
             <ResizableEntity
+              key={(entity as IImageEntitySchema).id}
               id={(entity as IImageEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -96,6 +98,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'text-entity') {
           return (
             <ResizableEntity
+              key={(entity as ITextEntitySchema).id}
               id={(entity as ITextEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -114,6 +117,7 @@ const Diagram = (props: IProps) => {
         } else if (entity.type === 'port-entity') {
           return (
             <ResizableEntity
+              key={(entity as IPortEntitySchema).id}
               id={(entity as IPortEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -137,6 +141,7 @@ const Diagram = (props: IProps) => {
         if (link.type === 'link-entity') {
           return (
             <LinkEntity
+              key={(link as ILinkEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
               type={(link as ILinkEntitySchema).type}
               id={(link as ILinkEntitySchema).id}

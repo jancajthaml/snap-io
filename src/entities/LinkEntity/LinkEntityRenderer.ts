@@ -3,7 +3,7 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 
-class LinkEntityCompation {
+class LinkEntityRenderer {
 
   id: string;
   from: string[];
@@ -25,6 +25,9 @@ class LinkEntityCompation {
     const toRef = this.getEntityByID(this.to[0])
 
     if (!(fromRef && toRef)) {
+      console.log('from or to references are missing')
+      console.log('fromRef', fromRef, this.from)
+      console.log('toRef', toRef, this.to)
       return
     }
 
@@ -57,4 +60,4 @@ class LinkEntityCompation {
   })
 }
 
-export default LinkEntityCompation
+export default LinkEntityRenderer

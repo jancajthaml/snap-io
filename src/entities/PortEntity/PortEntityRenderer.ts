@@ -2,8 +2,9 @@
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import PortHandle from './PortHandle'
+import { ENTITY_TYPE } from './constants'
 
-class PortEntityCompation {
+class PortEntityRenderer {
 
   id: string;
   x: number;
@@ -142,7 +143,7 @@ class PortEntityCompation {
 
     return {
       id: this.id,
-      type: 'port-entity',
+      type: ENTITY_TYPE,
       x: this.x,
       y: this.y,
       ports,
@@ -152,4 +153,4 @@ class PortEntityCompation {
   }
 }
 
-export default PortEntityCompation
+export default PortEntityRenderer

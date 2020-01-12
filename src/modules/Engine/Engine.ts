@@ -415,6 +415,8 @@ class Engine {
   }
 
   getEntityByID = (id: string) => {
+    //console.log('requesting id', id)
+    //console.log(this.elements)
     return this.elements.get(id)
   }
 }

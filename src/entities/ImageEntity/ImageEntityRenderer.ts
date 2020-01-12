@@ -4,7 +4,7 @@ import { Point, Rectangle } from '../../atoms'
 import ImageLibrary from './ImageLibrary'
 import { ENTITY_TYPE } from './constants'
 
-class ImageEntityCompation {
+class ImageEntityRenderer {
 
   id: string;
   x: number;
@@ -73,4 +73,4 @@ class ImageEntityCompation {
   })
 }
 
-export default ImageEntityCompation
+export default ImageEntityRenderer
