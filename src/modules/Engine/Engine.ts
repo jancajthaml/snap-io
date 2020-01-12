@@ -1,8 +1,8 @@
 import { Rectangle, Point } from '../../atoms'
 import { IReduxStore } from '../../store'
 import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
-import { zoomIn, zoomOut, setViewPort, setResolution, patchSchema, removeFromSchema } from '../Diagram/actions'
-import { IEntitySchema } from '../Diagram/reducer'
+import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLinkSchema, removeEntityFromSchema, removeLinkFromSchema } from '../Diagram/actions'
+import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
 
@@ -250,19 +250,34 @@ class Engine {
     currentMouseCoordinates.original.y2 = y
   }
 
-  elementUpdated = (id: string, newSchema: IEntitySchema) => {
+  entityUpdated = (id: string, newSchema: IEntitySchema) => {
     if (this.engineMode !== EngineMode.EDIT) {
       return
     }
-    this.store.dispatch(patchSchema({ [id]: newSchema }))
+    this.store.dispatch(patchEntitySchema({ [id]: newSchema }))
   }
 
-  elementDeleted = (id: string) => {
+  linkUpdated = (id: string, newSchema: ILinkSchema) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
+    this.store.dispatch(patchLinkSchema({ [id]: newSchema }))
+  }
+
+  entityDeleted = (id: string) => {
     if (this.engineMode !== EngineMode.EDIT) {
       return
     }
     this.setSelected()
-    this.store.dispatch(removeFromSchema(id))
+    this.store.dispatch(removeEntityFromSchema(id))
+  }
+
+  linkDeleted = (id: string) => {
+    if (this.engineMode !== EngineMode.EDIT) {
+      return
+    }
+    this.setSelected()
+    this.store.dispatch(removeLinkFromSchema(id))
   }
 
   resize = (x: number, y: number, width: number, height: number) => {
@@ -317,13 +332,13 @@ class Engine {
     elements.forEach((element) => {
       if (element.mouseDownCapture) {
         const candidate = element.mouseDownCapture(startCoordinates, viewport, gridSize)
-        if (candidate && candidate.createLink && candidate.canBeLinked()) {
+        if (candidate && candidate.canBeLinked()) {
           startCaptures.push(candidate)
         }
       }
       if (element.mouseDownCapture) {
         const candidate = element.mouseDownCapture(endCoordinates, viewport, gridSize)
-        if (candidate && candidate.acceptLink && candidate.canBeLinked()) {
+        if (candidate && candidate.canBeLinked()) {
           endCaptures.push(candidate)
         }
       }
@@ -333,24 +348,20 @@ class Engine {
     const endCapture: any = endCaptures[0]
 
     if (startCapture && endCapture) {
-      startCapture.createLink(endCapture)
-      endCapture.acceptLink(startCapture)
-
       const startSchema = startCapture.serialize()
       const endSchema = endCapture.serialize()
 
       const newSchema = {
-        [startSchema.id]: startSchema,
-        [endSchema.id]: endSchema,
         [`${startCapture.id}-${endCapture.id}`]: {
           id: `${startCapture.id}-${endCapture.id}`,
           type: 'link-entity',
           from: [`${startSchema.id}`, `${startCapture.id}`],
           to: [`${endSchema.id}`, `${endCapture.id}`],
+          breaks: [],
         }
       }
 
-      this.store.dispatch(patchSchema(newSchema))
+      this.store.dispatch(patchLinkSchema(newSchema))
 
     }
   }
@@ -388,12 +399,12 @@ class Engine {
     }
   }
 
-  addEntity = (id: string, entity: any) => {
+  addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
     this.visible.add(entity)
   }
 
-  removeEntity = (id: string) => {
+  removeNode = (id: string) => {
     const entity = this.elements.get(id)
     if (entity) {
       this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)

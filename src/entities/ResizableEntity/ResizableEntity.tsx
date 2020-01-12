@@ -91,12 +91,16 @@ class ResizableEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this.props.id, this)
+    this.props.parent.addNode(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this.props.id)
+    this.props.parent.removeNode(this.props.id)
   }
+
+  addNode = (_: any) => {}
+
+  removeNode = (_: any) => {}
 
   get currentMouseCoordinates() {
     return this.props.parent.currentMouseCoordinates
@@ -104,12 +108,9 @@ class ResizableEntity extends React.Component<IProps, IState> {
 
   connectEntities = () => this.props.parent.connectEntities()
 
-  elementUpdated = (id: string, newSchema: any) =>
-    this.props.parent.elementUpdated(id, newSchema)
+  entityUpdated = (id: string, newSchema: any) =>
+    this.props.parent.entityUpdated(id, newSchema)
 
-  addEntity = (_: any) => {}
-
-  removeEntity = (_: any) => {}
 
   setSelected = (element: any) =>
     this.props.parent.setSelected(element)
@@ -185,7 +186,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
       nextSchema.y += yDelta
       nextSchema.width += wDelta
       nextSchema.height += hDelta
-      this.props.parent.elementUpdated(ref.props.id, nextSchema)
+      this.props.parent.entityUpdated(ref.props.id, nextSchema)
     }
   }
 
@@ -282,7 +283,8 @@ class ResizableEntity extends React.Component<IProps, IState> {
     switch (event.key) {
       case 'Backspace': {
         if (this.ref.current !== null) {
-          this.props.parent.elementDeleted(this.ref.current.props.id)
+          // FIXME make work for links also
+          this.props.parent.entityDeleted(this.ref.current.props.id)
         }
         break
       }

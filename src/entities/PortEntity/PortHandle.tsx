@@ -1,39 +1,3 @@
-/*
-import { Point } from '../../atoms'
-import { IPortSchema } from './types'
-
-class Port  {
-
-  props: IPortSchema;
-
-  constructor(props: IPortSchema) {
-    this.props = props
-  }
-
-  mouseDownCapture = (point: Point): boolean => {
-    return point.x >= this.props.x && point.x <= (this.props.x + 1) && point.y >= this.props.y && point.y <= (this.props.y + 1);
-  }
-
-  draw = (ctx: CanvasRenderingContext2D, gridSize: number, scale: number, x: number, y: number, width: number, height: number) => {
-    ctx.fillStyle = "blue"
-    const s = scale * gridSize * 0.5
-
-    ctx.fillRect(x + (width * this.props.x) - s/2, y + (height * this.props.y) - s/2, s, s);
-  }
-
-  serialize = () => ({
-    id: this.props.id,
-    x: this.props.x,
-    y: this.props.y,
-    in: this.props.in,
-    out: this.props.out,
-  })
-
-}
-
-export default Port
-*/
-
 
 import { Point, Rectangle } from '../../atoms'
 
@@ -43,16 +7,12 @@ class PortHandle  {
   id: string;
   x: number;
   y: number;
-  outgoing: string[];
-  incoming: string[];
 
-  constructor(owner: any, id: string, x: number, y: number, outgoing: string[], incoming: string[]) {
+  constructor(owner: any, id: string, x: number, y: number) {
     this.owner = owner
     this.id = id
     this.x = x
     this.y = y
-    this.outgoing = outgoing
-    this.incoming = incoming
   }
 
   mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point): any => {
@@ -86,20 +46,6 @@ class PortHandle  {
   }
 
   canBeLinked = () => true
-
-  createLink = (other: any) => {
-    if (this.outgoing.indexOf(other.id) !== -1) {
-      return
-    }
-    this.outgoing.push(other.id)
-  }
-
-  acceptLink = (other: any) => {
-    if (this.incoming.indexOf(other.id) !== -1) {
-      return
-    }
-    this.incoming.push(other.id)
-  }
 
   serialize = () => this.owner.serialize()
 

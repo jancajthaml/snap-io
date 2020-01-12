@@ -25,24 +25,24 @@ class PortEntity extends React.Component<IProps, IState> {
     }
     this.ports = new Map<string, PortHandle>()
     props.ports.forEach((port) => {
-      this.ports.set(port.id, new PortHandle(this, port.id, port.x, port.y, port.outgoing, port.incoming))
+      this.ports.set(port.id, new PortHandle(this, port.id, port.x, port.y))
     })
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this.props.id, this)
+    this.props.parent.addNode(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this.props.id)
+    this.props.parent.removeNode(this.props.id)
   }
 
-  addEntity = (_: any) => {}
+  addNode = (_: any) => {}
 
-  removeEntity = (_: any) => {}
+  removeNode = (_: any) => {}
 
   connectionAdded = () => {
-    this.props.parent.elementUpdated(this.props.id, this.serialize())
+    this.props.parent.entityUpdated(this.props.id, this.serialize())
   }
 
   portConnectStart = (): void => {
@@ -126,8 +126,6 @@ class PortEntity extends React.Component<IProps, IState> {
         id: port.id,
         x: port.x,
         y: port.y,
-        outgoing: port.outgoing,
-        incoming: port.incoming,
       })
     })
 

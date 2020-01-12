@@ -20,11 +20,11 @@ class LinkEntity extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.props.parent.addEntity(this.props.id, this)
+    this.props.parent.addNode(this.props.id, this)
   }
 
   componentWillUnmount() {
-    this.props.parent.removeEntity(this.props.id)
+    this.props.parent.removeNode(this.props.id)
   }
 
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, _timestamp: number) => {
@@ -61,10 +61,6 @@ class LinkEntity extends React.Component<IProps, IState> {
     type: this.props.type,
     from: this.props.from,
     to: this.props.to,
-    x: this.props.x,
-    y: this.props.y,
-    width: this.props.width,
-    height: this.props.height,
   })
 
   render() {

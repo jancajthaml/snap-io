@@ -56,7 +56,7 @@ const Diagram = (props: IProps) => {
 
   return (
     <Composition engine={engine as Engine}>
-      {Object.values(props.schema.root).map((entity) => {
+      {Object.values(props.schema.entities).map((entity) => {
         if (entity.type === 'box-entity') {
           return (
             <ResizableEntity
@@ -74,20 +74,6 @@ const Diagram = (props: IProps) => {
                 color={(entity as IBoxEntitySchema).color}
               />
             </ResizableEntity>
-          )
-        } else if (entity.type === 'link-entity') {
-          return (
-            <LinkEntity
-              parent={engine as ICanvasEntityWrapperSchema}
-              type={(entity as ILinkEntitySchema).type}
-              id={(entity as ILinkEntitySchema).id}
-              x={(entity as ILinkEntitySchema).x}
-              y={(entity as ILinkEntitySchema).y}
-              width={(entity as ILinkEntitySchema).width}
-              height={(entity as ILinkEntitySchema).height}
-              from={(entity as ILinkEntitySchema).from}
-              to={(entity as ILinkEntitySchema).to}
-            />
           )
         } else if (entity.type === 'image-entity') {
           return (
@@ -142,6 +128,22 @@ const Diagram = (props: IProps) => {
                 ports={(entity as IPortEntitySchema).ports}
               />
             </ResizableEntity>
+          )
+        } else {
+          return null
+        }
+      })}
+      {Object.values(props.schema.links).map((link) => {
+        if (link.type === 'link-entity') {
+          return (
+            <LinkEntity
+              parent={engine as ICanvasEntityWrapperSchema}
+              type={(link as ILinkEntitySchema).type}
+              id={(link as ILinkEntitySchema).id}
+              from={(link as ILinkEntitySchema).from}
+              to={(link as ILinkEntitySchema).to}
+              breaks={(link as ILinkEntitySchema).breaks}
+            />
           )
         } else {
           return null
