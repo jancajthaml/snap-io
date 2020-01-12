@@ -74,14 +74,14 @@ class PortEntityCompation {
     return undefined
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer === 1) {
       ctx.fillStyle = "orange"
 
-      const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-      const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-      const W = Math.round(width) * gridSize * viewport.z
-      const H = Math.round(height) * gridSize * viewport.z
+      const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
+      const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+      const W = Math.round(this.width) * gridSize * viewport.z
+      const H = Math.round(this.height) * gridSize * viewport.z
 
       ctx.fillRect(X, Y, W, H);
 

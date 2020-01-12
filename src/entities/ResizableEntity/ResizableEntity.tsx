@@ -149,21 +149,21 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
     const ref = this.ref.current as ICanvasEntitySchema
 
-    if (hDelta + ref.props.height <= 0) {
+    if (hDelta + ref.height <= 0) {
       if (yDelta !== 0) {
-        yDelta = ref.props.height - 1
-        hDelta = 1 - ref.props.height
+        yDelta = ref.height - 1
+        hDelta = 1 - ref.height
       } else {
-        hDelta = 1 - ref.props.height
+        hDelta = 1 - ref.height
       }
     }
 
-    if (wDelta + ref.props.width <= 0) {
+    if (wDelta + ref.width <= 0) {
       if (xDelta !== 0) {
-        xDelta = ref.props.width - 1
-        wDelta = 1 - ref.props.width
+        xDelta = ref.width - 1
+        wDelta = 1 - ref.width
       } else {
-        wDelta = 1 - ref.props.width
+        wDelta = 1 - ref.width
       }
     }
 
@@ -186,7 +186,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
       nextSchema.y += yDelta
       nextSchema.width += wDelta
       nextSchema.height += hDelta
-      this.props.parent.entityUpdated(ref.props.id, nextSchema)
+      this.props.parent.entityUpdated(ref.id, nextSchema)
     }
   }
 
@@ -284,7 +284,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
       case 'Backspace': {
         if (this.ref.current !== null) {
           // FIXME make work for links also
-          this.props.parent.entityDeleted(this.ref.current.props.id)
+          this.props.parent.entityDeleted(this.ref.current.id)
         }
         break
       }
@@ -331,7 +331,7 @@ class ResizableEntity extends React.Component<IProps, IState> {
     const ref = this.ref.current as ICanvasEntitySchema
 
     if (this.state.selected) {
-      if (!(point.x >= ref.props.x - 1 && point.x <= (ref.props.x + ref.props.width + 1) && point.y >= ref.props.y - 1 && point.y <= (ref.props.y + ref.props.height + 1))) {
+      if (!(point.x >= ref.x - 1 && point.x <= (ref.x + ref.width + 1) && point.y >= ref.y - 1 && point.y <= (ref.y + ref.height + 1))) {
         return undefined
       }
       if (ref.mouseDownCapture) {
@@ -340,21 +340,21 @@ class ResizableEntity extends React.Component<IProps, IState> {
           return capture
         }
       }
-      const x = (Math.round(ref.props.x) * gridSize - gridSize/2) * viewport.z
-      const y = (Math.round(ref.props.y) * gridSize - gridSize/2) * viewport.z
-      const w = (Math.round(ref.props.width) * gridSize + gridSize) * viewport.z
-      const h = (Math.round(ref.props.height) * gridSize + gridSize) * viewport.z
+      const x = (Math.round(ref.x) * gridSize - gridSize/2) * viewport.z
+      const y = (Math.round(ref.y) * gridSize - gridSize/2) * viewport.z
+      const w = (Math.round(ref.width) * gridSize + gridSize) * viewport.z
+      const h = (Math.round(ref.height) * gridSize + gridSize) * viewport.z
       const pointScaled = point.multiply(viewport.z).multiply(gridSize)
       const capture = this.resizers.map((resizer) => resizer.mouseDownCapture(x, y, w, h, pointScaled)).filter((value) => value)[0]
       if (capture) {
         return capture
       }
-      if (point.x >= ref.props.x - 0.5 && point.x <= (ref.props.x + ref.props.width + 0.5) && point.y >= ref.props.y - 0.5 && point.y <= (ref.props.y + ref.props.height + 0.5)) {
+      if (point.x >= ref.x - 0.5 && point.x <= (ref.x + ref.width + 0.5) && point.y >= ref.y - 0.5 && point.y <= (ref.y + ref.height + 0.5)) {
         return this
       }
       return undefined
     } else {
-      if (!(point.x >= ref.props.x && point.x <= (ref.props.x + ref.props.width) && point.y >= ref.props.y && point.y <= (ref.props.y + ref.props.height))) {
+      if (!(point.x >= ref.x && point.x <= (ref.x + ref.width) && point.y >= ref.y && point.y <= (ref.y + ref.height))) {
         return undefined
       }
       if (ref.mouseDownCapture) {
@@ -367,17 +367,17 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _x: number, _y: number, _width: number, _height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
     if (this.ref.current === null) {
       return undefined
     }
 
     const ref = this.ref.current as ICanvasEntitySchema
 
-    let X = ref.props.x
-    let Y = ref.props.y
-    let W = ref.props.width
-    let H = ref.props.height
+    let X = ref.x
+    let Y = ref.y
+    let W = ref.width
+    let H = ref.height
 
     if (this.state.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this.state
@@ -403,9 +403,20 @@ class ResizableEntity extends React.Component<IProps, IState> {
       Y += yDelta
       W += wDelta
       H += hDelta
+
+      ref.x += xDelta
+      ref.y += yDelta
+      ref.width += wDelta
+      ref.height += hDelta
+      ref.draw(this.state.selected ? layer - 1 : layer, ctx, viewport, gridSize, timestamp)
+      ref.x -= xDelta
+      ref.y -= yDelta
+      ref.width -= wDelta
+      ref.height -= hDelta
+    } else {
+      ref.draw(this.state.selected ? layer - 1 : layer, ctx, viewport, gridSize, timestamp)
     }
 
-    ref.draw(this.state.selected ? layer - 1 : layer, ctx, viewport, gridSize, X, Y, W, H, timestamp)
 
     if (layer === 2 && this.state.selected) {
       ctx.strokeStyle = "black";
@@ -449,27 +460,27 @@ class ResizableEntity extends React.Component<IProps, IState> {
 
     if (this.state.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this.state
-      if (hDelta + ref.props.height <= 0) {
+      if (hDelta + ref.height <= 0) {
         if (yDelta !== 0) {
-          yDelta = ref.props.height - 1
-          hDelta = 1 - ref.props.height
+          yDelta = ref.height - 1
+          hDelta = 1 - ref.height
         } else {
-          hDelta = 1 - ref.props.height
+          hDelta = 1 - ref.height
         }
       }
 
-      if (wDelta + ref.props.width <= 0) {
+      if (wDelta + ref.width <= 0) {
         if (xDelta !== 0) {
-          xDelta = ref.props.width - 1
-          wDelta = 1 - ref.props.width
+          xDelta = ref.width - 1
+          wDelta = 1 - ref.width
         } else {
-          wDelta = 1 - ref.props.width
+          wDelta = 1 - ref.width
         }
       }
 
-      return ref.getCenter(viewport, gridSize, ids, ref.props.x + xDelta, ref.props.y + yDelta, ref.props.width + wDelta, ref.props.height + hDelta)
+      return ref.getCenter(viewport, gridSize, ids, ref.x + xDelta, ref.y + yDelta, ref.width + wDelta, ref.height + hDelta)
     } else {
-      return ref.getCenter(viewport, gridSize, ids, ref.props.x, ref.props.y, ref.props.width, ref.props.height)
+      return ref.getCenter(viewport, gridSize, ids, ref.x, ref.y, ref.width, ref.height)
     }
   }
 

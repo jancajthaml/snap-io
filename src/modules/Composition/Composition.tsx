@@ -48,7 +48,7 @@ class Composition extends React.PureComponent<IProps> {
     const layers = [1, 2, 3, 4]
     layers.forEach((layer) => {
       visible.forEach((element) => {
-        element.draw(layer, ctx, viewport, gridSize, element.props.x, element.props.y, element.props.width, element.props.height, timestamp)
+        element.draw(layer, ctx, viewport, gridSize, timestamp)
       })
     })
 

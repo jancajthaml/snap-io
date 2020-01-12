@@ -20,39 +20,39 @@ class BoxEntityCompation {
     this.color = props.color
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
     ctx.fillStyle = this.color
 
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
+    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+    const W = Math.round(this.width) * gridSize * viewport.z
+    const H = Math.round(this.height) * gridSize * viewport.z
 
     ctx.fillRect(X, Y, W, H);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, _: number) => {
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
 
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
+    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+    const W = Math.round(this.width) * gridSize * viewport.z
+    const H = Math.round(this.height) * gridSize * viewport.z
 
     const offset = 3 * viewport.z
     ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
     ctx.strokeRect(X, Y, W, H);
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
     if (layer !== 1) {
       return
     }
     if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport, gridSize, x, y, width, height, timestamp)
+      this.drawSimple(ctx, viewport, gridSize, timestamp)
     } else {
-      this.drawDetail(ctx, viewport, gridSize, x, y, width, height, timestamp)
+      this.drawDetail(ctx, viewport, gridSize, timestamp)
     }
   }
 
