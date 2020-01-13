@@ -316,15 +316,15 @@ class Engine {
     const endCaptures: ICanvasEntitySchema[] = []
 
     elements.forEach((element) => {
-      if (element.mouseDownCapture) {
-        const candidate = element.mouseDownCapture(startCoordinates, viewport, gridSize)
-        if (candidate && candidate.canBeLinked()) {
+      if (element.linkCapture) {
+        const candidate = element.linkCapture(startCoordinates, viewport, gridSize)
+        if (candidate) {
           startCaptures.push(candidate)
         }
       }
-      if (element.mouseDownCapture) {
-        const candidate = element.mouseDownCapture(endCoordinates, viewport, gridSize)
-        if (candidate && candidate.canBeLinked()) {
+      if (element.linkCapture) {
+        const candidate = element.linkCapture(endCoordinates, viewport, gridSize)
+        if (candidate) {
           endCaptures.push(candidate)
         }
       }
@@ -352,7 +352,6 @@ class Engine {
       }
 
       this.store.dispatch(patchLinkSchema(newSchema))
-
     }
   }
 

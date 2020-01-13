@@ -3,7 +3,9 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 
-class BoxEntityRenderer {
+import { ICanvasEntitySchema } from '../../@types/index'
+
+class BoxEntityRenderer implements ICanvasEntitySchema {
 
   id: string;
   x: number;
@@ -21,7 +23,7 @@ class BoxEntityRenderer {
     this.color = props.color
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
+  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     ctx.fillStyle = this.color
 
     const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
@@ -32,7 +34,7 @@ class BoxEntityRenderer {
     ctx.fillRect(X, Y, W, H);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
+  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
 
@@ -46,14 +48,14 @@ class BoxEntityRenderer {
     ctx.strokeRect(X, Y, W, H);
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer !== 1) {
       return
     }
     if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport, gridSize, timestamp)
+      this.drawSimple(ctx, viewport, gridSize)
     } else {
-      this.drawDetail(ctx, viewport, gridSize, timestamp)
+      this.drawDetail(ctx, viewport, gridSize)
     }
   }
 
@@ -73,8 +75,6 @@ class BoxEntityRenderer {
     return new Point(X + W / 2, Y + H / 2)
   }
 
-  canBeLinked = () => false
-
   serialize = () => ({
     id: this.id,
     type: ENTITY_TYPE,
@@ -84,6 +84,10 @@ class BoxEntityRenderer {
     width: this.width,
     height: this.height,
   })
+
+  // FIXME deleted
+  setState = (_nextState: any) => {}
+
 }
 
 export default BoxEntityRenderer

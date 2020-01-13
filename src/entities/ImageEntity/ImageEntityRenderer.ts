@@ -4,7 +4,9 @@ import { Point, Rectangle } from '../../atoms'
 import ImageLibrary from './ImageLibrary'
 import { ENTITY_TYPE } from './constants'
 
-class ImageEntityRenderer {
+import { ICanvasEntitySchema } from '../../@types/index'
+
+class ImageEntityRenderer implements ICanvasEntitySchema {
 
   id: string;
   x: number;
@@ -60,8 +62,6 @@ class ImageEntityRenderer {
     return new Point(X + W / 2, Y + H / 2)
   }
 
-  canBeLinked = () => false
-
   serialize = () => ({
     id: this.id,
     type: ENTITY_TYPE,
@@ -71,6 +71,9 @@ class ImageEntityRenderer {
     width: this.width,
     height: this.height,
   })
+
+  // FIXME deleted
+  setState = (_nextState: any) => {}
 }
 
 export default ImageEntityRenderer

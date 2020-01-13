@@ -3,7 +3,9 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 
-class LinkEntityRenderer {
+//import { ICanvasEntitySchema } from '../../@types/index'
+
+class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
 
   id: string;
   from: string[];
@@ -45,8 +47,6 @@ class LinkEntityRenderer {
     return true
   }
 
-  canBeLinked = () => false
-
   getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[], _x: number, _y: number, _width: number, _height: number) => {
     return new Point()
   }
@@ -57,6 +57,10 @@ class LinkEntityRenderer {
     from: this.from,
     to: this.to,
   })
+
+  // FIXME deleted
+  setState = (_nextState: any) => {}
+
 }
 
 export default LinkEntityRenderer

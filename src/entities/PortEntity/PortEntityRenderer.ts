@@ -4,7 +4,9 @@ import { Point, Rectangle } from '../../atoms'
 import PortHandle from './PortHandle'
 import { ENTITY_TYPE } from './constants'
 
-class PortEntityRenderer {
+import { ICanvasEntitySchema } from '../../@types/index'
+
+class PortEntityRenderer implements ICanvasEntitySchema {
 
   id: string;
   x: number;
@@ -75,6 +77,29 @@ class PortEntityRenderer {
     return undefined
   }
 
+  linkCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
+    if (!(point.x >= this.x && point.x <= (this.x + this.width) && point.y >= this.y && point.y <= (this.y + this.height))) {
+      return undefined
+    }
+    const x = (Math.round(this.x) * gridSize) * viewport.z
+    const y = (Math.round(this.y) * gridSize) * viewport.z
+    const w = (Math.round(this.width) * gridSize) * viewport.z
+    const h = (Math.round(this.height) * gridSize) * viewport.z
+    const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+    const captures: PortHandle[] = []
+    this.ports.forEach((port) => {
+      const candidate = port.linkCapture(viewport, gridSize, x, y, w, h, pointScaled)
+      if (candidate) {
+        captures.push(candidate)
+      }
+    })
+    const capture = captures[0]
+    if (captures) {
+      return capture
+    }
+    return undefined
+  }
+
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer === 1) {
       ctx.fillStyle = "orange"
@@ -110,8 +135,6 @@ class PortEntityRenderer {
     const outOfUp = (viewport.y1 + (this.y + this.height) * gridSize) < 0
     return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
   }
-
-  canBeLinked = () => false
 
   getCenter = (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
     const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
@@ -150,6 +173,10 @@ class PortEntityRenderer {
       height: this.height,
     }
   }
+
+  // FIXME deleted
+  setState = (_nextState: any) => {}
+
 }
 
 export default PortEntityRenderer

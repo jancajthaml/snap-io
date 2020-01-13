@@ -4,7 +4,9 @@ import { Point, Rectangle } from '../../atoms'
 import TextLibrary from './TextLibrary'
 import { ENTITY_TYPE } from './constants'
 
-class TextEntityRenderer {
+import { ICanvasEntitySchema } from '../../@types/index'
+
+class TextEntityRenderer implements ICanvasEntitySchema {
 
   id: string;
   x: number;
@@ -58,8 +60,6 @@ class TextEntityRenderer {
     return new Point(X + W / 2, Y + H / 2)
   }
 
-  canBeLinked = () => false
-
   serialize = () => ({
     id: this.id,
     type: ENTITY_TYPE,
@@ -69,6 +69,10 @@ class TextEntityRenderer {
     width: this.width,
     height: this.height,
   })
+
+  // FIXME deleted
+  setState = (_nextState: any) => {}
+
 }
 
 export default TextEntityRenderer

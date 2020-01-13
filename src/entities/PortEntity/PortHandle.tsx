@@ -26,6 +26,17 @@ class PortHandle  {
       : undefined
   }
 
+  linkCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point): any => {
+    const PORT_RADIUS = viewport.z * gridSize * 0.25
+
+    const X = x + (width * this.x)
+    const Y = y + (height * this.y)
+
+    return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
+      ? this
+      : undefined
+  }
+
   onMouseUp = (): boolean => {
     this.owner.portConnectStop()
     return false
@@ -49,7 +60,7 @@ class PortHandle  {
     ctx.lineWidth = 1
   }
 
-  canBeLinked = () => true
+  //canBeLinked = () => true
 
   serialize = () => this.owner.serialize()
 

@@ -111,7 +111,6 @@ class ResizableEntity extends React.Component<IProps, IState> {
   entityUpdated = (id: string, newSchema: any) =>
     this.props.parent.entityUpdated(id, newSchema)
 
-
   setSelected = (element: any) =>
     this.props.parent.setSelected(element)
 
@@ -499,12 +498,23 @@ class ResizableEntity extends React.Component<IProps, IState> {
     }
   }
 
-  canBeLinked = () => {
+  linkCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
     if (this.ref.current === null) {
-      return false
+      return undefined
     }
+
     const ref = this.ref.current as ICanvasEntitySchema
-    return ref.canBeLinked()
+
+    if (!(point.x >= ref.x && point.x <= (ref.x + ref.width) && point.y >= ref.y && point.y <= (ref.y + ref.height))) {
+      return undefined
+    }
+    if (ref.linkCapture) {
+      const capture = ref.linkCapture(point, viewport, gridSize)
+      if (capture) {
+        return capture
+      }
+    }
+    return undefined
   }
 
   render() {
