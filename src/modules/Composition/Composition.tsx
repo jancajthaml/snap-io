@@ -40,7 +40,7 @@ class Composition extends React.PureComponent<IProps> {
       ctx.moveTo(0, y);
       ctx.lineTo(ctx.canvas.width, y);
     }
-    ctx.strokeStyle = "#ccc";
+    ctx.strokeStyle = "#eee";
     ctx.stroke();
 
     ctx.lineWidth = 1

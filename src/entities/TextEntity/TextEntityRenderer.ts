@@ -24,7 +24,7 @@ class TextEntityRenderer {
     this.buffer = null
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _: number) => {
+  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer !== 1) {
       return
     }

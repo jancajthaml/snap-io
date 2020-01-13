@@ -122,9 +122,8 @@ class PortEntityRenderer {
     const port = this.ports.get(ids[1])
     if (port) {
       const PORT_SIZE = viewport.z * gridSize * 0.5
-      const PORT_X = X + (W * port.x) - PORT_SIZE/2
-      const PORT_Y = Y + (H * port.y) - PORT_SIZE/2
-
+      const PORT_X = X + (W * port.x) - PORT_SIZE / 2
+      const PORT_Y = Y + (H * port.y) - PORT_SIZE / 2
       return new Point(PORT_X + PORT_SIZE / 2, PORT_Y + PORT_SIZE / 2)
     } else {
       return new Point(X + W / 2, Y + H / 2)

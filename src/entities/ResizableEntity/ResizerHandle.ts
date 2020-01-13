@@ -19,8 +19,8 @@ class ResizerHandle  {
   }
 
   mouseDownCapture = (x: number, y: number, width: number, height: number, point: Point): any => {
-    const X = x + (width * this.x) - RESIZER_SIZE/2
-    const Y = y + (height * this.y) - RESIZER_SIZE/2
+    const X = x + (width * this.x) - RESIZER_SIZE / 2
+    const Y = y + (height * this.y) - RESIZER_SIZE / 2
     return (point.x >= X && point.x <= (X + RESIZER_SIZE) && point.y >= Y && point.y <= (Y + RESIZER_SIZE))
       ? this
       : undefined

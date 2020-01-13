@@ -437,7 +437,19 @@ class ResizableEntity extends React.Component<IProps, IState> {
       this.resizers.forEach((resizer) => {
         resizer.draw(ctx, X, Y, W, H)
       })
-    }
+    } /*else if (layer === 2 && !this.state.selected) {
+      ctx.strokeStyle = "#ccc";
+      ctx.fillStyle = "#ccc";
+      ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
+
+      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
+      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
+      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
+      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
+
+      ctx.strokeRect(X, Y, W, H);
+      ctx.setLineDash([]);
+    }*/ // FIXME only in engine mode edit
   }
 
   serialize = () => {

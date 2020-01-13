@@ -25,9 +25,6 @@ class LinkEntityRenderer {
     const toRef = this.getEntityByID(this.to[0])
 
     if (!(fromRef && toRef)) {
-      console.log('from or to references are missing')
-      console.log('fromRef', fromRef, this.from)
-      console.log('toRef', toRef, this.to)
       return
     }
 
@@ -37,9 +34,11 @@ class LinkEntityRenderer {
     ctx.beginPath();
     ctx.moveTo(fromPoint.x, fromPoint.y);
     ctx.lineTo(toPoint.x, toPoint.y);
-    ctx.lineWidth = 1
+    ctx.lineWidth = (viewport.z / 3) + 0.5
+    ctx.lineCap = "round";
     ctx.strokeStyle = "black";
     ctx.stroke();
+    ctx.lineWidth = 1
   }
 
   isVisible = (_gridSize: number, _viewport: Rectangle): boolean => {

@@ -315,7 +315,6 @@ class Engine {
   connectEntities = () => {
     const { viewport, elements, gridSize } = this
 
-
     const startCoordinates = new Point(
       ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
       ((this.currentMouseCoordinates.original.y1 / viewport.z) - viewport.y1) / gridSize,
@@ -346,6 +345,10 @@ class Engine {
 
     const startCapture: any = startCaptures[0]
     const endCapture: any = endCaptures[0]
+
+    if (startCapture == endCapture) {
+      return
+    }
 
     if (startCapture && endCapture) {
       const startSchema = startCapture.serialize()
