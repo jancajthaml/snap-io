@@ -35,7 +35,7 @@ export const calculateOptimalViewport = (schema: IDiagramSchema, gridSize: numbe
   let x2: number | undefined = undefined
   let y2: number | undefined = undefined
 
-  Object.values(schema.entities).forEach((element) => {
+  schema.entities.forEach((element) => {
     if (x1 === undefined || element.x < x1) {
       x1 = element.x
     }

@@ -291,25 +291,12 @@ class Engine {
     const { gridSize } = this
     const nextVisible = new Set<ICanvasEntitySchema>(this.selected)
 
-    //console.log('now updating visible')
     this.elements.forEach((element) => {
       if (element.isVisible(gridSize, viewport)) {
         nextVisible.add(element)
       }
     })
     this.visible = nextVisible
-    //this.visible = [...nextVisible]
-    /*
-    this.visible.sort(function(x, y) {
-      if (x.state.selected && y.state.selected) {
-        return 0;
-      }
-      if (x.state.selected && !y.state.selected) {
-        return 1;
-      }
-      return -1;
-    });
-    */
   }
 
   connectEntities = () => {
@@ -387,23 +374,10 @@ class Engine {
       element.setState({
         selected: true,
       })
-      /*
-      // FIXME too eager
-      this.visible.sort(function(x, y) {
-        if (x.state.selected && y.state.selected) {
-          return 0;
-        }
-        if (x.state.selected && !y.state.selected) {
-          return 1;
-        }
-        return -1;
-      });
-      */
     }
   }
 
   addNode = (id: string, entity: any) => {
-    //console.log('adding node', id, entity)
     this.elements.set(id, entity)
     this.visible.add(entity)
   }
@@ -411,15 +385,13 @@ class Engine {
   removeNode = (id: string) => {
     const entity = this.elements.get(id)
     if (entity) {
-      this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)
-      this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
-      this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+      this.elements.delete(id)
+      this.visible.delete(entity)
+      this.selected.delete(entity)
     }
   }
 
   getEntityByID = (id: string) => {
-    //console.log('requesting id', id)
-    //console.log(this.elements)
     return this.elements.get(id)
   }
 }

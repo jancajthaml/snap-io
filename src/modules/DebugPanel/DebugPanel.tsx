@@ -8,6 +8,7 @@ import { EngineMode } from '../Diagram/constants'
 import { setGridSize, setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
 import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
 
+
 interface IProps {
   engineMode: EngineMode;
   viewport: Rectangle;
@@ -25,11 +26,11 @@ const loadSchema_A = (): IDiagramSchema => {
   const howMany = 3
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const entities = {} as { [key: string]: IEntitySchema }
-  const links = {}  as { [key: string]: ILinkSchema }
+  const entities = new Map<string, IEntitySchema>()
+  const links = new Map<string, ILinkSchema>()
 
   Array.from(Array(howMany).keys()).forEach((idx) => {
-    entities[`port_${idx}`] = {
+    entities.set(`port_${idx}`, {
       id: `port_${idx}`,
       x: (idx % modulus) * 5,
       y: Math.floor(idx / modulus) * 5,
@@ -63,19 +64,17 @@ const loadSchema_A = (): IDiagramSchema => {
         },
       ],
       type: 'port-entity',
-    }
-
-
+    })
   })
 
   Array.from(Array(howMany - 1).keys()).forEach((idx) => {
-    links[`port_${idx}_port_center-port_${idx+1}_port_center`] = {
+    links.set(`port_${idx}_port_center-port_${idx+1}_port_center`, {
       id: `port_${idx}_port_center-port_${idx+1}_port_center`,
       type: 'link-entity',
       from: [`port_${idx}`, 'port_center'],
       to: [`port_${idx + 1}`, 'port_center'],
       breaks: [],
-    }
+    })
   })
 
   return {
@@ -89,12 +88,12 @@ const loadSchema_B = (): IDiagramSchema => {
   const howMany = 10
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const entities = {} as { [key: string]: IEntitySchema }
-  const links = {}  as { [key: string]: ILinkSchema }
+  const entities = new Map<string, IEntitySchema>()
+  const links = new Map<string, ILinkSchema>()
 
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      entities[`text_${idx}`] = {
+      entities.set(`text_${idx}`, {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -102,9 +101,9 @@ const loadSchema_B = (): IDiagramSchema => {
         height: 4,
         type: 'text-entity',
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
-      }
+      })
     } else if (idx % 2 === 0) {
-      entities[`image_${idx}`] = {
+      entities.set(`image_${idx}`, {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -112,9 +111,9 @@ const loadSchema_B = (): IDiagramSchema => {
         height: 4,
         type: 'image-entity',
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
-      }
+      })
     } else {
-      entities[`box_${idx}`] = {
+      entities.set(`box_${idx}`, {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -122,7 +121,7 @@ const loadSchema_B = (): IDiagramSchema => {
         height: 4,
         type: 'box-entity',
         color: ["red", "blue", "green"][(idx % 3)],
-      }
+      })
     }
   })
 
@@ -137,12 +136,12 @@ const loadSchema_C = (): IDiagramSchema => {
   const howMany = 100
   const modulus = Math.min(howMany, Math.round(Math.pow(howMany, 0.5)))
 
-  const entities = {} as { [key: string]: IEntitySchema }
-  const links = {}  as { [key: string]: ILinkSchema }
+  const entities = new Map<string, IEntitySchema>()
+  const links = new Map<string, ILinkSchema>()
 
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      entities[`text_${idx}`] = {
+      entities.set(`text_${idx}`, {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -150,9 +149,9 @@ const loadSchema_C = (): IDiagramSchema => {
         height: 4,
         type: 'text-entity',
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
-      }
+      })
     } else if (idx % 2 === 0) {
-      entities[`image_${idx}`] = {
+      entities.set(`image_${idx}`, {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -160,9 +159,9 @@ const loadSchema_C = (): IDiagramSchema => {
         height: 4,
         type: 'image-entity',
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
-      }
+      })
     } else {
-      entities[`box_${idx}`] = {
+      entities.set(`box_${idx}`, {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -170,7 +169,7 @@ const loadSchema_C = (): IDiagramSchema => {
         height: 4,
         type: 'box-entity',
         color: ["red", "blue", "green"][(idx % 3)],
-      }
+      })
     }
   })
 
@@ -185,12 +184,12 @@ const loadSchema_D = (): IDiagramSchema => {
   const howMany = 1000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const entities = {} as { [key: string]: IEntitySchema }
-  const links = {}  as { [key: string]: ILinkSchema }
+  const entities = new Map<string, IEntitySchema>()
+  const links = new Map<string, ILinkSchema>()
 
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      entities[`text_${idx}`] = {
+      entities.set(`text_${idx}`, {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -198,9 +197,9 @@ const loadSchema_D = (): IDiagramSchema => {
         height: 4,
         type: 'text-entity',
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
-      }
+      })
     } else if (idx % 2 === 0) {
-      entities[`image_${idx}`] = {
+      entities.set(`image_${idx}`, {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -208,9 +207,9 @@ const loadSchema_D = (): IDiagramSchema => {
         height: 4,
         type: 'image-entity',
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
-      }
+      })
     } else {
-      entities[`box_${idx}`] = {
+      entities.set(`box_${idx}`, {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -218,7 +217,7 @@ const loadSchema_D = (): IDiagramSchema => {
         height: 4,
         type: 'box-entity',
         color: ["red", "blue", "green"][(idx % 3)],
-      }
+      })
     }
   })
 
@@ -233,12 +232,12 @@ const loadSchema_E = (): IDiagramSchema => {
   const howMany = 10000
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
-  const entities = {} as { [key: string]: IEntitySchema }
-  const links = {}  as { [key: string]: ILinkSchema }
+  const entities = new Map<string, IEntitySchema>()
+  const links = new Map<string, ILinkSchema>()
 
   Array.from(Array(howMany).keys()).forEach((idx) => {
     if (idx % 8 === 0) {
-      entities[`text_${idx}`] = {
+      entities.set(`text_${idx}`, {
         id: `text_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -246,9 +245,9 @@ const loadSchema_E = (): IDiagramSchema => {
         height: 4,
         type: 'text-entity',
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
-      }
+      })
     } else if (idx % 2 === 0) {
-      entities[`image_${idx}`] = {
+      entities.set(`image_${idx}`, {
         id: `image_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -256,9 +255,9 @@ const loadSchema_E = (): IDiagramSchema => {
         height: 4,
         type: 'image-entity',
         url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
-      }
+      })
     } else {
-      entities[`box_${idx}`] = {
+      entities.set(`box_${idx}`, {
         id: `box_${idx}`,
         x: (idx % modulus) * 5,
         y: Math.floor(idx / modulus) * 5,
@@ -266,7 +265,7 @@ const loadSchema_E = (): IDiagramSchema => {
         height: 4,
         type: 'box-entity',
         color: ["red", "blue", "green"][(idx % 3)],
-      }
+      })
     }
   })
 
