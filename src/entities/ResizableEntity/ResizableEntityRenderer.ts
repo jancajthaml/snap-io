@@ -1,9 +1,6 @@
 
-//import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
-//import { ENTITY_TYPE } from './constants'
-
 import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
 
 
@@ -258,7 +255,7 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     return false
   }
 
-  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
+  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     if (!this.ref.current) {
       return undefined
     }
@@ -307,10 +304,9 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   entityUpdated = (id: string, newSchema: any) => {
     this.parent.entityUpdated(id, newSchema)
   }
+
   setSelected = (element?: any) => {
-    //if (this.parent.current) {
     this.parent.setSelected(element)
-    //}
   }
 
   getEntityByID = (id: string) => this.parent.getEntityByID(id)
@@ -319,7 +315,6 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (!this.ref.current) {
       return new Point()
     }
-    //const ref = this.ref.current as ICanvasEntitySchema
 
     if (this.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this
@@ -451,10 +446,9 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   }
 
   serialize = () => {
-    if (!this.ref.current) {
-      return {}
-    }
-    return this.ref.current.serialize()
+    return this.ref.current
+      ? this.ref.current.serialize()
+      : {}
   }
 
   selectionCapture = (selected: boolean) => {

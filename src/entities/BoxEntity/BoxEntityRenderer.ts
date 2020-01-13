@@ -59,7 +59,7 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     }
   }
 
-  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
+  isVisible = (gridSize: number, viewport: Rectangle) => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0
     const outOfLeft = (viewport.x1 + (this.x + this.width) * gridSize) < 0
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0
@@ -84,9 +84,6 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     width: this.width,
     height: this.height,
   })
-
-  // FIXME deleted
-  //setState = (_nextState: any) => {}
 
 }
 

@@ -43,7 +43,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.lineWidth = 1
   }
 
-  isVisible = (_gridSize: number, _viewport: Rectangle): boolean => {
+  isVisible = (_gridSize: number, _viewport: Rectangle) => {
     return true
   }
 
@@ -57,9 +57,6 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     from: this.from,
     to: this.to,
   })
-
-  // FIXME deleted
-  setState = (_nextState: any) => {}
 
 }
 

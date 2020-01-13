@@ -3,7 +3,6 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import TextLibrary from './TextLibrary'
 import { ENTITY_TYPE } from './constants'
-
 import { ICanvasEntitySchema } from '../../@types/index'
 
 class TextEntityRenderer implements ICanvasEntitySchema {
@@ -44,7 +43,7 @@ class TextEntityRenderer implements ICanvasEntitySchema {
     }
   }
 
-  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
+  isVisible = (gridSize: number, viewport: Rectangle) => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0
     const outOfLeft = (viewport.x1 + (this.x + this.width) * gridSize) < 0
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0
@@ -69,9 +68,6 @@ class TextEntityRenderer implements ICanvasEntitySchema {
     width: this.width,
     height: this.height,
   })
-
-  // FIXME deleted
-  //setState = (_nextState: any) => {}
 
 }
 

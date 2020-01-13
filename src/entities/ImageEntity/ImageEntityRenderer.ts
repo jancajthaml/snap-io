@@ -72,8 +72,6 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     height: this.height,
   })
 
-  // FIXME deleted
-  //setState = (_nextState: any) => {}
 }
 
 export default ImageEntityRenderer

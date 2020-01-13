@@ -33,18 +33,11 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     this.connectEntities = connectEntities
   }
 
-  addNode = (_: any) => {}
-
-  removeNode = (_: any) => {}
-
-  portConnectStart = (): void => {
-    if (this.connecting) {
-      return
-    }
+  portConnectStart = () => {
     this.connecting = true
   }
 
-  portConnectStop = (): void => {
+  portConnectStop = () => {
     if (!this.connecting) {
       return
     }
@@ -52,7 +45,7 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     this.connecting = false
   }
 
-  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
+  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     if (!(point.x >= this.x && point.x <= (this.x + this.width) && point.y >= this.y && point.y <= (this.y + this.height))) {
       return undefined
     }
@@ -77,7 +70,7 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     return undefined
   }
 
-  linkCapture = (point: Point, viewport: Rectangle, gridSize: number): any => {
+  linkCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     if (!(point.x >= this.x && point.x <= (this.x + this.width) && point.y >= this.y && point.y <= (this.y + this.height))) {
       return undefined
     }
@@ -128,7 +121,7 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     }
   }
 
-  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
+  isVisible = (gridSize: number, viewport: Rectangle) => {
     const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0
     const outOfLeft = (viewport.x1 + (this.x + this.width) * gridSize) < 0
     const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0
@@ -173,9 +166,6 @@ class PortEntityRenderer implements ICanvasEntitySchema {
       height: this.height,
     }
   }
-
-  // FIXME deleted
-  //setState = (_nextState: any) => {}
 
 }
 
