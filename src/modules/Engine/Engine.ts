@@ -361,18 +361,26 @@ class Engine {
     }
 
     this.selected.forEach((element) => {
-      element.setState({
-        selected: false,
-      })
+      if (element.selectionCapture) {
+        element.selectionCapture(false)
+      }
+      //element.selected = false
+      //element.setState({
+        //selected: false,
+      //})
     })
 
     this.selected.clear()
 
     if (element) {
       this.selected.add(element)
-      element.setState({
-        selected: true,
-      })
+      if (element.selectionCapture) {
+        element.selectionCapture(true)
+      }
+      //element.selected = true
+      //element.setState({
+      //selected: true,
+      //})
     }
   }
 

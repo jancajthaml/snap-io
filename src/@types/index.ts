@@ -23,12 +23,12 @@ export interface ICanvasEntitySchema {
   getCenter: (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => Point;
   mouseDownCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
   linkCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
+  selectionCapture?: (selected: boolean) => void;
   onKeyUp?: (event: KeyboardEvent) => boolean;
   onKeyDown?: (event: KeyboardEvent) => boolean;
   onMouseDown?: () => boolean;
   onMouseUp?: () => boolean;
   onMouseMove?: (xDelta: number, yDelta: number) => boolean;
-  setState: (nextState: any) => void; // FIXME delete
   id: string;
   x: number;
   y: number;

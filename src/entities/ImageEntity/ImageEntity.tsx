@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
 import ImageEntityRenderer from './ImageEntityRenderer'
@@ -8,41 +8,34 @@ interface IProps extends IEntitySchema {
 }
 
 const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
-  const companion = useRef<ImageEntityRenderer | null>()
+  const [companion] = useState<ImageEntityRenderer>(new ImageEntityRenderer(props))
 
   useEffect(() => {
     const { parent, id } = props
-    companion.current = new ImageEntityRenderer(props)
-    parent.addNode(id, companion.current)
+    parent.addNode(id, companion)
     return () => {
       parent.removeNode(id)
     }
   }, [])
 
   useEffect(() => {
-    if (!companion.current) {
-      return
-    }
-    companion.current.x = props.x
-    companion.current.y = props.y
-    companion.current.width = props.width
-    companion.current.height = props.height
-  }, [companion.current, props.x, props.y, props.width, props.height])
+    companion.x = props.x
+    companion.y = props.y
+    companion.width = props.width
+    companion.height = props.height
+  }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    if (!companion.current) {
-      return
-    }
-    companion.current.id = props.id
-    companion.current.url = props.url
-  }, [companion.current, props.id, props.url])
+    companion.id = props.id
+    companion.url = props.url
+  }, [props.id, props.url])
 
   useEffect(() => {
-    if (!ref || !companion.current) {
+    if (!ref) {
       return
     }
-    ref.current = companion.current
-  }, [ref, companion.current])
+    ref.current = companion
+  }, [ref])
 
   return <React.Fragment />
 })

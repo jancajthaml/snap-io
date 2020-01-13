@@ -23,7 +23,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 3
+  const howMany = 300
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const entities = new Map<string, IEntitySchema>()

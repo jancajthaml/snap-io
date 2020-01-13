@@ -71,7 +71,7 @@ class TextEntityRenderer implements ICanvasEntitySchema {
   })
 
   // FIXME deleted
-  setState = (_nextState: any) => {}
+  //setState = (_nextState: any) => {}
 
 }
 

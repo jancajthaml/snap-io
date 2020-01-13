@@ -30,8 +30,8 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
       return
     }
 
-    const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.props.x, fromRef.props.y, fromRef.props.width, fromRef.props.height)
-    const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.props.x, toRef.props.y, toRef.props.width, toRef.props.height)
+    const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
+    const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
     ctx.beginPath();
     ctx.moveTo(fromPoint.x, fromPoint.y);
