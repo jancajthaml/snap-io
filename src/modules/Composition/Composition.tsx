@@ -40,7 +40,7 @@ class Composition extends React.PureComponent<IProps> {
       ctx.moveTo(0, y);
       ctx.lineTo(ctx.canvas.width, y);
     }
-    ctx.strokeStyle = "#ccc";
+    ctx.strokeStyle = "#eee";
     ctx.stroke();
 
     ctx.lineWidth = 1
@@ -48,7 +48,7 @@ class Composition extends React.PureComponent<IProps> {
     const layers = [1, 2, 3, 4]
     layers.forEach((layer) => {
       visible.forEach((element) => {
-        element.draw(layer, ctx, viewport, gridSize, element.props.x, element.props.y, element.props.width, element.props.height, timestamp)
+        element.draw(layer, ctx, viewport, gridSize, timestamp)
       })
     })
 

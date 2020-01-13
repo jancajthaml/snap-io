@@ -65,8 +65,7 @@ class Engine {
       this.visible = new Set(this.elements.values())
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
-      }, 100)
-
+      }, 1000)
     }
   }
 
@@ -298,23 +297,10 @@ class Engine {
       }
     })
     this.visible = nextVisible
-    //this.visible = [...nextVisible]
-    /*
-    this.visible.sort(function(x, y) {
-      if (x.state.selected && y.state.selected) {
-        return 0;
-      }
-      if (x.state.selected && !y.state.selected) {
-        return 1;
-      }
-      return -1;
-    });
-    */
   }
 
   connectEntities = () => {
     const { viewport, elements, gridSize } = this
-
 
     const startCoordinates = new Point(
       ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
@@ -330,15 +316,15 @@ class Engine {
     const endCaptures: ICanvasEntitySchema[] = []
 
     elements.forEach((element) => {
-      if (element.mouseDownCapture) {
-        const candidate = element.mouseDownCapture(startCoordinates, viewport, gridSize)
-        if (candidate && candidate.canBeLinked()) {
+      if (element.linkCapture) {
+        const candidate = element.linkCapture(startCoordinates, viewport, gridSize)
+        if (candidate) {
           startCaptures.push(candidate)
         }
       }
-      if (element.mouseDownCapture) {
-        const candidate = element.mouseDownCapture(endCoordinates, viewport, gridSize)
-        if (candidate && candidate.canBeLinked()) {
+      if (element.linkCapture) {
+        const candidate = element.linkCapture(endCoordinates, viewport, gridSize)
+        if (candidate) {
           endCaptures.push(candidate)
         }
       }
@@ -346,6 +332,10 @@ class Engine {
 
     const startCapture: any = startCaptures[0]
     const endCapture: any = endCaptures[0]
+
+    if (startCapture == endCapture) {
+      return
+    }
 
     if (startCapture && endCapture) {
       const startSchema = startCapture.serialize()
@@ -362,7 +352,6 @@ class Engine {
       }
 
       this.store.dispatch(patchLinkSchema(newSchema))
-
     }
   }
 
@@ -372,30 +361,26 @@ class Engine {
     }
 
     this.selected.forEach((element) => {
-      element.setState({
-        selected: false,
-      })
+      if (element.selectionCapture) {
+        element.selectionCapture(false)
+      }
+      //element.selected = false
+      //element.setState({
+        //selected: false,
+      //})
     })
 
     this.selected.clear()
 
     if (element) {
       this.selected.add(element)
-      element.setState({
-        selected: true,
-      })
-      /*
-      // FIXME too eager
-      this.visible.sort(function(x, y) {
-        if (x.state.selected && y.state.selected) {
-          return 0;
-        }
-        if (x.state.selected && !y.state.selected) {
-          return 1;
-        }
-        return -1;
-      });
-      */
+      if (element.selectionCapture) {
+        element.selectionCapture(true)
+      }
+      //element.selected = true
+      //element.setState({
+      //selected: true,
+      //})
     }
   }
 
@@ -407,9 +392,9 @@ class Engine {
   removeNode = (id: string) => {
     const entity = this.elements.get(id)
     if (entity) {
-      this.elements.delete(id)  // = this.elements.filter((value) => value !== entity)
-      this.visible.delete(entity)   //= this.visible.filter((value) => value !== entity)
-      this.selected.delete(entity)  // = this.selected.filter((value) => value !== entity)
+      this.elements.delete(id)
+      this.visible.delete(entity)
+      this.selected.delete(entity)
     }
   }
 

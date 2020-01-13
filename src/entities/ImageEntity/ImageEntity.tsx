@@ -1,87 +1,43 @@
-import React from 'react'
-
-import { Point, Rectangle } from '../../atoms'
-import { IEntitySchema } from './types'
-import ImageLibrary from './ImageLibrary'
+import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
+import { IEntitySchema } from './types'
+import ImageEntityRenderer from './ImageEntityRenderer'
 
 interface IProps extends IEntitySchema {
   parent: ICanvasEntityWrapperSchema;
 }
 
-interface IState {
-}
+const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
+  const [companion] = useState<ImageEntityRenderer>(new ImageEntityRenderer(props))
 
-class ImageEntity extends React.Component<IProps, IState> {
-
-  constructor(props: IProps) {
-    super(props)
-    this.state = {
+  useEffect(() => {
+    const { parent, id } = props
+    parent.addNode(id, companion)
+    return () => {
+      parent.removeNode(id)
     }
-  }
+  }, [])
 
-  componentDidMount() {
-    this.props.parent.addNode(this.props.id, this)
-  }
+  useEffect(() => {
+    companion.x = props.x
+    companion.y = props.y
+    companion.width = props.width
+    companion.height = props.height
+  }, [props.x, props.y, props.width, props.height])
 
-  componentWillUnmount() {
-    this.props.parent.removeNode(this.props.id)
-  }
+  useEffect(() => {
+    companion.id = props.id
+    companion.url = props.url
+  }, [props.id, props.url])
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, timestamp: number) => {
-    if (layer !== 1) {
+  useEffect(() => {
+    if (!ref) {
       return
     }
-    let image = ImageLibrary.get(this.props.url, timestamp)
+    ref.current = companion
+  }, [ref])
 
-    const w_i = image.width as number
-    if (w_i === 0) {
-      return
-    }
-    const h_i = image.height as number
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
-
-    const ratio  = Math.min(W / w_i, H / h_i);
-
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-
-    ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
-  }
-
-  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
-    const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.props.x * gridSize) < 0
-    const outOfLeft = (viewport.x1 + (this.props.x + this.props.width) * gridSize) < 0
-    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.props.y * gridSize) < 0
-    const outOfUp = (viewport.y1 + (this.props.y + this.props.height) * gridSize) < 0
-    return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
-  }
-
-  canBeLinked = () => false
-
-  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
-
-    return new Point(X + W / 2, Y + H / 2)
-  }
-
-  serialize = () => ({
-    id: this.props.id,
-    type: this.props.type,
-    url: this.props.url,
-    x: this.props.x,
-    y: this.props.y,
-    width: this.props.width,
-    height: this.props.height,
-  })
-
-  render() {
-    return <React.Fragment />
-  }
-}
+  return <React.Fragment />
+})
 
 export default ImageEntity

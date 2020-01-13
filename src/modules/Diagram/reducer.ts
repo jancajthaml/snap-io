@@ -22,16 +22,16 @@ export type ILinkSchema =
 
 export interface IDiagramSchema {
   id: string;
-  entities: { [key: string]: IEntitySchema };
-  links: { [key: string]: ILinkSchema };
+  entities: Map<string, IEntitySchema>;
+  links: Map<string, ILinkSchema>;
 }
 
 export const initialState = {
   engineMode: C.EngineMode.EDIT as C.EngineMode,
   schema: {
     id: '',
-    entities: {},
-    links: {},
+    entities: new Map<string, IEntitySchema>(),
+    links: new Map<string, ILinkSchema>(),
   } as IDiagramSchema,
   gridSize: 12 as number,
   viewport: new Rectangle() as Rectangle,
@@ -107,8 +107,8 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case C.REMOVE_LINK_FROM_SCHEMA: {
-      const links = { ...state.schema.links }
-      delete links[action.payload.id]
+      const links = new Map<string, ILinkSchema>(state.schema.links)
+      links.delete(action.payload.id)
 
       return {
         ...state,
@@ -121,8 +121,8 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case C.REMOVE_ENTITY_FROM_SCHEMA: {
-      const entities = { ...state.schema.entities }
-      delete entities[action.payload.id]
+      const entities = new Map<string, IEntitySchema>(state.schema.entities)
+      entities.delete(action.payload.id)
 
       return {
         ...state,
@@ -135,28 +135,34 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case C.PATCH_LINK_SCHEMA: {
+      const links = new Map<string, ILinkSchema>(state.schema.links)
+
+      for (const [key, value] of Object.entries(action.payload.update)) {
+        links.set(key, value)
+      }
+
       return {
         ...state,
         schema: {
           id: state.schema.id,
           entities: state.schema.entities,
-          links: {
-            ...state.schema.links,
-            ...action.payload.update,
-          },
+          links,
         },
       }
     }
 
     case C.PATCH_ENTITY_SCHEMA: {
+      const entities = new Map<string, IEntitySchema>(state.schema.entities)
+
+      for (const [key, value] of Object.entries(action.payload.update)) {
+        entities.set(key, value)
+      }
+
       return {
         ...state,
         schema: {
           id: state.schema.id,
-          entities: {
-            ...state.schema.entities,
-            ...action.payload.update,
-          },
+          entities,
           links: state.schema.links,
         },
       }

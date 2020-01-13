@@ -1,17 +1,16 @@
 
 class TextLibrary {
 
-  private nil: any;
-
   private underlying: {
     [text: string]: {
-      [aspect: number]: any;
+      [aspect: number]: {
+        [fontSize: number]: HTMLImageElement;
+      };
     };
   };
 
   constructor() {
     this.underlying = {}
-    this.nil = new Image()
   }
 
   alloc = (text: string, fontSize: number, width: number, height: number) => {
@@ -41,17 +40,17 @@ class TextLibrary {
     const ref = this.underlying[text]
     if (!ref) {
       this.alloc(text, fontSize, width, height)
-      return this.nil
+      return null
     }
     const aspected = (ref as any)[`${width}x${height}`]
     if (!aspected) {
       this.alloc(text, fontSize, width, height)
-      return this.nil
+      return null
     }
     const result = aspected[fontSize]
     if (!result) {
       this.alloc(text, fontSize, width, height)
-      return this.nil
+      return null
     }
     return result
   }

@@ -15,37 +15,42 @@ class PortHandle  {
     this.y = y
   }
 
-  mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point): any => {
-    const PORT_SIZE = viewport.z * gridSize * 0.5
+  mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) => {
+    const PORT_RADIUS = viewport.z * gridSize * 0.25
 
-    const X = x + (width * this.x) - PORT_SIZE/2
-    const Y = y + (height * this.y) - PORT_SIZE/2
+    const X = x + (width * this.x)
+    const Y = y + (height * this.y)
 
-    return (point.x >= X && point.x <= (X + PORT_SIZE) && point.y >= Y && point.y <= (Y + PORT_SIZE))
+    return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
       ? this
       : undefined
   }
 
-  onMouseUp = (): boolean => {
+  linkCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) =>
+    this.mouseDownCapture(viewport, gridSize, x, y, width, height, point)
+
+  onMouseUp = () => {
     this.owner.portConnectStop()
     return false
   }
 
-  onMouseDown = (): boolean => {
+  onMouseDown = () => {
     this.owner.portConnectStart()
     return true
   }
 
   draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number) => {
-    const PORT_SIZE = viewport.z * gridSize * 0.5
-    const X = x + (width * this.x) - PORT_SIZE/2
-    const Y = y + (height * this.y) - PORT_SIZE/2
+    const PORT_RADIUS = viewport.z * gridSize * 0.25
+    const X = x + (width * this.x)
+    const Y = y + (height * this.y)
 
-    ctx.fillStyle = "blue"
-    ctx.fillRect(X, Y, PORT_SIZE, PORT_SIZE)
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = (viewport.z / 3) + 0.5
+    ctx.beginPath()
+    ctx.arc(X, Y, PORT_RADIUS, 0, 2 * Math.PI, false)
+    ctx.stroke();
+    ctx.lineWidth = 1
   }
-
-  canBeLinked = () => true
 
   serialize = () => this.owner.serialize()
 

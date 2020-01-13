@@ -17,18 +17,23 @@ import ResizableEntity from '../../entities/ResizableEntity'
 
 import BoxEntity from '../../entities/BoxEntity'
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
+import { ENTITY_TYPE as BOX_ENTITY_TYPE } from '../../entities/BoxEntity/constants'
 
 import ImageEntity from '../../entities/ImageEntity'
 import { IEntitySchema as IImageEntitySchema } from '../../entities/ImageEntity/types'
+import { ENTITY_TYPE as IMAGE_ENTITY_TYPE } from '../../entities/ImageEntity/constants'
 
 import TextEntity from '../../entities/TextEntity'
 import { IEntitySchema as ITextEntitySchema } from '../../entities/TextEntity/types'
+import { ENTITY_TYPE as TEXT_ENTITY_TYPE } from '../../entities/TextEntity/constants'
 
 import PortEntity from '../../entities/PortEntity'
 import { IEntitySchema as IPortEntitySchema } from '../../entities/PortEntity/types'
+import { ENTITY_TYPE as PORT_ENTITY_TYPE } from '../../entities/PortEntity/constants'
 
 import LinkEntity from '../../entities/LinkEntity'
 import { IEntitySchema as ILinkEntitySchema } from '../../entities/LinkEntity/types'
+import { ENTITY_TYPE as LINK_ENTITY_TYPE } from '../../entities/LinkEntity/constants'
 
 interface IProps {
   store: IReduxStore;
@@ -54,12 +59,18 @@ const Diagram = (props: IProps) => {
     return null
   }
 
+  //console.log(props.schema.entities)
+
+  //let map3 = new Map(function*() { yield* map1; yield* map2; }());
+
+
   return (
     <Composition engine={engine as Engine}>
-      {Object.values(props.schema.entities).map((entity) => {
-        if (entity.type === 'box-entity') {
+      {Array.from(props.schema.entities).map(([ _key, entity]) => {
+        if (entity.type === BOX_ENTITY_TYPE) {
           return (
             <ResizableEntity
+              key={(entity as IBoxEntitySchema).id}
               id={(entity as IBoxEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -75,9 +86,10 @@ const Diagram = (props: IProps) => {
               />
             </ResizableEntity>
           )
-        } else if (entity.type === 'image-entity') {
+        } else if (entity.type === IMAGE_ENTITY_TYPE) {
           return (
             <ResizableEntity
+              key={(entity as IImageEntitySchema).id}
               id={(entity as IImageEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -93,9 +105,10 @@ const Diagram = (props: IProps) => {
               />
             </ResizableEntity>
           )
-        } else if (entity.type === 'text-entity') {
+        } else if (entity.type === TEXT_ENTITY_TYPE) {
           return (
             <ResizableEntity
+              key={(entity as ITextEntitySchema).id}
               id={(entity as ITextEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -111,9 +124,10 @@ const Diagram = (props: IProps) => {
               />
             </ResizableEntity>
           )
-        } else if (entity.type === 'port-entity') {
+        } else if (entity.type === PORT_ENTITY_TYPE) {
           return (
             <ResizableEntity
+              key={(entity as IPortEntitySchema).id}
               id={(entity as IPortEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
             >
@@ -133,10 +147,11 @@ const Diagram = (props: IProps) => {
           return null
         }
       })}
-      {Object.values(props.schema.links).map((link) => {
-        if (link.type === 'link-entity') {
+      {Array.from(props.schema.links).map(([ _key, link]) => {
+        if (link.type === LINK_ENTITY_TYPE) {
           return (
             <LinkEntity
+              key={(link as ILinkEntitySchema).id}
               parent={engine as ICanvasEntityWrapperSchema}
               type={(link as ILinkEntitySchema).type}
               id={(link as ILinkEntitySchema).id}
