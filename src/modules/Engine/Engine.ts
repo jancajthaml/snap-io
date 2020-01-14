@@ -62,9 +62,10 @@ class Engine implements ICanvasEntityWrapperSchema {
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
     } else {
+      this.visible.clear()
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
-      }, 10)
+      }, 100)
     }
   }
 
@@ -377,7 +378,7 @@ class Engine implements ICanvasEntityWrapperSchema {
 
   addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
-    this.visible.add(entity)
+    //this.visible.add(entity)
     if (this.delayedSync) {
       clearTimeout(this.delayedSync)
     }
