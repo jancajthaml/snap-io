@@ -62,10 +62,9 @@ class Engine {
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
     } else {
-      this.visible = new Set(this.elements.values())
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
-      }, 1000)
+      }, 10)
     }
   }
 
@@ -119,7 +118,7 @@ class Engine {
     this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
-      const { viewport, elements, gridSize } = this
+      const { viewport, visible, gridSize } = this
 
       const pointOfClick = new Point(
         ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
@@ -128,7 +127,7 @@ class Engine {
 
       const captures: ICanvasEntitySchema[] = []
 
-      elements.forEach((element) => {
+      visible.forEach((element) => {
         if (element.mouseDownCapture) {
           const candidate = element.mouseDownCapture(pointOfClick, viewport, gridSize)
           if (candidate) {
@@ -300,7 +299,7 @@ class Engine {
   }
 
   connectEntities = () => {
-    const { viewport, elements, gridSize } = this
+    const { viewport, visible, gridSize } = this
 
     const startCoordinates = new Point(
       ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
@@ -315,7 +314,7 @@ class Engine {
     const startCaptures: ICanvasEntitySchema[] = []
     const endCaptures: ICanvasEntitySchema[] = []
 
-    elements.forEach((element) => {
+    visible.forEach((element) => {
       if (element.linkCapture) {
         const candidate = element.linkCapture(startCoordinates, viewport, gridSize)
         if (candidate) {
@@ -364,10 +363,6 @@ class Engine {
       if (element.selectionCapture) {
         element.selectionCapture(false)
       }
-      //element.selected = false
-      //element.setState({
-        //selected: false,
-      //})
     })
 
     this.selected.clear()
@@ -377,16 +372,18 @@ class Engine {
       if (element.selectionCapture) {
         element.selectionCapture(true)
       }
-      //element.selected = true
-      //element.setState({
-      //selected: true,
-      //})
     }
   }
 
   addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
     this.visible.add(entity)
+    if (this.delayedSync) {
+      clearTimeout(this.delayedSync)
+    }
+    this.delayedSync = setTimeout(() => {
+      this.updateVisible(this.viewport)
+    }, 100)
   }
 
   removeNode = (id: string) => {

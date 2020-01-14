@@ -1,8 +1,6 @@
-
 import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
 import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
-
 
 class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
 
@@ -360,10 +358,9 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   }
 
   isVisible = (gridSize: number, viewport: Rectangle) => {
-    if (!this.ref.current) {
-      return false
-    }
-    return this.ref.current.isVisible(gridSize, viewport)
+    return this.ref.current
+      ? this.ref.current.isVisible(gridSize, viewport)
+      : false
   }
 
   draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {

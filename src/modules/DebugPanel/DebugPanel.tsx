@@ -1,13 +1,11 @@
 import React from 'react'
-import { Rectangle } from '../../atoms'
-
 import { connect } from 'react-redux'
+import { Rectangle } from '../../atoms'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { setGridSize, setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
 import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
-
 
 interface IProps {
   engineMode: EngineMode;
