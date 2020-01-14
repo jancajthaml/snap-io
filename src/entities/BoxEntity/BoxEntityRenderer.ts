@@ -2,7 +2,7 @@
 import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
-
+import { EngineMode } from '../../modules/Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
 
 class BoxEntityRenderer implements ICanvasEntitySchema {
@@ -23,7 +23,19 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     this.color = props.color
   }
 
-  drawSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+  drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+
+
+    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
+    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+    const W = Math.round(this.width) * gridSize * viewport.z
+    const H = Math.round(this.height) * gridSize * viewport.z
+
+    ctx.strokeStyle = "black"
+    ctx.strokeRect(X, Y, W, H);
+  }
+
+  drawViewSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     ctx.fillStyle = this.color
 
     const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
@@ -34,7 +46,7 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     ctx.fillRect(X, Y, W, H);
   }
 
-  drawDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+  drawViewDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
 
@@ -48,14 +60,26 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     ctx.strokeRect(X, Y, W, H);
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
+  draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer !== 1) {
       return
     }
-    if (viewport.z <= 0.4) {
-      this.drawSimple(ctx, viewport, gridSize)
-    } else {
-      this.drawDetail(ctx, viewport, gridSize)
+    switch (mode) {
+      case EngineMode.EDIT: {
+        this.drawEdit(ctx, viewport, gridSize)
+        break
+      }
+      case EngineMode.VIEW: {
+        if (viewport.z <= 0.4) {
+          this.drawViewSimple(ctx, viewport, gridSize)
+        } else {
+          this.drawViewDetail(ctx, viewport, gridSize)
+        }
+        break
+      }
+      default: {
+        break
+      }
     }
   }
 

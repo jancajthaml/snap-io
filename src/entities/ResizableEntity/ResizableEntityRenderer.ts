@@ -1,6 +1,7 @@
 import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
 import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
+import { EngineMode } from '../../modules/Diagram/constants'
 
 class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
 
@@ -257,11 +258,11 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (!this.ref.current) {
       return undefined
     }
+    if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
+      return undefined
+    }
 
     if (this.selected) {
-      if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
-        return undefined
-      }
       if (this.ref.current.mouseDownCapture) {
         const capture = this.ref.current.mouseDownCapture(point, viewport, gridSize)
         if (capture) {
@@ -282,9 +283,6 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       }
       return undefined
     } else {
-      if (!(point.x >= this.ref.current.x && point.x <= (this.ref.current.x + this.ref.current.width) && point.y >= this.ref.current.y && point.y <= (this.ref.current.y + this.ref.current.height))) {
-        return undefined
-      }
       if (this.ref.current.mouseDownCapture) {
         const capture = this.ref.current.mouseDownCapture(point, viewport, gridSize)
         if (capture) {
@@ -344,8 +342,7 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (!this.ref.current) {
       return undefined
     }
-
-    if (!(point.x >= this.ref.current.x && point.x <= (this.ref.current.x + this.ref.current.width) && point.y >= this.ref.current.y && point.y <= (this.ref.current.y + this.ref.current.height))) {
+    if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
       return undefined
     }
     if (this.ref.current.linkCapture) {
@@ -363,7 +360,7 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       : false
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
+  draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
     if (!this.ref.current) {
       return undefined
     }
@@ -402,16 +399,20 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       this.ref.current.y += yDelta
       this.ref.current.width += wDelta
       this.ref.current.height += hDelta
-      this.ref.current.draw(this.selected ? layer - 1 : layer, ctx, viewport, gridSize, timestamp)
+      this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
       this.ref.current.x -= xDelta
       this.ref.current.y -= yDelta
       this.ref.current.width -= wDelta
       this.ref.current.height -= hDelta
     } else {
-      this.ref.current.draw(this.selected ? layer - 1 : layer, ctx, viewport, gridSize, timestamp)
+      this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
     }
 
-    if (layer === 2 && this.selected) {
+    if (mode !== EngineMode.EDIT || layer !== 2) {
+      return
+    }
+
+    if (this.selected) {
       ctx.strokeStyle = "black";
       ctx.fillStyle = "black";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
@@ -427,19 +428,7 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       this.resizers.forEach((resizer) => {
         resizer.draw(ctx, X, Y, W, H)
       })
-    } /* else if (layer === 2 && !this.selected) {
-      ctx.strokeStyle = "#ccc";
-      ctx.fillStyle = "#ccc";
-      ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
-
-      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
-      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
-      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
-      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
-
-      ctx.strokeRect(X, Y, W, H);
-      ctx.setLineDash([]);
-    } */ // FIXME only in engine mode edit
+    }
   }
 
   serialize = () => {

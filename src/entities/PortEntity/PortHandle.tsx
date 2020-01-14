@@ -21,6 +21,8 @@ class PortHandle  {
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
 
+    console.log(X, Y, point, PORT_RADIUS)
+
     return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
       ? this
       : undefined
@@ -44,12 +46,10 @@ class PortHandle  {
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
 
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = (viewport.z / 3) + 0.5
     ctx.beginPath()
     ctx.arc(X, Y, PORT_RADIUS, 0, 2 * Math.PI, false)
+    ctx.fill();
     ctx.stroke();
-    ctx.lineWidth = 1
   }
 
   serialize = () => this.owner.serialize()
