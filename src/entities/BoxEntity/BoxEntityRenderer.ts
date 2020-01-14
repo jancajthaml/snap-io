@@ -60,11 +60,19 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   isVisible = (gridSize: number, viewport: Rectangle) => {
-    const outOfRight = (viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0
-    const outOfLeft = (viewport.x1 + (this.x + this.width) * gridSize) < 0
-    const outOfBottom = (viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0
-    const outOfUp = (viewport.y1 + (this.y + this.height) * gridSize) < 0
-    return !(outOfRight || outOfLeft || outOfBottom || outOfUp)
+    if ((viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0) {
+      return false
+    }
+    if ((viewport.x1 + (this.x + this.width) * gridSize) < 0) {
+      return false
+    }
+    if ((viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0) {
+      return false
+    }
+    if ((viewport.y1 + (this.y + this.height) * gridSize) < 0) {
+      return false
+    }
+    return true
   }
 
   getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
