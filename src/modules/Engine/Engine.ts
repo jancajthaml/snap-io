@@ -4,9 +4,9 @@ import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagr
 import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLinkSchema, removeEntityFromSchema, removeLinkFromSchema } from '../Diagram/actions'
 import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
-import { ICanvasEntitySchema } from '../../@types/index'
+import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
 
-class Engine {
+class Engine implements ICanvasEntityWrapperSchema {
   currentMouseEventOwner: any;
   currentMouseCoordinates: {
     original: Rectangle;
