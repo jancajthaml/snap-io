@@ -34,7 +34,7 @@ class ImageLibrary {
     }
 
     if (uri.endsWith('.gif')) {
-      fetch(uri)
+      fetch(uri, {mode: 'cors'})
         .then((resp) => resp.arrayBuffer())
         .then((buff) => new window.GIF(buff))
         .then((gif) => gif.decompressFrames(true))
@@ -58,15 +58,14 @@ class ImageLibrary {
         .then((frames) => {
           this.underlying[uri].source = {
             idx: 0,
-            //frames,
             timestamp: 0,
-            //buffer: document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D,
             frames,
             current: frames[0],
           }
 
           this.underlying[uri].type = GIF
-        }).catch(() => {
+        }).catch((err) => {
+          console.log('gif decoding error', err)
           const source = new Image()
           source.src = uri
           this.underlying[uri].source = source
@@ -85,16 +84,10 @@ class ImageLibrary {
       this.alloc(uri)
       return this.nil.source
     }
-    if (ref.type === GIF && timestamp - ref.source.timestamp > 50) {
+    if (ref.type === GIF && timestamp - ref.source.timestamp > 70) {
       ref.source.timestamp = timestamp
       ref.source.idx = (ref.source.idx + 1) % ref.source.frames.length
       ref.source.current = ref.source.frames[ref.source.idx]
-      //ref.source.buffer.canvas.width = ref.source.frames[ref.source.idx].dims.width as number
-      //ref.source.buffer.canvas.height = ref.source.frames[ref.source.idx].dims.height as number
-      //let frameImageData = ref.source.buffer.createImageData(ref.source.buffer.canvas.width, ref.source.buffer.canvas.height);
-      //frameImageData.data.set(ref.source.frames[ref.source.idx].patch);
-      //ref.source.buffer.putImageData(frameImageData, 0, 0);
-      //ref.source.image.src = ref.source.buffer.canvas.toDataURL();
     }
     if (ref.type == GIF) {
       return ref.source.current
