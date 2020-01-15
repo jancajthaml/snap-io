@@ -22,12 +22,12 @@ class PortHandle  {
     const Y = y + (height * this.y)
 
     return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
-      ? this
-      : undefined
+      ? [this]
+      : []
   }
 
   linkCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) =>
-    this.mouseDownCapture(viewport, gridSize, x, y, width, height, point)
+    this.mouseDownCapture(viewport, gridSize, x, y, width, height, point)[0]
 
   onMouseUp = () => {
     this.owner.portConnectStop()
@@ -44,12 +44,10 @@ class PortHandle  {
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
 
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = (viewport.z / 3) + 0.5
     ctx.beginPath()
     ctx.arc(X, Y, PORT_RADIUS, 0, 2 * Math.PI, false)
+    ctx.fill();
     ctx.stroke();
-    ctx.lineWidth = 1
   }
 
   serialize = () => this.owner.serialize()

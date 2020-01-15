@@ -4,9 +4,11 @@ import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagr
 import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLinkSchema, removeEntityFromSchema, removeLinkFromSchema } from '../Diagram/actions'
 import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
-import { ICanvasEntitySchema } from '../../@types/index'
+import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
+import ResizerHandle from '../../entities/ResizableEntity/ResizerHandle'
+import PortHandle from '../../entities/PortEntity/PortHandle'
 
-class Engine {
+class Engine implements ICanvasEntityWrapperSchema {
   currentMouseEventOwner: any;
   currentMouseCoordinates: {
     original: Rectangle;
@@ -62,9 +64,10 @@ class Engine {
     if (event.detail && event.detail.hardSync === false) {
       this.updateVisible(this.viewport)
     } else {
+      this.visible.clear()
       this.delayedSync = setTimeout(() => {
         this.updateVisible(this.viewport)
-      }, 10)
+      }, 100)
     }
   }
 
@@ -129,15 +132,24 @@ class Engine {
 
       visible.forEach((element) => {
         if (element.mouseDownCapture) {
-          const candidate = element.mouseDownCapture(pointOfClick, viewport, gridSize)
-          if (candidate) {
-            captures.push(candidate)
-          }
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize))
         }
       })
 
-      const capture = captures[0]
+      captures.sort(function(a, b) {
+        if (a == b) {
+          return 0
+        }
+        if (a instanceof ResizerHandle) {
+          return -1
+        }
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        return 1
+      })
 
+      const capture = captures[0]
       let stopPropagation = false
       if (capture && capture.onMouseDown) {
         stopPropagation = capture.onMouseDown()
@@ -377,7 +389,6 @@ class Engine {
 
   addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
-    this.visible.add(entity)
     if (this.delayedSync) {
       clearTimeout(this.delayedSync)
     }

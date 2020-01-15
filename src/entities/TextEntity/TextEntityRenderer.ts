@@ -3,6 +3,7 @@ import { IEntitySchema } from './types'
 import { Point, Rectangle } from '../../atoms'
 import TextLibrary from './TextLibrary'
 import { ENTITY_TYPE } from './constants'
+import { EngineMode } from '../../modules/Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
 
 class TextEntityRenderer implements ICanvasEntitySchema {
@@ -25,21 +26,61 @@ class TextEntityRenderer implements ICanvasEntitySchema {
     this.buffer = null
   }
 
-  draw = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
-    if (layer !== 1) {
-      return
+  drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+    let W = Math.round(this.width) * gridSize
+    let H = Math.round(this.height) * gridSize
+
+    const image = TextLibrary.get(this.text, 12, W, H)
+    if (image) {
+      this.buffer = image
     }
+
     const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
     const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
+    W *= viewport.z
+    H *= viewport.z
 
-    const image = TextLibrary.get(this.text, 12, Math.round(this.width) * gridSize, Math.round(this.height) * gridSize)
+    if (this.buffer) {
+      ctx.drawImage(this.buffer, 0, 0, this.buffer.width, this.buffer.height, X, Y, W, H);
+    }
+
+    ctx.strokeStyle = "black"
+    ctx.strokeRect(X, Y, W, H);
+  }
+
+  drawView = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+    let W = Math.round(this.width) * gridSize
+    let H = Math.round(this.height) * gridSize
+
+    const image = TextLibrary.get(this.text, 12, W, H)
     if (image) {
       this.buffer = image
     }
     if (this.buffer) {
+      const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
+      const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+      W *= viewport.z
+      H *= viewport.z
       ctx.drawImage(this.buffer, 0, 0, this.buffer.width, this.buffer.height, X, Y, W, H);
+    }
+  }
+
+  draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
+    if (layer !== 1) {
+      return
+    }
+    switch (mode) {
+      case EngineMode.EDIT: {
+        this.drawEdit(ctx, viewport, gridSize)
+        break
+      }
+      case EngineMode.VIEW: {
+        this.drawView(ctx, viewport, gridSize)
+        break
+      }
+      default: {
+        break
+      }
     }
   }
 

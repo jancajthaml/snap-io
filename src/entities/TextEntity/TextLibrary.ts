@@ -3,7 +3,7 @@ class TextLibrary {
 
   private underlying: {
     [text: string]: {
-      [aspect: number]: {
+      [aspect: string]: {
         [fontSize: number]: HTMLImageElement;
       };
     };
@@ -13,8 +13,16 @@ class TextLibrary {
     this.underlying = {}
   }
 
+  free = (text: string) => {
+    delete this.underlying[text]
+  }
+
   alloc = (text: string, fontSize: number, width: number, height: number) => {
-    const data = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:${fontSize/2}px; font-family: Arial;">${text}</div></foreignObject></svg>`;
+    const data = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:${fontSize/2}px; font-family: Arial;">${text}</div></foreignObject>
+      </svg>
+    `;
 
     const svg = new Blob([data], {
       type: 'image/svg+xml;charset=utf-8'
@@ -37,22 +45,12 @@ class TextLibrary {
   }
 
   get = (text: string, fontSize: number, width: number, height: number) => {
-    const ref = this.underlying[text]
-    if (!ref) {
+    try {
+      return this.underlying[text][`${width}x${height}`][fontSize]
+    } catch (_err) {
       this.alloc(text, fontSize, width, height)
       return null
     }
-    const aspected = (ref as any)[`${width}x${height}`]
-    if (!aspected) {
-      this.alloc(text, fontSize, width, height)
-      return null
-    }
-    const result = aspected[fontSize]
-    if (!result) {
-      this.alloc(text, fontSize, width, height)
-      return null
-    }
-    return result
   }
 
 }
