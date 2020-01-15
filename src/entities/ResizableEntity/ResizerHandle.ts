@@ -22,8 +22,8 @@ class ResizerHandle  {
     const X = x + (width * this.x) - RESIZER_SIZE / 2
     const Y = y + (height * this.y) - RESIZER_SIZE / 2
     return (point.x >= X && point.x <= (X + RESIZER_SIZE) && point.y >= Y && point.y <= (Y + RESIZER_SIZE))
-      ? this
-      : undefined
+      ? [this]
+      : []
   }
 
   onMouseMove = (xDelta: number, yDelta: number): boolean => {

@@ -5,6 +5,8 @@ import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLi
 import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
+import ResizerHandle from '../../entities/ResizableEntity/ResizerHandle'
+import PortHandle from '../../entities/PortEntity/PortHandle'
 
 class Engine implements ICanvasEntityWrapperSchema {
   currentMouseEventOwner: any;
@@ -130,15 +132,24 @@ class Engine implements ICanvasEntityWrapperSchema {
 
       visible.forEach((element) => {
         if (element.mouseDownCapture) {
-          const candidate = element.mouseDownCapture(pointOfClick, viewport, gridSize)
-          if (candidate) {
-            captures.push(candidate)
-          }
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize))
         }
       })
 
-      const capture = captures[0]
+      captures.sort(function(a, b) {
+        if (a == b) {
+          return 0
+        }
+        if (a instanceof ResizerHandle) {
+          return -1
+        }
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        return 1
+      })
 
+      const capture = captures[0]
       let stopPropagation = false
       if (capture && capture.onMouseDown) {
         stopPropagation = capture.onMouseDown()
@@ -378,7 +389,6 @@ class Engine implements ICanvasEntityWrapperSchema {
 
   addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
-    //this.visible.add(entity)
     if (this.delayedSync) {
       clearTimeout(this.delayedSync)
     }

@@ -47,7 +47,7 @@ class PortEntityRenderer implements ICanvasEntitySchema {
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
-      return undefined
+      return []
     }
     let X = (Math.round(this.x) * gridSize) * viewport.z
     let Y = (Math.round(this.y) * gridSize) * viewport.z
@@ -62,18 +62,9 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     const pointScaled = point.multiply(viewport.z).multiply(gridSize)
     const captures: PortHandle[] = []
     this.ports.forEach((port) => {
-      const candidate = port.mouseDownCapture(viewport, gridSize, X, Y, W, H, pointScaled)
-      if (candidate) {
-        captures.push(candidate)
-      }
+      captures.push(...port.mouseDownCapture(viewport, gridSize, X, Y, W, H, pointScaled))
     })
-    const capture = captures[0]
-
-    if (captures) {
-      return capture
-    }
-
-    return undefined
+    return captures
   }
 
   linkCapture = (point: Point, viewport: Rectangle, gridSize: number) => {

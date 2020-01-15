@@ -256,40 +256,45 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     if (!this.ref.current) {
-      return undefined
+      return []
     }
     if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
-      return undefined
+      return []
     }
 
     if (this.selected) {
-      if (this.ref.current.mouseDownCapture) {
-        const capture = this.ref.current.mouseDownCapture(point, viewport, gridSize)
-        if (capture) {
-          return capture
-        }
-      }
+      const captures = [] as any[]
+
       const x = (Math.round(this.ref.current.x) * gridSize - gridSize/2) * viewport.z
       const y = (Math.round(this.ref.current.y) * gridSize - gridSize/2) * viewport.z
       const w = (Math.round(this.ref.current.width) * gridSize + gridSize) * viewport.z
       const h = (Math.round(this.ref.current.height) * gridSize + gridSize) * viewport.z
       const pointScaled = point.multiply(viewport.z).multiply(gridSize)
-      const capture = this.resizers.map((resizer) => resizer.mouseDownCapture(x, y, w, h, pointScaled)).filter((value) => value)[0]
-      if (capture) {
-        return capture
+      captures.push(...this.resizers.reduce(function(flat, resizer) {
+        return flat.concat(resizer.mouseDownCapture(x, y, w, h, pointScaled));
+      }, []))
+
+      if (captures.length) {
+        return captures.concat(this)
       }
+
+      if (this.ref.current.mouseDownCapture) {
+        captures.push(...this.ref.current.mouseDownCapture(point, viewport, gridSize))
+      }
+
+      if (captures.length) {
+        return captures.concat(this)
+      }
+
       if (point.x >= this.ref.current.x - 0.5 && point.x <= (this.ref.current.x + this.ref.current.width + 0.5) && point.y >= this.ref.current.y - 0.5 && point.y <= (this.ref.current.y + this.ref.current.height + 0.5)) {
-        return this
+        return [this]
       }
-      return undefined
+      return []
     } else {
       if (this.ref.current.mouseDownCapture) {
-        const capture = this.ref.current.mouseDownCapture(point, viewport, gridSize)
-        if (capture) {
-          return capture
-        }
+        return this.ref.current.mouseDownCapture(point, viewport, gridSize).concat(this)
       }
-      return this
+      return [this]
     }
   }
 

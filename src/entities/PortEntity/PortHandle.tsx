@@ -21,15 +21,13 @@ class PortHandle  {
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
 
-    console.log(X, Y, point, PORT_RADIUS)
-
     return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
-      ? this
-      : undefined
+      ? [this]
+      : []
   }
 
   linkCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) =>
-    this.mouseDownCapture(viewport, gridSize, x, y, width, height, point)
+    this.mouseDownCapture(viewport, gridSize, x, y, width, height, point)[0]
 
   onMouseUp = () => {
     this.owner.portConnectStop()
