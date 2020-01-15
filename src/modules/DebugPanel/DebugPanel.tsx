@@ -472,6 +472,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
+              // FIXME flickers
               props.zoomToFit()
               window.dispatchEvent(new Event('engine-sync'))
             }}
@@ -483,6 +484,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
+              // FIXME flickers
               props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
               window.dispatchEvent(new Event('engine-sync'))
             }}
@@ -494,6 +496,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
+              // FIXME flickers
               props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
               window.dispatchEvent(new Event('engine-sync'))
             }}
