@@ -137,6 +137,9 @@ class PortEntityRenderer implements ICanvasEntitySchema {
       let H = Math.round(this.height) * gridSize * viewport.z
       const RADIUS = Math.min(W, H) / 2
 
+      ctx.strokeStyle = "black"
+      ctx.strokeRect(X, Y, W, H);
+
       X += W / 2 - RADIUS
       Y += H / 2 - RADIUS
       W = RADIUS * 2
