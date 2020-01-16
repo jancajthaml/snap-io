@@ -106,6 +106,16 @@ const loadSchemaComplicatedGifs = (): IDiagramSchema => {
     url: 'https://i.imgur.com/eW0qYKS.gif',
   })
 
+  entities.set('image_2', {
+    id: `image_2`,
+    x: 10,
+    y: 0,
+    width: 4,
+    height: 4,
+    type: 'image-entity',
+    url: 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+  })
+
   return {
     id: 'schema-gifs',
     entities,
@@ -139,7 +149,7 @@ const loadSchema_C = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: 'https://i.imgur.com/eW0qYKS.gif',//idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+        url: idx % 4 === 0 ? 'https://i.imgur.com/eW0qYKS.gif' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       })
     } else {
       entities.set(`box_${idx}`, {
