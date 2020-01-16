@@ -47,6 +47,9 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
 
   drawView = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
     const image = ImageLibrary.get(this.url, timestamp)
+    if (image === null) {
+      return
+    }
     const w_i = image.width as number
     if (w_i === 0) {
       return

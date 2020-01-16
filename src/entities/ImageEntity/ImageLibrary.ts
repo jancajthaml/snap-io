@@ -1,5 +1,4 @@
-// FIXME not ideal pollutes window scope
-require('gifuct-js/dist/gifuct-js')
+import { Decoder as GifDecoder } from 'fastgif/fastgif';
 
 const GIF = 'GIF' as const
 const IMAGE = 'IMAGE' as const
@@ -34,26 +33,30 @@ class ImageLibrary {
     }
 
     if (uri.endsWith('.gif')) {
-      fetch(uri, {mode: 'cors'})
+      fetch(uri, { mode: 'cors' })
         .then((resp) => resp.arrayBuffer())
-        .then((buff) => new window.GIF(buff))
-        .then((gif) => gif.decompressFrames(true))
+        .then((buff) => new GifDecoder().decode(buff))
         .then((data) => {
-          const images = [] as HTMLImageElement[]
+          if (data.length === 0) {
+            return Promise.reject(new Error('no frames'))
+          }
+          const images = [] as {
+            source: HTMLImageElement;
+            delay: number;
+          }[]
           const ctx = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D
           data.forEach((frame: any) => {
-            ctx.canvas.width = frame.dims.width as number
-            ctx.canvas.height = frame.dims.height as number
-            let frameImageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-            frameImageData.data.set(frame.patch);
-            ctx.putImageData(frameImageData, 0, 0);
+            ctx.canvas.width = frame.imageData.width as number
+            ctx.canvas.height = frame.imageData.height as number
+            ctx.putImageData(frame.imageData, 0, 0);
             const image = new Image()
             image.src = ctx.canvas.toDataURL();
-            images.push(image)
+            images.push({
+              source: image,
+              delay: Math.floor(frame.delay * 0.75),
+            })
           })
-          return images.length > 0
-            ? images
-            : [new Image()]
+          return images
         })
         .then((frames) => {
           this.underlying[uri].source = {
@@ -62,10 +65,8 @@ class ImageLibrary {
             frames,
             current: frames[0],
           }
-
           this.underlying[uri].type = GIF
-        }).catch((err) => {
-          console.log('gif decoding error', err)
+        }).catch(() => {
           const source = new Image()
           source.src = uri
           this.underlying[uri].source = source
@@ -84,13 +85,13 @@ class ImageLibrary {
       this.alloc(uri)
       return this.nil.source
     }
-    if (ref.type === GIF && timestamp - ref.source.timestamp > 70) {
+    if (ref.type === GIF && timestamp - ref.source.timestamp > ref.source.current.delay) {
       ref.source.timestamp = timestamp
       ref.source.idx = (ref.source.idx + 1) % ref.source.frames.length
       ref.source.current = ref.source.frames[ref.source.idx]
     }
     if (ref.type == GIF) {
-      return ref.source.current
+      return ref.source.current.source
     }
     return ref.source
   }

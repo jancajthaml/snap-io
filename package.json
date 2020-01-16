@@ -7,7 +7,7 @@
     "serve": "node node_modules/serve/bin/serve.js build"
   },
   "dependencies": {
-    "gifuct-js": "1.0.0",
+    "fastgif": "^0.1.1",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "react-redux": "7.1.1",

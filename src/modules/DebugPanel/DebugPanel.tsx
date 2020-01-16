@@ -139,7 +139,7 @@ const loadSchema_C = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+        url: 'https://i.imgur.com/eW0qYKS.gif',//idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       })
     } else {
       entities.set(`box_${idx}`, {
