@@ -49,10 +49,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return []
     }
-    let X = (Math.round(this.x) * gridSize) * viewport.z
-    let Y = (Math.round(this.y) * gridSize) * viewport.z
-    let W = Math.round(this.width) * gridSize * viewport.z
-    let H = Math.round(this.height) * gridSize * viewport.z
+    let X = (this.x * gridSize) * viewport.z
+    let Y = (this.y * gridSize) * viewport.z
+    let W = (this.width * gridSize) * viewport.z
+    let H = (this.height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
@@ -71,10 +71,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return undefined
     }
-    let X = (Math.round(this.x) * gridSize) * viewport.z
-    let Y = (Math.round(this.y) * gridSize) * viewport.z
-    let W = Math.round(this.width) * gridSize * viewport.z
-    let H = Math.round(this.height) * gridSize * viewport.z
+    let X = (this.x * gridSize) * viewport.z
+    let Y = (this.y * gridSize) * viewport.z
+    let W = (this.width * gridSize) * viewport.z
+    let H = (this.height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
@@ -103,10 +103,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (layer !== 1) {
       return
     }
-    let X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    let Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-    let W = Math.round(this.width) * gridSize * viewport.z
-    let H = Math.round(this.height) * gridSize * viewport.z
+    let X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    let Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+    let W = (this.width * gridSize) * viewport.z
+    let H = (this.height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
@@ -131,10 +131,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
 
   drawEdit = (layer: number, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
     if (layer === 1) {
-      let X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-      let Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-      let W = Math.round(this.width) * gridSize * viewport.z
-      let H = Math.round(this.height) * gridSize * viewport.z
+      let X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+      let Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+      let W = (this.width * gridSize) * viewport.z
+      let H = (this.height * gridSize) * viewport.z
       const RADIUS = Math.min(W, H) / 2
 
       ctx.strokeStyle = "black"
@@ -205,10 +205,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   }
 
   getCenter = (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
-    let X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    let Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    let W = Math.round(width) * gridSize * viewport.z
-    let H = Math.round(height) * gridSize * viewport.z
+    let X = (viewport.x1 + (x * gridSize)) * viewport.z
+    let Y = (viewport.y1 + (y * gridSize)) * viewport.z
+    let W = (width * gridSize) * viewport.z
+    let H = (height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS

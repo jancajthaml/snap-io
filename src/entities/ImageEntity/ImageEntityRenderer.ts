@@ -26,10 +26,10 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
-    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+    const W = (this.width * gridSize) * viewport.z
+    const H = (this.height * gridSize) * viewport.z
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
 
     const image = ImageLibrary.get(this.url, timestamp)
 
@@ -56,13 +56,13 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     }
 
     const h_i = image.height as number
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
+    const W = (this.width * gridSize) * viewport.z
+    const H = (this.height * gridSize) * viewport.z
 
     const ratio  = Math.min(W / w_i, H / h_i);
 
-    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
 
     ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
   }
@@ -103,10 +103,10 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   }
 
   getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
+    const X = (viewport.x1 + (x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (y * gridSize)) * viewport.z
+    const W = (width * gridSize) * viewport.z
+    const H = (height * gridSize) * viewport.z
     return new Point(X + W / 2, Y + H / 2)
   }
 
