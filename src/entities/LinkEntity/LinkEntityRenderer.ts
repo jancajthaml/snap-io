@@ -4,6 +4,7 @@ import { Point, Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 import { EngineMode } from '../../modules/Diagram/constants'
 
+import PointHandle from './PointHandle'
 //import { ICanvasEntitySchema } from '../../@types/index'
 
 class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
@@ -11,14 +12,17 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
   id: string;
   from: string[];
   to: string[];
-  breaks: Point[];
+  breaks: PointHandle[];
   getEntityByID: any;
 
   constructor(props: IEntitySchema, getEntityByID: any) {
     this.id = props.id
     this.from = props.from
     this.to = props.to
-    this.breaks = props.breaks
+    this.breaks = []
+    props.breaks.forEach((point) => {
+      this.breaks.push(new PointHandle(this, point.x, point.y))
+    })
     this.getEntityByID = getEntityByID
   }
 
@@ -84,18 +88,37 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.lineTo(toPoint.x, toPoint.y);
     ctx.stroke();
 
-    const RADIUS = viewport.z * 2
-
-    points.forEach(([X, Y]) => {
-      //const X = (viewport.x1 + (point.x * gridSize)) * viewport.z
-      //const Y = (viewport.y1 + (point.y * gridSize)) * viewport.z
-      ctx.beginPath()
-      ctx.arc(X, Y, RADIUS, 0, 2 * Math.PI, false)
-      ctx.fill()
-      ctx.stroke();
+    this.breaks.forEach((point) => {
+      point.draw(ctx, viewport, gridSize)
     })
 
     ctx.lineWidth = 1
+  }
+
+  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
+    //console.log('link point down capture')
+    //if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
+      //return []
+    //}
+    /*
+    let X = (this.x * gridSize) * viewport.z
+    let Y = (this.y * gridSize) * viewport.z
+    let W = (this.width * gridSize) * viewport.z
+    let H = (this.height * gridSize) * viewport.z
+    const RADIUS = Math.min(W, H) / 2
+
+    X += W / 2 - RADIUS
+    Y += H / 2 - RADIUS
+    W = H = RADIUS * 2
+    */
+
+    const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+    const captures: PointHandle[] = []
+    this.breaks.forEach((item) => {
+      captures.push(...item.mouseDownCapture(pointScaled, viewport, gridSize))
+    })
+    //console.log(captures)
+    return captures
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
