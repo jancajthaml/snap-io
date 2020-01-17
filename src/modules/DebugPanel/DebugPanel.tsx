@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
@@ -21,7 +21,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 300
+  const howMany = 3//300
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const entities = new Map<string, IEntitySchema>()
@@ -71,7 +71,9 @@ const loadSchema_A = (): IDiagramSchema => {
       type: 'link-entity',
       from: [`port_${idx}`, 'port_center'],
       to: [`port_${idx + 1}`, 'port_center'],
-      breaks: [],
+      breaks: [
+        new Point(-1 + (idx % modulus) * 5, 1 + Math.floor(idx / modulus) * 5),
+      ],
     })
   })
 

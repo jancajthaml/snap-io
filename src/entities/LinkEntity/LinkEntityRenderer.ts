@@ -11,12 +11,14 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
   id: string;
   from: string[];
   to: string[];
+  breaks: Point[];
   getEntityByID: any;
 
   constructor(props: IEntitySchema, getEntityByID: any) {
     this.id = props.id
     this.from = props.from
     this.to = props.to
+    this.breaks = props.breaks
     this.getEntityByID = getEntityByID
   }
 
@@ -31,12 +33,22 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    ctx.beginPath();
-    ctx.moveTo(fromPoint.x, fromPoint.y);
-    ctx.lineTo(toPoint.x, toPoint.y);
     ctx.lineWidth = (viewport.z / 3) + 0.5
     ctx.lineCap = "round";
     ctx.strokeStyle = "black";
+
+    ctx.beginPath();
+    ctx.moveTo(fromPoint.x, fromPoint.y);
+
+    this.breaks.forEach((point) => {
+      const X = (viewport.x1 + (point.x * gridSize)) * viewport.z
+      const Y = (viewport.y1 + (point.y * gridSize)) * viewport.z
+      ctx.lineTo(X, Y);
+    })
+
+    ctx.lineTo(toPoint.x, toPoint.y);
+
+
     ctx.stroke();
     ctx.lineWidth = 1
   }
@@ -52,13 +64,37 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    ctx.beginPath();
-    ctx.moveTo(fromPoint.x, fromPoint.y);
-    ctx.lineTo(toPoint.x, toPoint.y);
     ctx.lineWidth = (viewport.z / 3) + 0.5
     ctx.lineCap = "round";
     ctx.strokeStyle = "black";
+    ctx.fillStyle = "white"
+
+    ctx.beginPath();
+    ctx.moveTo(fromPoint.x, fromPoint.y);
+
+    const points = [] as any[]
+
+    this.breaks.forEach((point) => {
+      const X = (viewport.x1 + (point.x * gridSize)) * viewport.z
+      const Y = (viewport.y1 + (point.y * gridSize)) * viewport.z
+      points.push([X, Y])
+      ctx.lineTo(X, Y);
+    })
+
+    ctx.lineTo(toPoint.x, toPoint.y);
     ctx.stroke();
+
+    const RADIUS = viewport.z * 2
+
+    points.forEach(([X, Y]) => {
+      //const X = (viewport.x1 + (point.x * gridSize)) * viewport.z
+      //const Y = (viewport.y1 + (point.y * gridSize)) * viewport.z
+      ctx.beginPath()
+      ctx.arc(X, Y, RADIUS, 0, 2 * Math.PI, false)
+      ctx.fill()
+      ctx.stroke();
+    })
+
     ctx.lineWidth = 1
   }
 
@@ -94,6 +130,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     type: ENTITY_TYPE,
     from: this.from,
     to: this.to,
+    breaks: this.breaks,
   })
 
 }

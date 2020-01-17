@@ -22,7 +22,7 @@ const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
     companion.id = props.id
     companion.from = props.from
     companion.to = props.to
-  }, [props.id, props.from.join(','), props.to.join(',')])
+  }, [props.id, props.from.join(','), props.to.join(','), props.breaks.map((p) => `${p.x},${p.y}`).join(',')])
 
   useEffect(() => {
     if (!ref) {
