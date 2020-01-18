@@ -8,33 +8,33 @@ interface IProps extends IEntitySchema {
 }
 
 const BoxEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [companion] = useState<BoxEntityRenderer>(new BoxEntityRenderer(props))
+  const [renderer] = useState<BoxEntityRenderer>(new BoxEntityRenderer(props))
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, companion)
+    parent.addNode(id, renderer)
     return () => {
       parent.removeNode(id)
     }
   }, [])
 
   useEffect(() => {
-    companion.x = props.x
-    companion.y = props.y
-    companion.width = props.width
-    companion.height = props.height
+    renderer.x = props.x
+    renderer.y = props.y
+    renderer.width = props.width
+    renderer.height = props.height
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    companion.id = props.id
-    companion.color = props.color
+    renderer.id = props.id
+    renderer.color = props.color
   }, [props.id, props.color])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

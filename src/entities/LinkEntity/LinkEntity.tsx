@@ -9,36 +9,36 @@ interface IProps extends IEntitySchema {
 }
 
 const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [companion] = useState<LinkEntityRenderer>(new LinkEntityRenderer(props, props.parent.getEntityByID))
+  const [renderer] = useState<LinkEntityRenderer>(new LinkEntityRenderer(props, props.parent.getEntityByID))
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, companion)
+    parent.addNode(id, renderer)
     return () => {
       parent.removeNode(id)
     }
   }, [])
 
   useEffect(() => {
-    companion.id = props.id
-    companion.from = props.from
-    companion.to = props.to
+    renderer.id = props.id
+    renderer.from = props.from
+    renderer.to = props.to
   }, [props.id, props.from.join(','), props.to.join(',')])
 
 
   useEffect(() => {
     const breaks = [] as PointHandle[]
     props.breaks.forEach((point) => {
-      breaks.push(new PointHandle(companion, point.x, point.y))
+      breaks.push(new PointHandle(renderer, point.x, point.y))
     })
-    companion.breaks = breaks
+    renderer.breaks = breaks
   }, [props.breaks.map((p) => `${p.x},${p.y}`).join(',')])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

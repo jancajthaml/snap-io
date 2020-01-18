@@ -7,6 +7,7 @@ import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
 import ResizerHandle from '../../entities/ResizableEntity/ResizerHandle'
 import PortHandle from '../../entities/PortEntity/PortHandle'
+import PointHandle from '../../entities/LinkEntity/PointHandle'
 
 class Engine implements ICanvasEntityWrapperSchema {
   currentMouseEventOwner: any;
@@ -144,6 +145,9 @@ class Engine implements ICanvasEntityWrapperSchema {
           return -1
         }
         if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
           return -1
         }
         return 1

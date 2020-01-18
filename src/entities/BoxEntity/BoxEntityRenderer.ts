@@ -24,8 +24,6 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-
-
     const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
     const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
     const W = (this.width * gridSize) * viewport.z
@@ -36,26 +34,25 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawViewSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    ctx.fillStyle = this.color
-
     const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
     const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
     const W = (this.width * gridSize) * viewport.z
     const H = (this.height * gridSize) * viewport.z
 
+    ctx.fillStyle = this.color
     ctx.fillRect(X, Y, W, H);
   }
 
   drawViewDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    ctx.fillStyle = this.color
-    ctx.strokeStyle = this.color
-
     const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
     const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
     const W = (this.width * gridSize) * viewport.z
     const H = (this.height * gridSize) * viewport.z
 
     const offset = 3 * viewport.z
+
+    ctx.fillStyle = this.color
+    ctx.strokeStyle = this.color
     ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
     ctx.strokeRect(X, Y, W, H);
   }

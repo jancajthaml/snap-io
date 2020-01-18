@@ -9,37 +9,37 @@ interface IProps extends IEntitySchema {
 }
 
 const PortEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [companion] = useState<PortEntityRenderer>(new PortEntityRenderer(props, () => props.parent.currentMouseCoordinates.original, props.parent.connectEntities))
+  const [renderer] = useState<PortEntityRenderer>(new PortEntityRenderer(props, () => props.parent.currentMouseCoordinates.original, props.parent.connectEntities))
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, companion)
+    parent.addNode(id, renderer)
     return () => {
       parent.removeNode(id)
     }
   }, [])
 
   useEffect(() => {
-    companion.x = props.x
-    companion.y = props.y
-    companion.width = props.width
-    companion.height = props.height
+    renderer.x = props.x
+    renderer.y = props.y
+    renderer.width = props.width
+    renderer.height = props.height
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    companion.id = props.id
+    renderer.id = props.id
     const ports = new Map<string, PortHandle>()
     props.ports.forEach((port) => {
-      ports.set(port.id, new PortHandle(companion, port.id, port.x, port.y))
+      ports.set(port.id, new PortHandle(renderer, port.id, port.x, port.y))
     })
-    companion.ports = ports
+    renderer.ports = ports
   }, [props.id, props.ports.map((port) => port.id).join(',')])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

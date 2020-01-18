@@ -11,31 +11,31 @@ interface IProps {
 
 const ResizableEntity = React.forwardRef((props: IProps, ref: any) => {
   const child = useRef<ICanvasEntitySchema>()
-  const [companion] = useState<ResizableEntityRenderer>(new ResizableEntityRenderer(props.id, child, props.parent))
+  const [renderer] = useState<ResizableEntityRenderer>(new ResizableEntityRenderer(props.id, child, props.parent))
 
   useEffect(() => {
-    companion.parent.addNode(companion.id, companion)
+    renderer.parent.addNode(renderer.id, renderer)
     return () => {
-      companion.parent.removeNode(companion.id)
+      renderer.parent.removeNode(renderer.id)
     }
   }, [])
 
   useEffect(() => {
-    companion.id = props.id
+    renderer.id = props.id
   }, [props.id])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return (
     <React.Fragment>
       {React.cloneElement(props.children, {
         ref: child,
-        parent: companion,
+        parent: renderer,
       })}
     </React.Fragment>
   )
