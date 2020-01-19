@@ -8,6 +8,7 @@ interface IProps {
   onKeyUp: (event: KeyboardEvent) => void;
   onKeyDown: (event: KeyboardEvent) => void;
   onMouseUp: (event: MouseEvent) => void;
+  onDoubleClick: (event: MouseEvent) => void;
   onMouseDown: (event: MouseEvent) => void;
   onMouseMove: (event: MouseEvent) => void;
   onWheel: (event: WheelEvent) => void;
@@ -40,6 +41,13 @@ const Canvas = (props: IProps) => {
   const onKeyDown = (event: React.KeyboardEvent) => {
     event.preventDefault()
     props.onKeyDown(event.nativeEvent)
+  }
+
+  const onDoubleClick = (event: React.MouseEvent) => {
+    if (event.nativeEvent.button === 0) {
+      event.preventDefault()
+      props.onDoubleClick(event.nativeEvent)
+    }
   }
 
   const onMouseDown = (event: React.MouseEvent) => {
@@ -124,6 +132,7 @@ const Canvas = (props: IProps) => {
     <canvas
       ref={ref}
       tabIndex={0}
+      onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}

@@ -76,12 +76,9 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.beginPath();
     ctx.moveTo(fromPoint.x, fromPoint.y);
 
-    const points = [] as any[]
-
     this.breaks.forEach((point) => {
       const X = (viewport.x1 + (point.x * gridSize)) * viewport.z
       const Y = (viewport.y1 + (point.y * gridSize)) * viewport.z
-      points.push([X, Y])
       ctx.lineTo(X, Y);
     })
 
@@ -95,30 +92,24 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.lineWidth = 1
   }
 
+  onMouseDoubleClick = (point: Point) => {
+    // FIXME find a par between whose the point should be created, dont append as last
+    this.breaks.push(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
+  }
+
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    //console.log('link point down capture')
-    //if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
-      //return []
-    //}
-    /*
-    let X = (this.x * gridSize) * viewport.z
-    let Y = (this.y * gridSize) * viewport.z
-    let W = (this.width * gridSize) * viewport.z
-    let H = (this.height * gridSize) * viewport.z
-    const RADIUS = Math.min(W, H) / 2
-
-    X += W / 2 - RADIUS
-    Y += H / 2 - RADIUS
-    W = H = RADIUS * 2
-    */
-
     const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+
     const captures: PointHandle[] = []
+
+    // FIXME detect if point lies on line
+
     this.breaks.forEach((item) => {
       captures.push(...item.mouseDownCapture(pointScaled, viewport, gridSize))
     })
     //console.log(captures)
-    return captures
+    //return captures
+    return [...captures, this]
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
@@ -145,6 +136,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
   }
 
   getCenter = (_viewport: Rectangle, _gridSize: number, _ids: string[], _x: number, _y: number, _width: number, _height: number) => {
+    // FIXME implement line visual center
     return new Point()
   }
 

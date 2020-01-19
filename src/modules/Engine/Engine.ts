@@ -105,6 +105,69 @@ class Engine implements ICanvasEntityWrapperSchema {
     })
   }
 
+  doubleClick = (event: MouseEvent) => {
+    //console.log('engine double click', event)
+    const { resolution } = this
+
+    const x = event.clientX - resolution.x1
+    const y = event.clientY - resolution.y1
+
+    this.currentMouseCoordinates.original.x1 = x
+    this.currentMouseCoordinates.original.y1 = y
+    this.currentMouseCoordinates.original.x2 = x
+    this.currentMouseCoordinates.original.y2 = y
+
+    this.currentMouseCoordinates.scaled.x1 = x
+    this.currentMouseCoordinates.scaled.y1 = y
+    this.currentMouseCoordinates.scaled.x2 = x
+    this.currentMouseCoordinates.scaled.y2 = y
+
+    if (this.engineMode === EngineMode.EDIT) {
+      const { viewport, visible, gridSize } = this
+
+      const pointOfClick = new Point(
+        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
+      )
+
+
+      const captures: ICanvasEntitySchema[] = []
+
+      visible.forEach((element) => {
+        if (element.mouseDownCapture) {
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDoubleClick)))
+        }
+      })
+
+      captures.sort(function(a, b) {
+        if (a == b) {
+          return 0
+        }
+        if (a instanceof ResizerHandle) {
+          return -1
+        }
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        return 1
+      })
+
+      //console.log('engine double captures', captures)
+      //console.log(visible)
+
+      if (captures.length > 0) {
+        const capture = captures[0]
+        if ((capture as any).onMouseDoubleClick(pointOfClick)) {
+          //this.currentMouseEventOwner = capture
+          return
+        }
+      }
+    }
+  }
+
   mouseDown = (event: MouseEvent) => {
     const { resolution } = this
 
@@ -133,7 +196,7 @@ class Engine implements ICanvasEntityWrapperSchema {
 
       visible.forEach((element) => {
         if (element.mouseDownCapture) {
-          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize))
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDown)))
         }
       })
 
@@ -153,16 +216,14 @@ class Engine implements ICanvasEntityWrapperSchema {
         return 1
       })
 
-      const capture = captures[0]
-      let stopPropagation = false
-      if (capture && capture.onMouseDown) {
-        stopPropagation = capture.onMouseDown()
+      if (captures.length > 0) {
+        const capture = captures[0]
+        if ((capture as any).onMouseDown()) {
+          this.currentMouseEventOwner = capture
+          return
+        }
       }
 
-      if (stopPropagation) {
-        this.currentMouseEventOwner = capture
-        return
-      }
     }
 
     this.currentMouseEventOwner = this

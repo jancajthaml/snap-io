@@ -28,6 +28,7 @@ export interface ICanvasEntitySchema {
   onKeyDown?: (event: KeyboardEvent) => boolean;
   onMouseDown?: () => boolean;
   onMouseUp?: () => boolean;
+  onMouseDoubleClick?: (point: Point) => boolean;
   onMouseMove?: (xDelta: number, yDelta: number) => boolean;
   id: string;
   x: number;
