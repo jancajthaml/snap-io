@@ -92,6 +92,20 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.lineWidth = 1
   }
 
+  deletePoint = (point: PointHandle) => {
+    this.breaks = this.breaks.filter((item) => !(item.x === point.x && item.y === point.y))
+  }
+
+  addPoint = (point: PointHandle, idx: number) => {
+    if (idx == 0) {
+      this.breaks.unshift(point)
+    } else if (idx === this.breaks.length) {
+      this.breaks.push(point)
+    } else if (!this.breaks.some((item) => item.x === point.x && item.y === point.y)) {
+      this.breaks = [...this.breaks.slice(0, idx), point, ...this.breaks.slice(idx)]
+    }
+  }
+
   onMouseDoubleClick = (viewport: Rectangle, gridSize: number, point: Point) => {
     const fromRef = this.getEntityByID(this.from[0])
     const toRef = this.getEntityByID(this.to[0])
@@ -122,16 +136,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
 
       const dot = (pointScaled.x - A.x) * b_x_a + (pointScaled.y - A.y) * b_y_a;
       if (dot >= 0 && dot <= square_length) {
-        if (j == 0) {
-          this.breaks.unshift(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
-        } else if (j === this.breaks.length) {
-          this.breaks.push(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
-        } else {
-          const nextPoint = new PointHandle(this, Math.round(point.x), Math.round(point.y))
-          if (!this.breaks.some((point) => point.x === nextPoint.x && point.y === nextPoint.y)) {
-            this.breaks = [...this.breaks.slice(0, j), nextPoint, ...this.breaks.slice(j)]
-          }
-        }
+        this.addPoint(new PointHandle(this, Math.round(point.x), Math.round(point.y)), j)
         return
       }
     }
