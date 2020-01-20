@@ -9,7 +9,7 @@ interface IProps extends IEntitySchema {
 }
 
 const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [renderer] = useState<LinkEntityRenderer>(new LinkEntityRenderer(props, props.parent.getEntityByID))
+  const [renderer] = useState<LinkEntityRenderer>(new LinkEntityRenderer(props, props.parent.getEntityByID, props.parent))
 
   useEffect(() => {
     const { parent, id } = props

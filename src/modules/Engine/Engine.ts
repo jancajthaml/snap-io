@@ -6,6 +6,7 @@ import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
 import ResizerHandle from '../../entities/ResizableEntity/ResizerHandle'
+import LinkEntityRenderer from '../../entities/LinkEntity/LinkEntityRenderer'
 import PortHandle from '../../entities/PortEntity/PortHandle'
 import PointHandle from '../../entities/LinkEntity/PointHandle'
 
@@ -143,13 +144,16 @@ class Engine implements ICanvasEntityWrapperSchema {
         if (a == b) {
           return 0
         }
-        if (a instanceof ResizerHandle) {
-          return -1
-        }
-        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
-          return -1
-        }
         if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle)) {
+          return -1
+        }
+        if (a instanceof ResizerHandle && !(b instanceof LinkEntityRenderer)) {
+          return -1
+        }
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle) && !(b instanceof LinkEntityRenderer)) {
           return -1
         }
         return 1
@@ -204,13 +208,16 @@ class Engine implements ICanvasEntityWrapperSchema {
         if (a == b) {
           return 0
         }
-        if (a instanceof ResizerHandle) {
-          return -1
-        }
-        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
-          return -1
-        }
         if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
+          return -1
+        }
+        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle)) {
+          return -1
+        }
+        if (a instanceof ResizerHandle && !(b instanceof LinkEntityRenderer)) {
+          return -1
+        }
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle) && !(b instanceof LinkEntityRenderer)) {
           return -1
         }
         return 1

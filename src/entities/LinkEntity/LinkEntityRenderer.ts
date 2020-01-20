@@ -6,16 +6,19 @@ import { EngineMode } from '../../modules/Diagram/constants'
 
 import PointHandle from './PointHandle'
 //import { ICanvasEntitySchema } from '../../@types/index'
+import { ICanvasEntityWrapperSchema } from '../../@types/index'
 
-class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
+class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
 
   id: string;
   from: string[];
   to: string[];
   breaks: PointHandle[];
   getEntityByID: any;
+  selected: boolean;
+  parent: ICanvasEntityWrapperSchema;
 
-  constructor(props: IEntitySchema, getEntityByID: any) {
+  constructor(props: IEntitySchema, getEntityByID: any, parent: ICanvasEntityWrapperSchema) {
     this.id = props.id
     this.from = props.from
     this.to = props.to
@@ -24,6 +27,8 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
       this.breaks.push(new PointHandle(this, point.x, point.y))
     })
     this.getEntityByID = getEntityByID
+    this.selected = false
+    this.parent = parent
   }
 
   drawView = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
@@ -52,7 +57,6 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
 
     ctx.lineTo(toPoint.x, toPoint.y);
 
-
     ctx.stroke();
     ctx.lineWidth = 1
   }
@@ -65,12 +69,13 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
       return
     }
 
+    //console.log('this.selected', this.selected)
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
     ctx.lineWidth = (viewport.z / 3) + 0.5
     ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = this.selected ? "red" : "black";
     ctx.fillStyle = "white"
 
     ctx.beginPath();
@@ -142,6 +147,22 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     }
 
     this.breaks.push(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
+  }
+
+  onMouseDown = () => {
+    if (this.selected) {
+      //this.mutateStart()
+      return true
+    } else {
+      //console.log('setting this to selected')
+      this.parent.setSelected(this)
+      //this.mutateStart()
+      return true
+    }
+  }
+
+  selectionCapture = (selected: boolean) => {
+    this.selected = selected
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
