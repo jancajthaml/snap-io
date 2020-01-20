@@ -8,33 +8,33 @@ interface IProps extends IEntitySchema {
 }
 
 const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [companion] = useState<ImageEntityRenderer>(new ImageEntityRenderer(props))
+  const [renderer] = useState<ImageEntityRenderer>(new ImageEntityRenderer(props))
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, companion)
+    parent.addNode(id, renderer)
     return () => {
       parent.removeNode(id)
     }
   }, [])
 
   useEffect(() => {
-    companion.x = props.x
-    companion.y = props.y
-    companion.width = props.width
-    companion.height = props.height
+    renderer.x = props.x
+    renderer.y = props.y
+    renderer.width = props.width
+    renderer.height = props.height
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    companion.id = props.id
-    companion.url = props.url
+    renderer.id = props.id
+    renderer.url = props.url
   }, [props.id, props.url])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

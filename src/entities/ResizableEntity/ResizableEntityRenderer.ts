@@ -265,11 +265,13 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (this.selected) {
       const captures = [] as any[]
 
-      const x = (Math.round(this.ref.current.x) * gridSize - gridSize/2) * viewport.z
-      const y = (Math.round(this.ref.current.y) * gridSize - gridSize/2) * viewport.z
+      const x = (viewport.x1 + Math.round(this.ref.current.x) * gridSize - gridSize/2) * viewport.z
+      const y = (viewport.y1 + Math.round(this.ref.current.y) * gridSize - gridSize/2) * viewport.z
       const w = (Math.round(this.ref.current.width) * gridSize + gridSize) * viewport.z
       const h = (Math.round(this.ref.current.height) * gridSize + gridSize) * viewport.z
-      const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+
+      const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+
       captures.push(...this.resizers.reduce(function(flat, resizer) {
         return flat.concat(resizer.mouseDownCapture(x, y, w, h, pointScaled));
       }, []))

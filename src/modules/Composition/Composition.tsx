@@ -97,6 +97,7 @@ class Composition extends React.PureComponent<IProps> {
           onMouseUp={this.props.engine.mouseUp}
           onMouseDown={this.props.engine.mouseDown}
           onMouseMove={this.props.engine.mouseMove}
+          onDoubleClick={this.props.engine.doubleClick}
           onWheel={this.props.engine.mouseWheel}
         />
         {this.props.children}

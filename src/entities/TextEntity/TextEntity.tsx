@@ -9,11 +9,11 @@ interface IProps extends IEntitySchema {
 }
 
 const TextEntity = React.forwardRef((props: IProps, ref: any) => {
-  const [companion] = useState<TextEntityRenderer>(new TextEntityRenderer(props))
+  const [renderer] = useState<TextEntityRenderer>(new TextEntityRenderer(props))
 
   useEffect(() => {
     const { parent, id, text } = props
-    parent.addNode(id, companion)
+    parent.addNode(id, renderer)
     return () => {
       TextLibrary.free(text)
       parent.removeNode(id)
@@ -21,22 +21,22 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [])
 
   useEffect(() => {
-    companion.x = props.x
-    companion.y = props.y
-    companion.width = props.width
-    companion.height = props.height
+    renderer.x = props.x
+    renderer.y = props.y
+    renderer.width = props.width
+    renderer.height = props.height
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
-    companion.id = props.id
-    companion.text = props.text
+    renderer.id = props.id
+    renderer.text = props.text
   }, [props.id, props.text])
 
   useEffect(() => {
     if (!ref) {
       return
     }
-    ref.current = companion
+    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

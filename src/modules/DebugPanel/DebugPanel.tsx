@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Rectangle } from '../../atoms'
+import { Point, Rectangle } from '../../atoms'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
@@ -21,7 +21,7 @@ interface IProps {
 }
 
 const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 300
+  const howMany = 3//300
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const entities = new Map<string, IEntitySchema>()
@@ -71,7 +71,9 @@ const loadSchema_A = (): IDiagramSchema => {
       type: 'link-entity',
       from: [`port_${idx}`, 'port_center'],
       to: [`port_${idx + 1}`, 'port_center'],
-      breaks: [],
+      breaks: [
+        new Point(-1 + (idx % modulus) * 5, 1 + Math.floor(idx / modulus) * 5),
+      ],
     })
   })
 
@@ -82,49 +84,42 @@ const loadSchema_A = (): IDiagramSchema => {
   }
 }
 
-const loadSchema_B = (): IDiagramSchema => {
-  const howMany = 10
-  const modulus = Math.floor(Math.pow(howMany, 0.5))
-
+const loadSchemaComplicatedGifs = (): IDiagramSchema => {
   const entities = new Map<string, IEntitySchema>()
   const links = new Map<string, ILinkSchema>()
 
-  Array.from(Array(howMany).keys()).forEach((idx) => {
-    if (idx % 8 === 0) {
-      entities.set(`text_${idx}`, {
-        id: `text_${idx}`,
-        x: (idx % modulus) * 5,
-        y: Math.floor(idx / modulus) * 5,
-        width: 4,
-        height: 4,
-        type: 'text-entity',
-        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
-      })
-    } else if (idx % 2 === 0) {
-      entities.set(`image_${idx}`, {
-        id: `image_${idx}`,
-        x: (idx % modulus) * 5,
-        y: Math.floor(idx / modulus) * 5,
-        width: 4,
-        height: 4,
-        type: 'image-entity',
-        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
-      })
-    } else {
-      entities.set(`box_${idx}`, {
-        id: `box_${idx}`,
-        x: (idx % modulus) * 5,
-        y: Math.floor(idx / modulus) * 5,
-        width: 4,
-        height: 4,
-        type: 'box-entity',
-        color: ["red", "blue", "green"][(idx % 3)],
-      })
-    }
+  entities.set('image_0', {
+    id: `image_0`,
+    x: 0,
+    y: 0,
+    width: 4,
+    height: 4,
+    type: 'image-entity',
+    url: 'https://i.imgur.com/pJuvVpo.gif',
+  })
+
+  entities.set('image_1', {
+    id: `image_1`,
+    x: 5,
+    y: 0,
+    width: 4,
+    height: 4,
+    type: 'image-entity',
+    url: 'https://i.imgur.com/eW0qYKS.gif',
+  })
+
+  entities.set('image_2', {
+    id: `image_2`,
+    x: 10,
+    y: 0,
+    width: 4,
+    height: 4,
+    type: 'image-entity',
+    url: 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
   })
 
   return {
-    id: 'schema-small',
+    id: 'schema-gifs',
     entities,
     links,
   }
@@ -156,7 +151,7 @@ const loadSchema_C = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'image-entity',
-        url: idx % 4 === 0 ? 'https://bellard.org/bpg/2.png' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
+        url: idx % 4 === 0 ? 'https://i.imgur.com/eW0qYKS.gif' : 'https://media2.giphy.com/media/x5cIUstbjvsac/source.gif',
       })
     } else {
       entities.set(`box_${idx}`, {
@@ -383,12 +378,12 @@ const DebugPanel = (props: IProps) => {
           }}
           onClick={() => {
             window.dispatchEvent(new Event('engine-cleanup'));
-            props.setSchema(loadSchema_B())
+            props.setSchema(loadSchemaComplicatedGifs())
             props.zoomToFit()
             window.dispatchEvent(new Event('engine-sync'))
           }}
         >
-          small diagram
+          complicated gifs
         </button>
         <button
           style={{

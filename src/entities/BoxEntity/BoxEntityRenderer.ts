@@ -24,38 +24,35 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-
-
-    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+    const W = (this.width * gridSize) * viewport.z
+    const H = (this.height * gridSize) * viewport.z
 
     ctx.strokeStyle = "black"
     ctx.strokeRect(X, Y, W, H);
   }
 
   drawViewSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+    const W = (this.width * gridSize) * viewport.z
+    const H = (this.height * gridSize) * viewport.z
+
     ctx.fillStyle = this.color
-
-    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
-
     ctx.fillRect(X, Y, W, H);
   }
 
   drawViewDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    ctx.fillStyle = this.color
-    ctx.strokeStyle = this.color
-
-    const X = (viewport.x1 + Math.round(this.x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(this.y) * gridSize) * viewport.z
-    const W = Math.round(this.width) * gridSize * viewport.z
-    const H = Math.round(this.height) * gridSize * viewport.z
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+    const W = (this.width * gridSize) * viewport.z
+    const H = (this.height * gridSize) * viewport.z
 
     const offset = 3 * viewport.z
+
+    ctx.fillStyle = this.color
+    ctx.strokeStyle = this.color
     ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
     ctx.strokeRect(X, Y, W, H);
   }
@@ -100,10 +97,10 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
-    const X = (viewport.x1 + Math.round(x) * gridSize) * viewport.z
-    const Y = (viewport.y1 + Math.round(y) * gridSize) * viewport.z
-    const W = Math.round(width) * gridSize * viewport.z
-    const H = Math.round(height) * gridSize * viewport.z
+    const X = (viewport.x1 + (x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (y * gridSize)) * viewport.z
+    const W = (width * gridSize) * viewport.z
+    const H = (height * gridSize) * viewport.z
     return new Point(X + W / 2, Y + H / 2)
   }
 

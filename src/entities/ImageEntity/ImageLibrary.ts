@@ -1,5 +1,4 @@
-// FIXME not ideal pollutes window scope
-require('gifuct-js/dist/gifuct-js')
+import { Decoder as GifDecoder } from 'fastgif/fastgif';
 
 const GIF = 'GIF' as const
 const IMAGE = 'IMAGE' as const
@@ -34,33 +33,35 @@ class ImageLibrary {
     }
 
     if (uri.endsWith('.gif')) {
-      fetch(uri)
+      fetch(uri, { mode: 'cors' })
         .then((resp) => resp.arrayBuffer())
-        .then((buff) => new window.GIF(buff))
-        .then((gif) => gif.decompressFrames(true))
+        .then((buff) => new GifDecoder().decode(buff))
         .then((data) => {
-          const images = [] as HTMLImageElement[]
+          if (data.length === 0) {
+            return Promise.reject(new Error('no frames'))
+          }
+          const images = [] as {
+            source: HTMLImageElement;
+            delay: number;
+          }[]
           const ctx = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D
           data.forEach((frame: any) => {
-            ctx.canvas.width = frame.dims.width as number
-            ctx.canvas.height = frame.dims.height as number
-            let frameImageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-            frameImageData.data.set(frame.patch);
-            ctx.putImageData(frameImageData, 0, 0);
+            ctx.canvas.width = frame.imageData.width as number
+            ctx.canvas.height = frame.imageData.height as number
+            ctx.putImageData(frame.imageData, 0, 0);
             const image = new Image()
             image.src = ctx.canvas.toDataURL();
-            images.push(image)
+            images.push({
+              source: image,
+              delay: Math.floor(frame.delay * 0.75),
+            })
           })
-          return images.length > 0
-            ? images
-            : [new Image()]
+          return images
         })
         .then((frames) => {
           this.underlying[uri].source = {
             idx: 0,
-            //frames,
             timestamp: 0,
-            //buffer: document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D,
             frames,
             current: frames[0],
           }
@@ -85,19 +86,13 @@ class ImageLibrary {
       this.alloc(uri)
       return this.nil.source
     }
-    if (ref.type === GIF && timestamp - ref.source.timestamp > 50) {
+    if (ref.type === GIF && timestamp - ref.source.timestamp > ref.source.current.delay) {
       ref.source.timestamp = timestamp
       ref.source.idx = (ref.source.idx + 1) % ref.source.frames.length
       ref.source.current = ref.source.frames[ref.source.idx]
-      //ref.source.buffer.canvas.width = ref.source.frames[ref.source.idx].dims.width as number
-      //ref.source.buffer.canvas.height = ref.source.frames[ref.source.idx].dims.height as number
-      //let frameImageData = ref.source.buffer.createImageData(ref.source.buffer.canvas.width, ref.source.buffer.canvas.height);
-      //frameImageData.data.set(ref.source.frames[ref.source.idx].patch);
-      //ref.source.buffer.putImageData(frameImageData, 0, 0);
-      //ref.source.image.src = ref.source.buffer.canvas.toDataURL();
     }
     if (ref.type == GIF) {
-      return ref.source.current
+      return ref.source.current.source
     }
     return ref.source
   }
