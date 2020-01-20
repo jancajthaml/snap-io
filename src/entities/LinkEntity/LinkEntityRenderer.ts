@@ -92,24 +92,92 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema */ {
     ctx.lineWidth = 1
   }
 
-  onMouseDoubleClick = (point: Point) => {
-    // FIXME find a par between whose the point should be created, dont append as last
+  onMouseDoubleClick = (viewport: Rectangle, gridSize: number, point: Point) => {
+    const fromRef = this.getEntityByID(this.from[0])
+    const toRef = this.getEntityByID(this.to[0])
+
+    if (!(fromRef && toRef)) {
+      return
+    }
+
+    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+
+    const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
+    const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
+
+    const points = [fromPoint, ...this.breaks.map((item) => new Point((viewport.x1 + (item.x * gridSize)) * viewport.z, (viewport.y1 + (item.y * gridSize)) * viewport.z)), toPoint]
+
+    for (let j = 0; j < points.length - 1; j++) {
+      const A = points[j];
+      const B = points[j + 1];
+
+      const b_x_a = B.x - A.x;
+      const b_y_a = B.y - A.y;
+
+      const square_length = b_x_a ** 2 + b_y_a ** 2;
+
+      if (4 < Math.abs(b_y_a * pointScaled.x - b_x_a * pointScaled.y + B.x * A.y - B.y * A.x) / square_length ** 0.5) {
+        continue
+      }
+
+      const dot = (pointScaled.x - A.x) * b_x_a + (pointScaled.y - A.y) * b_y_a;
+      if (dot >= 0 && dot <= square_length) {
+        if (j == 0) {
+          this.breaks.unshift(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
+        } else if (j === this.breaks.length) {
+          this.breaks.push(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
+        } else {
+          const nextPoint = new PointHandle(this, Math.round(point.x), Math.round(point.y))
+          if (!this.breaks.some((point) => point.x === nextPoint.x && point.y === nextPoint.y)) {
+            this.breaks = [...this.breaks.slice(0, j), nextPoint, ...this.breaks.slice(j)]
+          }
+        }
+        return
+      }
+    }
+
     this.breaks.push(new PointHandle(this, Math.round(point.x), Math.round(point.y)))
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    const pointScaled = point.multiply(viewport.z).multiply(gridSize)
-
-    const captures: PointHandle[] = []
-
-    // FIXME detect if point lies on line
+    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+    const captures: any[] = []
 
     this.breaks.forEach((item) => {
       captures.push(...item.mouseDownCapture(pointScaled, viewport, gridSize))
     })
-    //console.log(captures)
-    //return captures
-    return [...captures, this]
+
+    const fromRef = this.getEntityByID(this.from[0])
+    const toRef = this.getEntityByID(this.to[0])
+
+    if (!(fromRef && toRef)) {
+      return captures
+    }
+
+    const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
+    const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
+
+    const points = [fromPoint, ...this.breaks.map((item) => new Point((viewport.x1 + (item.x * gridSize)) * viewport.z, (viewport.y1 + (item.y * gridSize)) * viewport.z)), toPoint]
+
+    for (let j = 0; j < points.length - 1; j++) {
+      const A = points[j];
+      const B = points[j + 1];
+
+      const b_x_a = B.x - A.x;
+      const b_y_a = B.y - A.y;
+
+      const square_length = b_x_a ** 2 + b_y_a ** 2;
+
+      if (4 < Math.abs(b_y_a * pointScaled.x - b_x_a * pointScaled.y + B.x * A.y - B.y * A.x) / square_length ** 0.5) {
+        continue
+      }
+
+      const dot = (pointScaled.x - A.x) * b_x_a + (pointScaled.y - A.y) * b_y_a;
+      if (dot >= 0 && dot <= square_length) {
+        return captures.concat(this)
+      }
+    }
+    return captures
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {

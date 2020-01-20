@@ -160,7 +160,7 @@ class Engine implements ICanvasEntityWrapperSchema {
 
       if (captures.length > 0) {
         const capture = captures[0]
-        if ((capture as any).onMouseDoubleClick(pointOfClick)) {
+        if ((capture as any).onMouseDoubleClick(viewport, gridSize, pointOfClick)) {
           //this.currentMouseEventOwner = capture
           return
         }

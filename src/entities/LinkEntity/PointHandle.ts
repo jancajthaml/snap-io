@@ -18,8 +18,10 @@ class PointHandle  {
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
     const PORT_RADIUS = viewport.z * gridSize * 0.2
 
-    const X = ((this.x * gridSize)) * viewport.z
-    const Y = ((this.y * gridSize)) * viewport.z
+    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    //((this.x * gridSize)) * viewport.z
+    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
+    //((this.y * gridSize)) * viewport.z
 
     return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
       ? [this]
