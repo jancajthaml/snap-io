@@ -65,6 +65,7 @@ class ImageLibrary {
             frames,
             current: frames[0],
           }
+
           this.underlying[uri].type = GIF
         }).catch(() => {
           const source = new Image()
