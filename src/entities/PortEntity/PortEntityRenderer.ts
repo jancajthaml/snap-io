@@ -49,8 +49,8 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return []
     }
-    let X = (this.x * gridSize) * viewport.z
-    let Y = (this.y * gridSize) * viewport.z
+    let X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    let Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
     let W = (this.width * gridSize) * viewport.z
     let H = (this.height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
@@ -59,7 +59,8 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     Y += H / 2 - RADIUS
     W = H = RADIUS * 2
 
-    const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+
     const captures: PortHandle[] = []
     this.ports.forEach((port) => {
       captures.push(...port.mouseDownCapture(viewport, gridSize, X, Y, W, H, pointScaled))
@@ -71,8 +72,8 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return undefined
     }
-    let X = (this.x * gridSize) * viewport.z
-    let Y = (this.y * gridSize) * viewport.z
+    let X = (viewport.x1 + (this.x * gridSize)) * viewport.z
+    let Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
     let W = (this.width * gridSize) * viewport.z
     let H = (this.height * gridSize) * viewport.z
     const RADIUS = Math.min(W, H) / 2
@@ -81,7 +82,8 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     Y += H / 2 - RADIUS
     W = H = RADIUS * 2
 
-    const pointScaled = point.multiply(viewport.z).multiply(gridSize)
+    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+
     const captures: PortHandle[] = []
     this.ports.forEach((port) => {
       if (captures.length) {
