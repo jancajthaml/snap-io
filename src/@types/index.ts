@@ -19,8 +19,6 @@ export interface ICanvasEntityWrapperSchema {
 export interface ICanvasEntitySchema {
   serialize: () => any;
   draw: (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => void;
-  isVisible: (gridSize: number, viewport: Rectangle) => boolean;
-  getCenter: (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => Point;
   mouseDownCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any[];
   linkCapture?: (point: Point, viewport: Rectangle, gridSize: number) => any;
   selectionCapture?: (selected: boolean) => void;

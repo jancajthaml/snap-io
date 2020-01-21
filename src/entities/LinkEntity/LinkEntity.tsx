@@ -23,6 +23,7 @@ const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
     renderer.id = props.id
     renderer.from = props.from
     renderer.to = props.to
+    renderer.updateClientCoordinates()
   }, [props.id, props.from.join(','), props.to.join(',')])
 
 

@@ -144,6 +144,8 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       this.ref.current.y += yDelta
       this.ref.current.width += wDelta
       this.ref.current.height += hDelta
+      const ref = this.ref.current as any
+      ref.updateClientCoordinates()
     }
   }
 
@@ -315,33 +317,34 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   getEntityByID = (id: string) => this.parent.getEntityByID(id)
 
   getCenter = (viewport: Rectangle, gridSize: number, ids: string[], _x: number, _y: number, _width: number, _height: number) => {
-    if (!this.ref.current) {
+    const ref = this.ref.current as any
+    if (!ref || !ref.getCenter) {
       return new Point()
     }
 
     if (this.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this
-      if (hDelta + this.ref.current.height <= 0) {
+      if (hDelta + ref.height <= 0) {
         if (yDelta !== 0) {
-          yDelta = this.ref.current.height - 1
-          hDelta = 1 - this.ref.current.height
+          yDelta = ref.height - 1
+          hDelta = 1 - ref.height
         } else {
-          hDelta = 1 - this.ref.current.height
+          hDelta = 1 - ref.height
         }
       }
 
-      if (wDelta + this.ref.current.width <= 0) {
+      if (wDelta + ref.width <= 0) {
         if (xDelta !== 0) {
-          xDelta = this.ref.current.width - 1
-          wDelta = 1 - this.ref.current.width
+          xDelta = ref.width - 1
+          wDelta = 1 - ref.width
         } else {
-          wDelta = 1 - this.ref.current.width
+          wDelta = 1 - ref.width
         }
       }
 
-      return this.ref.current.getCenter(viewport, gridSize, ids, this.ref.current.x + xDelta, this.ref.current.y + yDelta, this.ref.current.width + wDelta, this.ref.current.height + hDelta)
+      return ref.getCenter(viewport, gridSize, ids, ref.x + xDelta, ref.y + yDelta, ref.width + wDelta, ref.height + hDelta)
     } else {
-      return this.ref.current.getCenter(viewport, gridSize, ids, this.ref.current.x, this.ref.current.y, this.ref.current.width, this.ref.current.height)
+      return ref.getCenter(viewport, gridSize, ids, ref.x, ref.y, ref.width, ref.height)
     }
   }
 
@@ -359,12 +362,6 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       }
     }
     return undefined
-  }
-
-  isVisible = (gridSize: number, viewport: Rectangle) => {
-    return this.ref.current
-      ? this.ref.current.isVisible(gridSize, viewport)
-      : false
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
@@ -402,15 +399,16 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       W += wDelta
       H += hDelta
 
-      this.ref.current.x += xDelta
-      this.ref.current.y += yDelta
-      this.ref.current.width += wDelta
-      this.ref.current.height += hDelta
+      const ref = this.ref.current as any
+      ref.clientX += xDelta * gridSize * viewport.z
+      ref.clientY += yDelta * gridSize * viewport.z
+      ref.clientW += wDelta * gridSize * viewport.z
+      ref.clientH += hDelta * gridSize * viewport.z
       this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
-      this.ref.current.x -= xDelta
-      this.ref.current.y -= yDelta
-      this.ref.current.width -= wDelta
-      this.ref.current.height -= hDelta
+      ref.clientX -= xDelta * gridSize * viewport.z
+      ref.clientY -= yDelta * gridSize * viewport.z
+      ref.clientW -= wDelta * gridSize * viewport.z
+      ref.clientH -= hDelta * gridSize * viewport.z
     } else {
       this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
     }

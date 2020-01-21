@@ -44,6 +44,7 @@ class PointHandle  {
     if (this.mutating) {
       this.x += xDelta
       this.y += yDelta
+      this.owner.updateClientCoordinates()
     }
     return false
   }

@@ -29,6 +29,6 @@ export const ZOOM_IN = 'ZOOM_IN' as const
 
 export const ZOOM_OUT = 'ZOOM_OUT' as const
 
-export const MIN_ZOOM = 0.3 as const
+export const MIN_ZOOM = 0.4 as const
 
-export const MAX_ZOOM = 12 as const
+export const MAX_ZOOM = 14 as const

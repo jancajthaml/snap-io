@@ -21,7 +21,7 @@ class Composition extends React.PureComponent<IProps> {
     }
     times.push(now);
 
-    const { gridSize, viewport, visible, engineMode } = this.props.engine
+    const { gridSize, viewport, elements, engineMode } = this.props.engine
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -47,7 +47,7 @@ class Composition extends React.PureComponent<IProps> {
 
     const layers = [1, 2, 3, 4]
     layers.forEach((layer) => {
-      visible.forEach((element) => {
+      elements.forEach((element) => {
         element.draw(layer, engineMode, ctx, viewport, gridSize, timestamp)
       })
     })
@@ -56,7 +56,6 @@ class Composition extends React.PureComponent<IProps> {
 
     const lines = [
       `mode: ${engineMode}`,
-      `visible: ${visible.size}`,
       `fps: ${times.length}`,
     ]
 
@@ -65,8 +64,8 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
-    ctx.fillRect(5, 7, w_t, 56)
-    ctx.strokeRect(5, 7, w_t, 56)
+    ctx.fillRect(5, 7, w_t, 6 + (16 * lines.length - 1))
+    ctx.strokeRect(5, 7, w_t, 6 + (16 * lines.length - 1))
     ctx.fillStyle = "black";
 
     lines.forEach((line, idx) => {

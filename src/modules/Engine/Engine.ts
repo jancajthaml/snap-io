@@ -21,7 +21,6 @@ class Engine implements ICanvasEntityWrapperSchema {
   elements: Map<string, ICanvasEntitySchema>;
 
   selected: Set<ICanvasEntitySchema>;
-  visible: Set<ICanvasEntitySchema>;
   delayedSync?: any;
 
   constructor(store: IReduxStore) {
@@ -32,7 +31,6 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.store = store
     this.elements = new Map<string, ICanvasEntitySchema>()
     this.selected = new Set<ICanvasEntitySchema>()
-    this.visible = new Set<ICanvasEntitySchema>()
   }
 
   get engineMode() {
@@ -59,18 +57,7 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.setSelected()
   }
 
-  sync = (event: CustomEventInit) => {
-    if (this.delayedSync !== undefined) {
-      clearTimeout(this.delayedSync)
-    }
-    if (event.detail && event.detail.hardSync === false) {
-      this.updateVisible(this.viewport)
-    } else {
-      this.visible.clear()
-      this.delayedSync = setTimeout(() => {
-        this.updateVisible(this.viewport)
-      }, 100)
-    }
+  sync = (_event: CustomEventInit) => {
   }
 
   teardown = () => {
@@ -124,17 +111,16 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
-      const { viewport, visible, gridSize } = this
+      const { viewport, elements, gridSize } = this
 
       const pointOfClick = new Point(
         ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
         ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
       )
 
-
       const captures: ICanvasEntitySchema[] = []
 
-      visible.forEach((element) => {
+      elements.forEach((element) => {
         if (element.mouseDownCapture) {
           captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDoubleClick)))
         }
@@ -147,20 +133,17 @@ class Engine implements ICanvasEntityWrapperSchema {
         if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
           return -1
         }
-        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle)) {
+        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle) && !(b instanceof PortHandle)) {
           return -1
         }
         if (a instanceof ResizerHandle && !(b instanceof LinkEntityRenderer)) {
           return -1
         }
-        if (a instanceof PortHandle && !(b instanceof ResizerHandle) && !(b instanceof LinkEntityRenderer)) {
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
           return -1
         }
         return 1
       })
-
-      //console.log('engine double captures', captures)
-      //console.log(visible)
 
       if (captures.length > 0) {
         const capture = captures[0]
@@ -189,7 +172,7 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
-      const { viewport, visible, gridSize } = this
+      const { viewport, elements, gridSize } = this
 
       const pointOfClick = new Point(
         ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
@@ -198,7 +181,7 @@ class Engine implements ICanvasEntityWrapperSchema {
 
       const captures: ICanvasEntitySchema[] = []
 
-      visible.forEach((element) => {
+      elements.forEach((element) => {
         if (element.mouseDownCapture) {
           captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDown)))
         }
@@ -304,8 +287,6 @@ class Engine implements ICanvasEntityWrapperSchema {
       const nextViewPort = viewport.copy()
       nextViewPort.translate(xDelta, yDelta)
 
-      this.updateVisible(nextViewPort)
-
       this.store.dispatch(setViewPort(nextViewPort))
     } else if (this.currentMouseEventOwner.onMouseMove) {
       currentMouseCoordinates.scaled.x2 = event.clientX - resolution.x1
@@ -365,25 +346,12 @@ class Engine implements ICanvasEntityWrapperSchema {
   resize = (x: number, y: number, width: number, height: number) => {
     const nextViewPort = this.viewport.copy()
     nextViewPort.resize(width / nextViewPort.z , height / nextViewPort.z)
-    this.updateVisible(nextViewPort)
     this.store.dispatch(setResolution(new Rectangle(x, y, width, height)))
     this.store.dispatch(setViewPort(nextViewPort))
   }
 
-  updateVisible = (viewport: Rectangle) => {
-    const { gridSize } = this
-    const nextVisible = new Set<ICanvasEntitySchema>(this.selected)
-
-    this.elements.forEach((element) => {
-      if (element.isVisible(gridSize, viewport)) {
-        nextVisible.add(element)
-      }
-    })
-    this.visible = nextVisible
-  }
-
   connectEntities = () => {
-    const { viewport, visible, gridSize } = this
+    const { viewport, elements, gridSize } = this
 
     const startCoordinates = new Point(
       ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
@@ -398,7 +366,7 @@ class Engine implements ICanvasEntityWrapperSchema {
     const startCaptures: ICanvasEntitySchema[] = []
     const endCaptures: ICanvasEntitySchema[] = []
 
-    visible.forEach((element) => {
+    elements.forEach((element) => {
       if (element.linkCapture) {
         const candidate = element.linkCapture(startCoordinates, viewport, gridSize)
         if (candidate) {
@@ -461,19 +429,12 @@ class Engine implements ICanvasEntityWrapperSchema {
 
   addNode = (id: string, entity: any) => {
     this.elements.set(id, entity)
-    if (this.delayedSync) {
-      clearTimeout(this.delayedSync)
-    }
-    this.delayedSync = setTimeout(() => {
-      this.updateVisible(this.viewport)
-    }, 100)
   }
 
   removeNode = (id: string) => {
     const entity = this.elements.get(id)
     if (entity) {
       this.elements.delete(id)
-      this.visible.delete(entity)
       this.selected.delete(entity)
     }
   }

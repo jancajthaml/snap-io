@@ -25,6 +25,7 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
     renderer.y = props.y
     renderer.width = props.width
     renderer.height = props.height
+    renderer.updateClientCoordinates()
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {

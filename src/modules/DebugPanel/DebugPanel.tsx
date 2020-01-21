@@ -20,8 +20,8 @@ interface IProps {
   setEngineMode: (engineMode: EngineMode) => void;
 }
 
-const loadSchema_A = (): IDiagramSchema => {
-  const howMany = 3//300
+const loadSchemaPorts = (): IDiagramSchema => {
+  const howMany = 300
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const entities = new Map<string, IEntitySchema>()
@@ -78,7 +78,7 @@ const loadSchema_A = (): IDiagramSchema => {
   })
 
   return {
-    id: 'schema-tiny',
+    id: 'schema-ports',
     entities,
     links,
   }
@@ -365,12 +365,12 @@ const DebugPanel = (props: IProps) => {
           }}
           onClick={() => {
             window.dispatchEvent(new Event('engine-cleanup'));
-            props.setSchema(loadSchema_A())
+            props.setSchema(loadSchemaPorts())
             props.zoomToFit()
             window.dispatchEvent(new Event('engine-sync'))
           }}
         >
-          tiny diagram
+          ports
         </button>
         <button
           style={{
