@@ -13,8 +13,6 @@ import { EngineMode } from '../Diagram/constants'
 import Engine from '../Engine'
 import Composition from '../Composition'
 
-import ResizableEntity from '../../entities/ResizableEntity'
-
 import BoxEntity from '../../entities/BoxEntity'
 import { IEntitySchema as IBoxEntitySchema } from '../../entities/BoxEntity/types'
 import { ENTITY_TYPE as BOX_ENTITY_TYPE } from '../../entities/BoxEntity/constants'
@@ -51,166 +49,60 @@ const Diagram = (props: IProps) => {
     }
   }, [])
 
-
-  if (engine.engineMode === EngineMode.VIEW) {
-    return (
-      <Composition engine={engine}>
-        {Array.from(props.schema.entities).map(([ _key, entity]) => {
-          if (entity.type === BOX_ENTITY_TYPE) {
-            return (
-              <BoxEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                color={(entity as IBoxEntitySchema).color}
-              />
-            )
-          } else if (entity.type === IMAGE_ENTITY_TYPE) {
-            return (
-              <ImageEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                url={(entity as IImageEntitySchema).url}
-              />
-            )
-          } else if (entity.type === TEXT_ENTITY_TYPE) {
-            return (
-              <TextEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                text={(entity as ITextEntitySchema).text}
-              />
-            )
-          } else if (entity.type === PORT_ENTITY_TYPE) {
-            return (
-              <PortEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                ports={(entity as IPortEntitySchema).ports}
-              />
-            )
-          } else {
-            return null
-          }
-        })}
-        {Array.from(props.schema.links).map(([ _key, link]) => {
-          if (link.type === LINK_ENTITY_TYPE) {
-            return (
-              <LinkEntity
-                key={link.id}
-                parent={engine}
-                type={link.type}
-                id={link.id}
-                from={link.from}
-                to={link.to}
-                breaks={link.breaks}
-              />
-            )
-          } else {
-            return null
-          }
-        })}
-      </Composition>
-    )
-  }
-
   return (
     <Composition engine={engine}>
       {Array.from(props.schema.entities).map(([ _key, entity]) => {
         if (entity.type === BOX_ENTITY_TYPE) {
           return (
-            <ResizableEntity
-              key={entity.id}
-              id={entity.id}
+            <BoxEntity
               parent={engine}
-            >
-              <BoxEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                color={(entity as IBoxEntitySchema).color}
-              />
-            </ResizableEntity>
+              type={entity.type}
+              id={entity.id}
+              x={entity.x}
+              y={entity.y}
+              width={entity.width}
+              height={entity.height}
+              color={(entity as IBoxEntitySchema).color}
+            />
           )
         } else if (entity.type === IMAGE_ENTITY_TYPE) {
           return (
-            <ResizableEntity
-              key={entity.id}
-              id={entity.id}
+            <ImageEntity
               parent={engine}
-            >
-              <ImageEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                url={(entity as IImageEntitySchema).url}
-              />
-            </ResizableEntity>
+              type={entity.type}
+              id={entity.id}
+              x={entity.x}
+              y={entity.y}
+              width={entity.width}
+              height={entity.height}
+              url={(entity as IImageEntitySchema).url}
+            />
           )
         } else if (entity.type === TEXT_ENTITY_TYPE) {
           return (
-            <ResizableEntity
-              key={entity.id}
-              id={entity.id}
+            <TextEntity
               parent={engine}
-            >
-              <TextEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                text={(entity as ITextEntitySchema).text}
-              />
-            </ResizableEntity>
+              type={entity.type}
+              id={entity.id}
+              x={entity.x}
+              y={entity.y}
+              width={entity.width}
+              height={entity.height}
+              text={(entity as ITextEntitySchema).text}
+            />
           )
         } else if (entity.type === PORT_ENTITY_TYPE) {
           return (
-            <ResizableEntity
-              key={entity.id}
-              id={entity.id}
+            <PortEntity
               parent={engine}
-            >
-              <PortEntity
-                parent={engine}
-                type={entity.type}
-                id={entity.id}
-                x={entity.x}
-                y={entity.y}
-                width={entity.width}
-                height={entity.height}
-                ports={(entity as IPortEntitySchema).ports}
-              />
-            </ResizableEntity>
+              type={entity.type}
+              id={entity.id}
+              x={entity.x}
+              y={entity.y}
+              width={entity.width}
+              height={entity.height}
+              ports={(entity as IPortEntitySchema).ports}
+            />
           )
         } else {
           return null
@@ -235,6 +127,7 @@ const Diagram = (props: IProps) => {
       })}
     </Composition>
   )
+
 }
 
 const mapStateToProps = (state: IRootReduxState) => ({

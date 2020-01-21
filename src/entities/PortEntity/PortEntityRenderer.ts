@@ -146,8 +146,8 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (layer === 1) {
       const RADIUS = Math.min(this.clientW, this.clientH) / 2
 
-      ctx.strokeStyle = "black"
-      ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+      //ctx.strokeStyle = "black"
+      //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
 
       const X = this.clientX + this.clientW / 2 - RADIUS
       const Y = this.clientY + this.clientH / 2 - RADIUS

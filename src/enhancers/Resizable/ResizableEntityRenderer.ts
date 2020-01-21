@@ -1,12 +1,13 @@
 import { Point, Rectangle } from '../../atoms'
 import ResizerHandle from './ResizerHandle'
 import { ICanvasEntityWrapperSchema, ICanvasEntitySchema } from '../../@types/index'
+
 import { EngineMode } from '../../modules/Diagram/constants'
 
 class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
 
   id: string;
-  ref: React.MutableRefObject<ICanvasEntitySchema | undefined>;
+  child: ICanvasEntitySchema;
   parent: ICanvasEntityWrapperSchema;
   xDelta: number;
   yDelta: number;
@@ -16,9 +17,9 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   selected: boolean;
   resizers: ResizerHandle[];
 
-  constructor(id: string, ref: React.MutableRefObject<ICanvasEntitySchema | undefined>, parent: ICanvasEntityWrapperSchema) {
+  constructor(id: string, child: ICanvasEntitySchema, parent: ICanvasEntityWrapperSchema) {
     this.id = id;
-    this.ref = ref;
+    this.child = child;
     this.parent = parent;
     this.xDelta = 0;
     this.yDelta = 0;
@@ -98,25 +99,21 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     this.wDelta = 0
     this.hDelta = 0
 
-    if (!this.ref.current) {
-      return
-    }
-
-    if (hDelta + this.ref.current.height <= 0) {
+    if (hDelta + this.child.height <= 0) {
       if (yDelta !== 0) {
-        yDelta = this.ref.current.height - 1
-        hDelta = 1 - this.ref.current.height
+        yDelta = this.child.height - 1
+        hDelta = 1 - this.child.height
       } else {
-        hDelta = 1 - this.ref.current.height
+        hDelta = 1 - this.child.height
       }
     }
 
-    if (wDelta + this.ref.current.width <= 0) {
+    if (wDelta + this.child.width <= 0) {
       if (xDelta !== 0) {
-        xDelta = this.ref.current.width - 1
-        wDelta = 1 - this.ref.current.width
+        xDelta = this.child.width - 1
+        wDelta = 1 - this.child.width
       } else {
-        wDelta = 1 - this.ref.current.width
+        wDelta = 1 - this.child.width
       }
     }
 
@@ -139,12 +136,12 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       nextSchema.y += yDelta
       nextSchema.width += wDelta
       nextSchema.height += hDelta
-      this.parent.entityUpdated(this.ref.current.id, nextSchema)
-      this.ref.current.x += xDelta
-      this.ref.current.y += yDelta
-      this.ref.current.width += wDelta
-      this.ref.current.height += hDelta
-      const ref = this.ref.current as any
+      this.parent.entityUpdated(this.child.id, nextSchema)
+      this.child.x += xDelta
+      this.child.y += yDelta
+      this.child.width += wDelta
+      this.child.height += hDelta
+      const ref = this.child as any
       ref.updateClientCoordinates()
     }
   }
@@ -217,10 +214,8 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   onKeyUp = (event: KeyboardEvent) => {
     switch (event.key) {
       case 'Backspace': {
-        if (this.ref.current) {
           // FIXME make work for links also
-          this.parent.entityDeleted(this.ref.current.id)
-        }
+        this.parent.entityDeleted(this.child.id)
         break
       }
       default: {
@@ -257,20 +252,17 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    if (!this.ref.current) {
-      return []
-    }
-    if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
+    if (!(point.x >= this.child.x - 1 && point.x <= (this.child.x + this.child.width + 1) && point.y >= this.child.y - 1 && point.y <= (this.child.y + this.child.height + 1))) {
       return []
     }
 
     if (this.selected) {
       const captures = [] as any[]
 
-      const x = (viewport.x1 + Math.round(this.ref.current.x) * gridSize - gridSize/2) * viewport.z
-      const y = (viewport.y1 + Math.round(this.ref.current.y) * gridSize - gridSize/2) * viewport.z
-      const w = (Math.round(this.ref.current.width) * gridSize + gridSize) * viewport.z
-      const h = (Math.round(this.ref.current.height) * gridSize + gridSize) * viewport.z
+      const x = (viewport.x1 + Math.round(this.child.x) * gridSize - gridSize/2) * viewport.z
+      const y = (viewport.y1 + Math.round(this.child.y) * gridSize - gridSize/2) * viewport.z
+      const w = (Math.round(this.child.width) * gridSize + gridSize) * viewport.z
+      const h = (Math.round(this.child.height) * gridSize + gridSize) * viewport.z
 
       const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
 
@@ -282,21 +274,21 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
         return captures.concat(this)
       }
 
-      if (this.ref.current.mouseDownCapture) {
-        captures.push(...this.ref.current.mouseDownCapture(point, viewport, gridSize))
+      if (this.child.mouseDownCapture) {
+        captures.push(...this.child.mouseDownCapture(point, viewport, gridSize))
       }
 
       if (captures.length) {
         return captures.concat(this)
       }
 
-      if (point.x >= this.ref.current.x - 0.5 && point.x <= (this.ref.current.x + this.ref.current.width + 0.5) && point.y >= this.ref.current.y - 0.5 && point.y <= (this.ref.current.y + this.ref.current.height + 0.5)) {
+      if (point.x >= this.child.x - 0.5 && point.x <= (this.child.x + this.child.width + 0.5) && point.y >= this.child.y - 0.5 && point.y <= (this.child.y + this.child.height + 0.5)) {
         return [this]
       }
       return []
     } else {
-      if (this.ref.current.mouseDownCapture) {
-        return this.ref.current.mouseDownCapture(point, viewport, gridSize).concat(this)
+      if (this.child.mouseDownCapture) {
+        return this.child.mouseDownCapture(point, viewport, gridSize).concat(this)
       }
       return [this]
     }
@@ -317,8 +309,8 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   getEntityByID = (id: string) => this.parent.getEntityByID(id)
 
   getCenter = (viewport: Rectangle, gridSize: number, ids: string[], _x: number, _y: number, _width: number, _height: number) => {
-    const ref = this.ref.current as any
-    if (!ref || !ref.getCenter) {
+    const ref = this.child as any
+    if (!ref.getCenter) {
       return new Point()
     }
 
@@ -349,14 +341,11 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   }
 
   linkCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    if (!this.ref.current) {
+    if (!(point.x >= this.child.x - 1 && point.x <= (this.child.x + this.child.width + 1) && point.y >= this.child.y - 1 && point.y <= (this.child.y + this.child.height + 1))) {
       return undefined
     }
-    if (!(point.x >= this.ref.current.x - 1 && point.x <= (this.ref.current.x + this.ref.current.width + 1) && point.y >= this.ref.current.y - 1 && point.y <= (this.ref.current.y + this.ref.current.height + 1))) {
-      return undefined
-    }
-    if (this.ref.current.linkCapture) {
-      const capture = this.ref.current.linkCapture(point, viewport, gridSize)
+    if (this.child.linkCapture) {
+      const capture = this.child.linkCapture(point, viewport, gridSize)
       if (capture) {
         return capture
       }
@@ -365,14 +354,17 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
-    if (!this.ref.current) {
-      return undefined
+    /*
+    const ref = this.child as any
+    if (!ref.visible) {
+      return
     }
+    */
 
-    let X = this.ref.current.x
-    let Y = this.ref.current.y
-    let W = this.ref.current.width
-    let H = this.ref.current.height
+    let X = this.child.x
+    let Y = this.child.y
+    let W = this.child.width
+    let H = this.child.height
 
     if (this.mutating) {
       let { xDelta, yDelta, wDelta, hDelta } = this
@@ -399,25 +391,25 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       W += wDelta
       H += hDelta
 
-      const ref = this.ref.current as any
+      const ref = this.child as any
       ref.clientX += xDelta * gridSize * viewport.z
       ref.clientY += yDelta * gridSize * viewport.z
       ref.clientW += wDelta * gridSize * viewport.z
       ref.clientH += hDelta * gridSize * viewport.z
-      this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
+      this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
       ref.clientX -= xDelta * gridSize * viewport.z
       ref.clientY -= yDelta * gridSize * viewport.z
       ref.clientW -= wDelta * gridSize * viewport.z
       ref.clientH -= hDelta * gridSize * viewport.z
     } else {
-      this.ref.current.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
+      this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
     }
 
-    if (mode !== EngineMode.EDIT || layer !== 2) {
+    if (mode !== EngineMode.EDIT) {
       return
     }
 
-    if (this.selected) {
+    if (layer === 2 && this.selected) {
       ctx.strokeStyle = "black";
       ctx.fillStyle = "black";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
@@ -433,14 +425,21 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       this.resizers.forEach((resizer) => {
         resizer.draw(ctx, X, Y, W, H)
       })
+    } else if (layer === 1 && !this.selected) {
+      ctx.strokeStyle = "#ccc";
+      ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
+
+      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
+      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
+      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
+      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
+
+      ctx.strokeRect(X, Y, W, H);
+      ctx.setLineDash([]);
     }
   }
 
-  serialize = () => {
-    return this.ref.current
-      ? this.ref.current.serialize()
-      : {}
-  }
+  serialize = () => this.child.serialize()
 
   selectionCapture = (selected: boolean) => {
     this.selected = selected

@@ -42,8 +42,8 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
 
   drawEdit = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     this.drawView(ctx, timestamp)
-    ctx.strokeStyle = "black"
-    ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+    //ctx.strokeStyle = "black"
+    //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
   drawView = (ctx: CanvasRenderingContext2D, timestamp: number) => {

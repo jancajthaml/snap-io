@@ -5,7 +5,7 @@ import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLi
 import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
 import { ICanvasEntitySchema, ICanvasEntityWrapperSchema } from '../../@types/index'
-import ResizerHandle from '../../entities/ResizableEntity/ResizerHandle'
+import ResizerHandle from '../../enhancers/Resizable/ResizerHandle'
 import LinkEntityRenderer from '../../entities/LinkEntity/LinkEntityRenderer'
 import PortHandle from '../../entities/PortEntity/PortHandle'
 import PointHandle from '../../entities/LinkEntity/PointHandle'
@@ -21,7 +21,6 @@ class Engine implements ICanvasEntityWrapperSchema {
   elements: Map<string, ICanvasEntitySchema>;
 
   selected: Set<ICanvasEntitySchema>;
-  delayedSync?: any;
 
   constructor(store: IReduxStore) {
     this.currentMouseCoordinates = {
@@ -51,24 +50,16 @@ class Engine implements ICanvasEntityWrapperSchema {
 
   cleanup = () => {
     this.currentMouseEventOwner = undefined
-    if (this.delayedSync !== undefined) {
-      clearTimeout(this.delayedSync)
-    }
     this.setSelected()
-  }
-
-  sync = (_event: CustomEventInit) => {
   }
 
   teardown = () => {
     window.removeEventListener('engine-cleanup', this.cleanup)
-    window.removeEventListener('engine-sync', this.sync)
     this.cleanup()
   }
 
   bootstrap = () => {
     window.addEventListener('engine-cleanup', this.cleanup)
-    window.addEventListener('engine-sync', this.sync)
   }
 
   keyUp = (event: KeyboardEvent) => {
@@ -94,7 +85,6 @@ class Engine implements ICanvasEntityWrapperSchema {
   }
 
   doubleClick = (event: MouseEvent) => {
-    //console.log('engine double click', event)
     const { resolution } = this
 
     const x = event.clientX - resolution.x1
@@ -230,11 +220,6 @@ class Engine implements ICanvasEntityWrapperSchema {
     } else {
       this.store.dispatch(zoomIn(x, y, 1))
     }
-    this.sync({
-      detail: {
-        hardSync: false,
-      },
-    })
   }
 
   mouseUp = (event: MouseEvent) => {

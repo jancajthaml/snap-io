@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
+
 import PortEntityRenderer from './PortEntityRenderer'
+import Resizable from '../../enhancers/Resizable'
+
 import PortHandle from './PortHandle'
 
 interface IProps extends IEntitySchema {
@@ -13,7 +16,7 @@ const PortEntity = React.forwardRef((props: IProps, ref: any) => {
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, renderer)
+    parent.addNode(id, new Resizable(id, renderer, parent))
     return () => {
       parent.removeNode(id)
     }
@@ -37,10 +40,9 @@ const PortEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [props.id, props.ports.map((port) => port.id).join(',')])
 
   useEffect(() => {
-    if (!ref) {
-      return
+    if (ref) {
+      ref.current = renderer
     }
-    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

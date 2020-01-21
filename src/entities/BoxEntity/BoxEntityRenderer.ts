@@ -40,8 +40,10 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D) => {
-    ctx.strokeStyle = "black"
-    ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+    //ctx.strokeStyle = "black"
+    //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+    ctx.fillStyle = this.color
+    ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
   drawViewSimple = (ctx: CanvasRenderingContext2D) => {

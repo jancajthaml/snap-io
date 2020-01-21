@@ -52,8 +52,8 @@ class TextEntityRenderer implements ICanvasEntitySchema {
     if (this.buffer) {
       ctx.drawImage(this.buffer, 0, 0, this.buffer.width, this.buffer.height, this.clientX, this.clientY, this.clientW, this.clientH);
     }
-    ctx.strokeStyle = "black"
-    ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+    //ctx.strokeStyle = "black"
+    //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
   drawView = (ctx: CanvasRenderingContext2D) => {

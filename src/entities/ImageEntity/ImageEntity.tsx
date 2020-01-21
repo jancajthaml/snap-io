@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
+
 import ImageEntityRenderer from './ImageEntityRenderer'
+import Resizable from '../../enhancers/Resizable'
 
 interface IProps extends IEntitySchema {
   parent: ICanvasEntityWrapperSchema;
@@ -12,7 +14,7 @@ const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
 
   useEffect(() => {
     const { parent, id } = props
-    parent.addNode(id, renderer)
+    parent.addNode(id, new Resizable(id, renderer, parent))
     return () => {
       parent.removeNode(id)
     }
@@ -32,10 +34,9 @@ const ImageEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [props.id, props.url])
 
   useEffect(() => {
-    if (!ref) {
-      return
+    if (ref) {
+      ref.current = renderer
     }
-    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

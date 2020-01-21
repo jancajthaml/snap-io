@@ -342,7 +342,7 @@ const DebugPanel = (props: IProps) => {
             } else {
               props.setEngineMode(EngineMode.EDIT)
             }
-            //window.dispatchEvent(new Event('engine-sync'))
+            // FIXME flickers
           }}
         >
           {props.engineMode === EngineMode.EDIT
@@ -367,7 +367,6 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchemaPorts())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           ports
@@ -380,7 +379,6 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchemaComplicatedGifs())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           complicated gifs
@@ -393,7 +391,6 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_C())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           medium diagram
@@ -406,7 +403,6 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_D())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           huge diagram
@@ -419,7 +415,6 @@ const DebugPanel = (props: IProps) => {
             window.dispatchEvent(new Event('engine-cleanup'));
             props.setSchema(loadSchema_E())
             props.zoomToFit()
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         >
           masive diagram
@@ -467,9 +462,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
-              // FIXME flickers
               props.zoomToFit()
-              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             fit
@@ -479,9 +472,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
-              // FIXME flickers
               props.zoomIn(window.innerWidth / 2, window.innerHeight / 2, 10)
-              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             +
@@ -491,9 +482,7 @@ const DebugPanel = (props: IProps) => {
               display: 'inline-block',
             }}
             onClick={() => {
-              // FIXME flickers
               props.zoomOut(window.innerWidth / 2, window.innerHeight / 2, 10)
-              window.dispatchEvent(new Event('engine-sync'))
             }}
           >
             -
@@ -510,8 +499,8 @@ const DebugPanel = (props: IProps) => {
         </h5>
         <input
           type="range"
-          min={6*2}
-          max={6*10}
+          min={6 * 1}
+          max={6 * 10}
           style={{
             display: 'block',
           }}
@@ -519,7 +508,6 @@ const DebugPanel = (props: IProps) => {
           onChange={(event) => {
             event.preventDefault()
             props.setGridSize(Number(event.target.value))
-            window.dispatchEvent(new Event('engine-sync'))
           }}
         />
       </p>
