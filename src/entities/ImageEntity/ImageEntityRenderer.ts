@@ -1,6 +1,7 @@
 
 import { IEntitySchema } from './types'
 import { Rectangle } from '../../atoms'
+
 import ImageLibrary from './ImageLibrary'
 import { ENTITY_TYPE } from './constants'
 
@@ -15,15 +16,12 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   width: number;
   height: number;
   url: string;
-
   gridSize: number;
   viewport: Rectangle;
-
   clientX: number;
   clientY: number;
   clientW: number;
   clientH: number;
-
   visible: boolean;
 
   constructor(props: IEntitySchema) {
@@ -33,7 +31,6 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     this.width = props.width
     this.height = props.height
     this.url = props.url
-
     this.gridSize = 1
     this.viewport = new Rectangle()
     this.clientX = 1
@@ -44,22 +41,7 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D, timestamp: number) => {
-    const image = ImageLibrary.get(this.url, timestamp)
-    if (image === null) {
-      ctx.fillStyle = "#ccc"
-      ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH)
-      ctx.strokeStyle = "black"
-      ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
-      return
-    }
-
-    const w_i = image.width as number
-
-    const h_i = image.height as number
-    const ratio  = Math.min(this.clientW / w_i, this.clientH / h_i);
-
-    ctx.drawImage(image, 0, 0, w_i, h_i, this.clientX + (this.clientW - w_i * ratio) / 2, this.clientY + (this.clientH - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
-
+    this.drawView(ctx, timestamp)
     ctx.strokeStyle = "black"
     ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
@@ -74,7 +56,6 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
 
     const w_i = image.width as number
     const h_i = image.height as number
-
     const ratio  = Math.min(this.clientW / w_i, this.clientH / h_i);
 
     ctx.drawImage(image, 0, 0, w_i, h_i, this.clientX + (this.clientW - w_i * ratio) / 2, this.clientY + (this.clientH - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
@@ -115,7 +96,6 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     this.clientY = (this.viewport.y1 + (this.y * this.gridSize)) * this.viewport.z
     this.clientW = (this.width * this.gridSize) * this.viewport.z
     this.clientH = (this.height * this.gridSize) * this.viewport.z
-
     this.visible = this.isVisible()
   }
 

@@ -17,15 +17,12 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   connecting: boolean;
   getCurrentMouseCoordinates: any;
   connectEntities: any;
-
   gridSize: number;
   viewport: Rectangle;
-
   clientX: number;
   clientY: number;
   clientW: number;
   clientH: number;
-
   visible: boolean;
 
   constructor(props: IEntitySchema, getCurrentMouseCoordinates: any, connectEntities: any) {
@@ -41,14 +38,12 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     })
     this.getCurrentMouseCoordinates = getCurrentMouseCoordinates
     this.connectEntities = connectEntities
-
     this.gridSize = 1
     this.viewport = new Rectangle()
     this.clientX = 1
     this.clientY = 1
     this.clientW = 1
     this.clientH = 1
-
     this.visible = true
   }
 
@@ -57,11 +52,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   }
 
   portConnectStop = () => {
-    if (!this.connecting) {
-      return
+    if (this.connecting) {
+      this.connectEntities()
+      this.connecting = false
     }
-    this.connectEntities()
-    this.connecting = false
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
@@ -178,12 +172,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
       ctx.beginPath();
       ctx.moveTo(line.x1, line.y1);
       ctx.lineTo(line.x2, line.y2);
-      //ctx.lineWidth = 1 * this.viewport.z;
       ctx.lineCap = "round";
       ctx.strokeStyle = "red";
       ctx.stroke();
       ctx.lineCap = "square";
-      //ctx.lineWidth = 1;
     }
   }
 
@@ -268,7 +260,6 @@ class PortEntityRenderer implements ICanvasEntitySchema {
         y: port.y,
       })
     })
-
     return {
       id: this.id,
       type: ENTITY_TYPE,
