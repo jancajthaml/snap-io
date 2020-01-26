@@ -42,7 +42,6 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
   }
 
   drawView = (ctx: CanvasRenderingContext2D) => {
-    ctx.lineWidth = (this.viewport.z / 3) + 0.5
     ctx.lineCap = "round";
     ctx.strokeStyle = "black";
 
@@ -55,7 +54,6 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     })
 
     ctx.stroke();
-    ctx.lineWidth = 1
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D) => {
@@ -69,7 +67,6 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     const fromPoint = fromRef.getCenter(this.viewport, this.gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(this.viewport, this.gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    ctx.lineWidth = (this.viewport.z / 3) + 0.5
     ctx.lineCap = "round";
     ctx.strokeStyle = this.selected ? "red" : "black";
     ctx.fillStyle = "white"
@@ -85,10 +82,8 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     ctx.stroke();
 
     this.breaks.forEach((point) => {
-      point.draw(ctx, this.viewport, this.gridSize)
+      point.draw(ctx, this.gridSize)
     })
-
-    ctx.lineWidth = 1
   }
 
   deletePoint = (point: PointHandle) => {
@@ -117,12 +112,12 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
       return
     }
 
-    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
+    const pointScaled = new Point(point.x * gridSize, point.y * gridSize)
 
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    const points = [fromPoint, ...this.breaks.map((item) => new Point((item.x * gridSize) * viewport.z, (item.y * gridSize) * viewport.z)), toPoint]
+    const points = [fromPoint, ...this.breaks.map((item) => new Point(item.x * gridSize, item.y * gridSize)), toPoint]
 
     for (let j = 0; j < points.length - 1; j++) {
       const A = points[j];
@@ -161,7 +156,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
+    const pointScaled = new Point(point.x * gridSize, point.y * gridSize)
     const captures: any[] = []
 
     this.breaks.forEach((item) => {
@@ -178,7 +173,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    const points = [fromPoint, ...this.breaks.map((item) => new Point((item.x * gridSize) * viewport.z, (item.y * gridSize) * viewport.z)), toPoint]
+    const points = [fromPoint, ...this.breaks.map((item) => new Point(item.x * gridSize, item.y * gridSize)), toPoint]
 
     for (let j = 0; j < points.length - 1; j++) {
       const A = points[j];
@@ -241,8 +236,8 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     points.push(fromPoint)
 
     this.breaks.forEach((point) => {
-      const X = (point.x * this.gridSize) * this.viewport.z
-      const Y = (point.y * this.gridSize) * this.viewport.z
+      const X = (point.x * this.gridSize)
+      const Y = (point.y * this.gridSize)
       points.push(new Point(X, Y))
     })
 

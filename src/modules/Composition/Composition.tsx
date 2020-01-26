@@ -23,38 +23,48 @@ class Composition extends React.PureComponent<IProps> {
 
     const { gridSize, viewport, elements, engineMode } = this.props.engine
 
+    // ctx.putImageData([] as ImageData, 0, 0)
+    //ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     const p = gridSize * viewport.z
-    const xOffset = (viewport.x1 * viewport.z) % p
-    const yOffset = (viewport.y1 * viewport.z) % p
+    const xOffset = ((viewport.x1 * viewport.z) % p) + 0.5
+    const yOffset = ((viewport.y1 * viewport.z) % p) + 0.5
+
     ctx.lineWidth = (viewport.z / 3) + 0.2;
 
     ctx.beginPath();
-    for (let x = xOffset + 0.5; x <= ctx.canvas.width + p; x += p) {
+    let x = xOffset + 0.5
+    let y = yOffset + 0.5
+
+    while (x < ctx.canvas.width) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, ctx.canvas.height);
+      x+=p
     }
-    for (let y = yOffset + 0.5; y <= ctx.canvas.height + p; y += p) {
+    while (y < ctx.canvas.height) {
       ctx.moveTo(0, y);
       ctx.lineTo(ctx.canvas.width, y);
+      y+=p
     }
+
     ctx.strokeStyle = "#eee";
     ctx.stroke();
 
     ctx.lineWidth = 1
 
-    ctx.transform(1, 0, 0, 1, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
+    ctx.setTransform(viewport.z, 0, 0, viewport.z, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
 
-    const layers = [1, 2, 3, 4]
-    layers.forEach((layer) => {
+    let layer = 0
+    while (layer++<4) {
       elements.forEach((element) => {
         element.draw(layer, engineMode, ctx, viewport, gridSize, timestamp)
       })
-    })
+    }
 
-    ctx.transform(1, 0, 0, 1, -viewport.x1 * viewport.z, -viewport.y1 * viewport.z)
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
 
     // FPS and visible entities info
 

@@ -62,17 +62,17 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return []
     }
-    let X = (this.x * gridSize) * viewport.z
-    let Y = (this.y * gridSize) * viewport.z
-    let W = (this.width * gridSize) * viewport.z
-    let H = (this.height * gridSize) * viewport.z
+    let X = (this.x * gridSize)
+    let Y = (this.y * gridSize)
+    let W = (this.width * gridSize)
+    let H = (this.height * gridSize)
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
     Y += H / 2 - RADIUS
     W = H = RADIUS * 2
 
-    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
+    const pointScaled = new Point(point.x * gridSize, point.y * gridSize)
 
     const captures: PortHandle[] = []
     this.ports.forEach((port) => {
@@ -85,17 +85,17 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return undefined
     }
-    let X = (this.x * gridSize) * viewport.z
-    let Y = (this.y * gridSize) * viewport.z
-    let W = (this.width * gridSize) * viewport.z
-    let H = (this.height * gridSize) * viewport.z
+    let X = (this.x * gridSize)
+    let Y = (this.y * gridSize)
+    let W = (this.width * gridSize)
+    let H = (this.height * gridSize)
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
     Y += H / 2 - RADIUS
     W = H = RADIUS * 2
 
-    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
+    const pointScaled = new Point((point.x * gridSize), (point.y * gridSize))
 
     const captures: PortHandle[] = []
     this.ports.forEach((port) => {
@@ -126,8 +126,6 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     const W = RADIUS * 2
     const H = W
 
-    ctx.lineWidth = (this.viewport.z / 3) + 0.5
-
     ctx.fillStyle = "orange"
     ctx.strokeStyle = "blue"
     ctx.beginPath()
@@ -138,22 +136,16 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     this.ports.forEach((port) => {
       port.draw(ctx, this.viewport, this.gridSize, X, Y, W, H)
     })
-
-    ctx.lineWidth = 1
   }
 
   drawEdit = (layer: number, ctx: CanvasRenderingContext2D) => {
     if (layer === 1) {
       const RADIUS = Math.min(this.clientW, this.clientH) / 2
 
-      //ctx.strokeStyle = "black"
-      //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
-
       const X = this.clientX + this.clientW / 2 - RADIUS
       const Y = this.clientY + this.clientH / 2 - RADIUS
       const W = RADIUS * 2
       const H = RADIUS * 2
-      ctx.lineWidth = (this.viewport.z / 3) + 0.5
 
       ctx.strokeStyle = "blue"
 
@@ -165,13 +157,12 @@ class PortEntityRenderer implements ICanvasEntitySchema {
         port.draw(ctx, this.viewport, this.gridSize, X, Y, W, H)
       })
 
-      ctx.lineWidth = 1
     }
     if (layer === 3 && this.connecting) {
       const line = this.getCurrentMouseCoordinates()
       ctx.beginPath();
-      ctx.moveTo(line.x1 - this.viewport.x1 * this.viewport.z, line.y1 - this.viewport.y1 * this.viewport.z);
-      ctx.lineTo(line.x2 - this.viewport.x1 * this.viewport.z, line.y2 - this.viewport.y1 * this.viewport.z);
+      ctx.moveTo(line.x1 / this.viewport.z - this.viewport.x1, line.y1 / this.viewport.z - this.viewport.y1);
+      ctx.lineTo(line.x2 / this.viewport.z - this.viewport.x1, line.y2 / this.viewport.z - this.viewport.y1);
       ctx.lineCap = "round";
       ctx.strokeStyle = "red";
       ctx.stroke();
@@ -205,10 +196,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.x * this.gridSize) * this.viewport.z
-    this.clientY = (this.y * this.gridSize) * this.viewport.z
-    this.clientW = (this.width * this.gridSize) * this.viewport.z
-    this.clientH = (this.height * this.gridSize) * this.viewport.z
+    this.clientX = (this.x * this.gridSize)
+    this.clientY = (this.y * this.gridSize)
+    this.clientW = (this.width * this.gridSize)
+    this.clientH = (this.height * this.gridSize)
     this.visible = this.isVisible()
   }
 
@@ -228,11 +219,11 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     return true
   }
 
-  getCenter = (viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
-    let X = (x * gridSize) * viewport.z
-    let Y = (y * gridSize) * viewport.z
-    let W = (width * gridSize) * viewport.z
-    let H = (height * gridSize) * viewport.z
+  getCenter = (_viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
+    let X = (x * gridSize)
+    let Y = (y * gridSize)
+    let W = (width * gridSize)
+    let H = (height * gridSize)
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
@@ -242,7 +233,7 @@ class PortEntityRenderer implements ICanvasEntitySchema {
 
     const port = this.ports.get(ids[1])
     if (port) {
-      const PORT_SIZE = viewport.z * gridSize * 0.5
+      const PORT_SIZE = gridSize * 0.5
       const PORT_X = X + (W * port.x) - PORT_SIZE / 2
       const PORT_Y = Y + (H * port.y) - PORT_SIZE / 2
       return new Point(PORT_X + PORT_SIZE / 2, PORT_Y + PORT_SIZE / 2)

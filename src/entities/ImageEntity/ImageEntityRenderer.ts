@@ -90,10 +90,10 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.x * this.gridSize) * this.viewport.z
-    this.clientY = (this.y * this.gridSize) * this.viewport.z
-    this.clientW = (this.width * this.gridSize) * this.viewport.z
-    this.clientH = (this.height * this.gridSize) * this.viewport.z
+    this.clientX = (this.x * this.gridSize)
+    this.clientY = (this.y * this.gridSize)
+    this.clientW = (this.width * this.gridSize)
+    this.clientH = (this.height * this.gridSize)
     this.visible = this.isVisible()
   }
 

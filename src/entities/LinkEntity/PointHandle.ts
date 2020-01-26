@@ -19,11 +19,11 @@ class PointHandle  {
     this.owner.deletePoint(this)
   }
 
-  mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    const PORT_RADIUS = viewport.z * gridSize * 0.2
+  mouseDownCapture = (point: Point, _viewport: Rectangle, gridSize: number) => {
+    const PORT_RADIUS = gridSize * 0.2
 
-    const X = (this.x * gridSize) * viewport.z
-    const Y = (this.y * gridSize) * viewport.z
+    const X = (this.x * gridSize)
+    const Y = (this.y * gridSize)
 
     return Math.sqrt((point.x - X) * (point.x - X) + (point.y - Y) * (point.y - Y)) < PORT_RADIUS
       ? [this]
@@ -49,9 +49,9 @@ class PointHandle  {
     return false
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    const X = (this.x * gridSize) * viewport.z
-    const Y = (this.y * gridSize) * viewport.z
+  draw = (ctx: CanvasRenderingContext2D, gridSize: number) => {
+    const X = (this.x * gridSize)
+    const Y = (this.y * gridSize)
 
     if (this.mutating) {
       ctx.fillStyle = "black"
@@ -59,7 +59,7 @@ class PointHandle  {
       ctx.fillStyle = "white"
     }
 
-    const RADIUS = viewport.z * gridSize * 0.2
+    const RADIUS = gridSize * 0.2
 
     ctx.beginPath()
     ctx.arc(X, Y, RADIUS, 0, 2 * Math.PI, false)

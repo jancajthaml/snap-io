@@ -15,8 +15,8 @@ class PortHandle  {
     this.y = y
   }
 
-  mouseDownCapture = (viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) => {
-    const PORT_RADIUS = viewport.z * gridSize * 0.25
+  mouseDownCapture = (_viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number, point: Point) => {
+    const PORT_RADIUS = gridSize * 0.25
 
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
@@ -39,8 +39,8 @@ class PortHandle  {
     return true
   }
 
-  draw = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number) => {
-    const PORT_RADIUS = viewport.z * gridSize * 0.25
+  draw = (ctx: CanvasRenderingContext2D, _viewport: Rectangle, gridSize: number, x: number, y: number, width: number, height: number) => {
+    const PORT_RADIUS = gridSize * 0.25
     const X = x + (width * this.x)
     const Y = y + (height * this.y)
 

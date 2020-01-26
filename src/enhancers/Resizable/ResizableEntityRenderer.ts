@@ -392,15 +392,15 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       H += hDelta
 
       const ref = this.child as any
-      ref.clientX += xDelta * gridSize * viewport.z
-      ref.clientY += yDelta * gridSize * viewport.z
-      ref.clientW += wDelta * gridSize * viewport.z
-      ref.clientH += hDelta * gridSize * viewport.z
+      ref.clientX += xDelta * gridSize //* viewport.z
+      ref.clientY += yDelta * gridSize //* viewport.z
+      ref.clientW += wDelta * gridSize //* viewport.z
+      ref.clientH += hDelta * gridSize //* viewport.z
       this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
-      ref.clientX -= xDelta * gridSize * viewport.z
-      ref.clientY -= yDelta * gridSize * viewport.z
-      ref.clientW -= wDelta * gridSize * viewport.z
-      ref.clientH -= hDelta * gridSize * viewport.z
+      ref.clientX -= xDelta * gridSize //* viewport.z
+      ref.clientY -= yDelta * gridSize //* viewport.z
+      ref.clientW -= wDelta * gridSize //* viewport.z
+      ref.clientH -= hDelta * gridSize //* viewport.z
     } else {
       this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
     }
@@ -412,30 +412,32 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (layer === 2 && this.selected) {
       ctx.strokeStyle = "black";
       ctx.fillStyle = "black";
-      ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
-
-      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2) * viewport.z,
-      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2) * viewport.z,
-      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
-      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1 / viewport.z
+      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2), //* viewport.z,
+      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2), // * viewport.z,
+      W = (Math.round(W) * gridSize + gridSize), // * viewport.z,
+      H = (Math.round(H) * gridSize + gridSize), //* viewport.z,
 
       ctx.strokeRect(X, Y, W, H);
       ctx.setLineDash([]);
 
       this.resizers.forEach((resizer) => {
-        resizer.draw(ctx, X, Y, W, H)
+        resizer.draw(ctx, X, Y, W, H, viewport.z)
       })
+      ctx.lineWidth = 1
     } else if (layer === 1 && !this.selected) {
       ctx.strokeStyle = "#ccc";
-      ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
-
-      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2) * viewport.z,
-      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2) * viewport.z,
-      W = (Math.round(W) * gridSize + gridSize) * viewport.z,
-      H = (Math.round(H) * gridSize + gridSize) * viewport.z,
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1 / viewport.z
+      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2), // * viewport.z,
+      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2), // * viewport.z,
+      W = (Math.round(W) * gridSize + gridSize), // * viewport.z,
+      H = (Math.round(H) * gridSize + gridSize), // * viewport.z,
 
       ctx.strokeRect(X, Y, W, H);
       ctx.setLineDash([]);
+      ctx.lineWidth = 1
     }
   }
 
