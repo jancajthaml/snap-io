@@ -40,8 +40,6 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawEdit = (ctx: CanvasRenderingContext2D) => {
-    //ctx.strokeStyle = "black"
-    //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
     ctx.fillStyle = this.color
     ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
@@ -61,8 +59,8 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.viewport.x1 + (this.x * this.gridSize)) * this.viewport.z
-    this.clientY = (this.viewport.y1 + (this.y * this.gridSize)) * this.viewport.z
+    this.clientX = (this.x * this.gridSize) * this.viewport.z
+    this.clientY = (this.y * this.gridSize) * this.viewport.z
     this.clientW = (this.width * this.gridSize) * this.viewport.z
     this.clientH = (this.height * this.gridSize) * this.viewport.z
     this.visible = this.isVisible()

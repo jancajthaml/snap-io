@@ -42,8 +42,6 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
 
   drawEdit = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     this.drawView(ctx, timestamp)
-    //ctx.strokeStyle = "black"
-    //ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
   drawView = (ctx: CanvasRenderingContext2D, timestamp: number) => {
@@ -92,8 +90,8 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.viewport.x1 + (this.x * this.gridSize)) * this.viewport.z
-    this.clientY = (this.viewport.y1 + (this.y * this.gridSize)) * this.viewport.z
+    this.clientX = (this.x * this.gridSize) * this.viewport.z
+    this.clientY = (this.y * this.gridSize) * this.viewport.z
     this.clientW = (this.width * this.gridSize) * this.viewport.z
     this.clientH = (this.height * this.gridSize) * this.viewport.z
     this.visible = this.isVisible()

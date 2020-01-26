@@ -15,15 +15,12 @@ class TextEntityRenderer implements ICanvasEntitySchema {
   height: number;
   text: string;
   buffer: any;
-
   gridSize: number;
   viewport: Rectangle;
-
   clientX: number;
   clientY: number;
   clientW: number;
   clientH: number;
-
   visible: boolean;
 
   constructor(props: IEntitySchema) {
@@ -34,7 +31,6 @@ class TextEntityRenderer implements ICanvasEntitySchema {
     this.height = props.height
     this.text = props.text
     this.buffer = null
-
     this.gridSize = 1
     this.viewport = new Rectangle()
     this.clientX = 1
@@ -96,8 +92,8 @@ class TextEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.viewport.x1 + (this.x * this.gridSize)) * this.viewport.z
-    this.clientY = (this.viewport.y1 + (this.y * this.gridSize)) * this.viewport.z
+    this.clientX = (this.x * this.gridSize) * this.viewport.z
+    this.clientY = (this.y * this.gridSize) * this.viewport.z
     this.clientW = (this.width * this.gridSize) * this.viewport.z
     this.clientH = (this.height * this.gridSize) * this.viewport.z
     this.visible = this.isVisible()

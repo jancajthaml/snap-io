@@ -45,12 +45,16 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
+    ctx.transform(1, 0, 0, 1, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
+
     const layers = [1, 2, 3, 4]
     layers.forEach((layer) => {
       elements.forEach((element) => {
         element.draw(layer, engineMode, ctx, viewport, gridSize, timestamp)
       })
     })
+
+    ctx.transform(1, 0, 0, 1, -viewport.x1 * viewport.z, -viewport.y1 * viewport.z)
 
     // FPS and visible entities info
 
@@ -87,8 +91,6 @@ class Composition extends React.PureComponent<IProps> {
     return (
       <React.Fragment>
         <Canvas
-          name="composition"
-          opaque={false}
           draw={this.draw}
           onResize={this.props.engine.resize}
           onKeyUp={this.props.engine.keyUp}

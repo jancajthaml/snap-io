@@ -117,12 +117,12 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
       return
     }
 
-    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
 
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    const points = [fromPoint, ...this.breaks.map((item) => new Point((viewport.x1 + (item.x * gridSize)) * viewport.z, (viewport.y1 + (item.y * gridSize)) * viewport.z)), toPoint]
+    const points = [fromPoint, ...this.breaks.map((item) => new Point((item.x * gridSize) * viewport.z, (item.y * gridSize) * viewport.z)), toPoint]
 
     for (let j = 0; j < points.length - 1; j++) {
       const A = points[j];
@@ -161,7 +161,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
   }
 
   mouseDownCapture = (point: Point, viewport: Rectangle, gridSize: number) => {
-    const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+    const pointScaled = new Point((point.x * gridSize) * viewport.z, (point.y * gridSize) * viewport.z)
     const captures: any[] = []
 
     this.breaks.forEach((item) => {
@@ -178,7 +178,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     const fromPoint = fromRef.getCenter(viewport, gridSize, this.from, fromRef.x, fromRef.y, fromRef.width, fromRef.height)
     const toPoint = toRef.getCenter(viewport, gridSize, this.to, toRef.x, toRef.y, toRef.width, toRef.height)
 
-    const points = [fromPoint, ...this.breaks.map((item) => new Point((viewport.x1 + (item.x * gridSize)) * viewport.z, (viewport.y1 + (item.y * gridSize)) * viewport.z)), toPoint]
+    const points = [fromPoint, ...this.breaks.map((item) => new Point((item.x * gridSize) * viewport.z, (item.y * gridSize) * viewport.z)), toPoint]
 
     for (let j = 0; j < points.length - 1; j++) {
       const A = points[j];
@@ -241,8 +241,8 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
     points.push(fromPoint)
 
     this.breaks.forEach((point) => {
-      const X = (this.viewport.x1 + (point.x * this.gridSize)) * this.viewport.z
-      const Y = (this.viewport.y1 + (point.y * this.gridSize)) * this.viewport.z
+      const X = (point.x * this.gridSize) * this.viewport.z
+      const Y = (point.y * this.gridSize) * this.viewport.z
       points.push(new Point(X, Y))
     })
 

@@ -259,12 +259,12 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (this.selected) {
       const captures = [] as any[]
 
-      const x = (viewport.x1 + Math.round(this.child.x) * gridSize - gridSize/2) * viewport.z
-      const y = (viewport.y1 + Math.round(this.child.y) * gridSize - gridSize/2) * viewport.z
+      const x = (/*viewport.x1 +*/ Math.round(this.child.x) * gridSize - gridSize/2) * viewport.z
+      const y = (/*viewport.y1 +*/ Math.round(this.child.y) * gridSize - gridSize/2) * viewport.z
       const w = (Math.round(this.child.width) * gridSize + gridSize) * viewport.z
       const h = (Math.round(this.child.height) * gridSize + gridSize) * viewport.z
 
-      const pointScaled = new Point((viewport.x1 + (point.x * gridSize)) * viewport.z, (viewport.y1 + (point.y * gridSize)) * viewport.z)
+      const pointScaled = new Point((/*viewport.x1 +*/ (point.x * gridSize)) * viewport.z, (/*viewport.y1 +*/ (point.y * gridSize)) * viewport.z)
 
       captures.push(...this.resizers.reduce(function(flat, resizer) {
         return flat.concat(resizer.mouseDownCapture(x, y, w, h, pointScaled));
@@ -414,8 +414,8 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       ctx.fillStyle = "black";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
 
-      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
-      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
+      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2) * viewport.z,
+      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2) * viewport.z,
       W = (Math.round(W) * gridSize + gridSize) * viewport.z,
       H = (Math.round(H) * gridSize + gridSize) * viewport.z,
 
@@ -429,8 +429,8 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       ctx.strokeStyle = "#ccc";
       ctx.setLineDash([4 * viewport.z, 4 * viewport.z]);
 
-      X = (viewport.x1 + Math.round(X) * gridSize - gridSize/2) * viewport.z,
-      Y = (viewport.y1 + Math.round(Y) * gridSize - gridSize/2) * viewport.z,
+      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2) * viewport.z,
+      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2) * viewport.z,
       W = (Math.round(W) * gridSize + gridSize) * viewport.z,
       H = (Math.round(H) * gridSize + gridSize) * viewport.z,
 
