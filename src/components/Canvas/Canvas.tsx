@@ -12,7 +12,7 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 40
+const FPS = 10
 const INTERVAL = 1000 / FPS
 
 const Canvas = (props: IProps) => {

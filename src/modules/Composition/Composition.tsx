@@ -8,55 +8,60 @@ interface IProps {
   children?: ReactNode;
 }
 
-let times: number[] = []
+//let times: number[] = []
 
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     // FIXME check if engine is in sync if not, skip this frame
 
+    /*
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {
       times.shift();
     }
     times.push(now);
+    */
 
     const { gridSize, viewport, elements, engineMode } = this.props.engine
 
-    // FIXME fill clear degrades fps greartly introduce dirty regions
+    ctx.setTransform(viewport.z, 0, 0, viewport.z, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
+
+    const x1 = -viewport.x1
+    const y1 = -viewport.y1
+    const width = ctx.canvas.width / viewport.z
+    const height = ctx.canvas.height / viewport.z
 
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillRect(x1, y1, width, height);
 
-    const p = gridSize * viewport.z
-    const xOffset = ((viewport.x1 * viewport.z) % p) + 0.5
-    const yOffset = ((viewport.y1 * viewport.z) % p) + 0.5
+    const xOffset = x1 % gridSize
+    const yOffset = y1 % gridSize
 
-    ctx.lineWidth = (viewport.z / 3) + 0.2;
+    ctx.lineWidth = ((viewport.z / 3) + 0.2) / viewport.z;
 
     ctx.beginPath();
-    let x = xOffset + 0.5
-    let y = yOffset + 0.5
+    let x = 0.5 -xOffset
+    let y = 0.5 -yOffset
 
-    while (x < ctx.canvas.width) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, ctx.canvas.height);
-      x+=p
+    while (x < width) {
+      ctx.moveTo(x1 + x, y1);
+      ctx.lineTo(x1 + x, y1 + height);
+      x += gridSize
     }
-    while (y < ctx.canvas.height) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(ctx.canvas.width, y);
-      y+=p
+    while (y < height) {
+      ctx.moveTo(x1, y1 + y);
+      ctx.lineTo(x1 + width, y1 + y);
+      y += gridSize
     }
 
     ctx.strokeStyle = "#eee";
     ctx.stroke();
 
-    ctx.lineWidth = 1
-
     // FIXME transformation on canvas
-    ctx.setTransform(viewport.z, 0, 0, viewport.z, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
 
+    //ctx.lineWidth = ((viewport.z / 2) + 0.5) / viewport.z;
+    ctx.lineWidth = 1
     let layer = 0
     while (layer++ < 4) {
       elements.forEach((element) => {
@@ -66,25 +71,27 @@ class Composition extends React.PureComponent<IProps> {
 
     // FIXME this second transformation degrades FPS greatly
     // FIXME introduce dirty regions
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
 
+    /*
     const lines = [
       `mode: ${engineMode}`,
       `fps: ${times.length}`,
     ]
 
-    ctx.font = "12px Arial";
-    const w_t = lines.reduce((result, current) => Math.max(result, ctx.measureText(current).width), 0) + 10
+    ctx.font = `${12 / viewport.z}px Arial`;
+    const w_t = (lines.reduce((result, current) => Math.max(result, ctx.measureText(current).width), 0) + 10 / viewport.z)
 
+    ctx.lineWidth = 1 / viewport.z
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
-    ctx.fillRect(5, 7, w_t, 6 + (16 * lines.length - 1))
-    ctx.strokeRect(5, 7, w_t, 6 + (16 * lines.length - 1))
+    ctx.fillRect(x1 + 5 / viewport.z, y1 + 7 / viewport.z, w_t, (6 + (16 * lines.length - 1)) / viewport.z)
+    ctx.strokeRect(x1 + 5 / viewport.z, y1 + 7 / viewport.z, w_t, (6 + (16 * lines.length - 1)) / viewport.z)
     ctx.fillStyle = "black";
 
     lines.forEach((line, idx) => {
-      ctx.fillText(line, 10, 22 + (16 * idx));
-    })
+      ctx.fillText(line, x1 + 10 / viewport.z, y1 + (22 + (16 * idx)) / viewport.z);
+    })*/
+
   }
 
   render() {
