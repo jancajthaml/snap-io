@@ -62,10 +62,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
     if (!(point.x >= this.x - 1 && point.x <= (this.x + this.width + 1) && point.y >= this.y - 1 && point.y <= (this.y + this.height + 1))) {
       return []
     }
-    let X = (this.x * gridSize)
-    let Y = (this.y * gridSize)
-    let W = (this.width * gridSize)
-    let H = (this.height * gridSize)
+    let X = this.x * gridSize
+    let Y = this.y * gridSize
+    let W = this.width * gridSize
+    let H = this.height * gridSize
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS
@@ -196,10 +196,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   }
 
   updateClientCoordinates = () => {
-    this.clientX = (this.x * this.gridSize)
-    this.clientY = (this.y * this.gridSize)
-    this.clientW = (this.width * this.gridSize)
-    this.clientH = (this.height * this.gridSize)
+    this.clientX = this.x * this.gridSize
+    this.clientY = this.y * this.gridSize
+    this.clientW = this.width * this.gridSize
+    this.clientH = this.height * this.gridSize
     this.visible = this.isVisible()
   }
 
@@ -220,10 +220,10 @@ class PortEntityRenderer implements ICanvasEntitySchema {
   }
 
   getCenter = (_viewport: Rectangle, gridSize: number, ids: string[], x: number, y: number, width: number, height: number) => {
-    let X = (x * gridSize)
-    let Y = (y * gridSize)
-    let W = (width * gridSize)
-    let H = (height * gridSize)
+    let X = x * gridSize
+    let Y = y * gridSize
+    let W = width * gridSize
+    let H = height * gridSize
     const RADIUS = Math.min(W, H) / 2
 
     X += W / 2 - RADIUS

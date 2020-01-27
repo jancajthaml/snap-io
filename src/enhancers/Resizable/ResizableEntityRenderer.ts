@@ -259,12 +259,12 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
     if (this.selected) {
       const captures = [] as any[]
 
-      const x = (/*viewport.x1 +*/ Math.round(this.child.x) * gridSize - gridSize/2) * viewport.z
-      const y = (/*viewport.y1 +*/ Math.round(this.child.y) * gridSize - gridSize/2) * viewport.z
-      const w = (Math.round(this.child.width) * gridSize + gridSize) * viewport.z
-      const h = (Math.round(this.child.height) * gridSize + gridSize) * viewport.z
+      const x = this.child.x * gridSize - gridSize / 2
+      const y = this.child.y * gridSize - gridSize / 2
+      const w = this.child.width * gridSize + gridSize
+      const h = this.child.height * gridSize + gridSize
 
-      const pointScaled = new Point((/*viewport.x1 +*/ (point.x * gridSize)) * viewport.z, (/*viewport.y1 +*/ (point.y * gridSize)) * viewport.z)
+      const pointScaled = new Point(point.x * gridSize, point.y * gridSize)
 
       captures.push(...this.resizers.reduce(function(flat, resizer) {
         return flat.concat(resizer.mouseDownCapture(x, y, w, h, pointScaled));
@@ -392,15 +392,15 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       H += hDelta
 
       const ref = this.child as any
-      ref.clientX += xDelta * gridSize //* viewport.z
-      ref.clientY += yDelta * gridSize //* viewport.z
-      ref.clientW += wDelta * gridSize //* viewport.z
-      ref.clientH += hDelta * gridSize //* viewport.z
+      ref.clientX += xDelta * gridSize
+      ref.clientY += yDelta * gridSize
+      ref.clientW += wDelta * gridSize
+      ref.clientH += hDelta * gridSize
       this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
-      ref.clientX -= xDelta * gridSize //* viewport.z
-      ref.clientY -= yDelta * gridSize //* viewport.z
-      ref.clientW -= wDelta * gridSize //* viewport.z
-      ref.clientH -= hDelta * gridSize //* viewport.z
+      ref.clientX -= xDelta * gridSize
+      ref.clientY -= yDelta * gridSize
+      ref.clientW -= wDelta * gridSize
+      ref.clientH -= hDelta * gridSize
     } else {
       this.child.draw(this.selected ? layer - 1 : layer, mode, ctx, viewport, gridSize, timestamp)
     }
@@ -414,10 +414,10 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       ctx.fillStyle = "black";
       ctx.setLineDash([4, 4]);
       ctx.lineWidth = 1 / viewport.z
-      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2), //* viewport.z,
-      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2), // * viewport.z,
-      W = (Math.round(W) * gridSize + gridSize), // * viewport.z,
-      H = (Math.round(H) * gridSize + gridSize), //* viewport.z,
+      X = X * gridSize - gridSize / 2
+      Y = Y * gridSize - gridSize / 2
+      W = W * gridSize + gridSize
+      H = H * gridSize + gridSize
 
       ctx.strokeRect(X, Y, W, H);
       ctx.setLineDash([]);
@@ -430,10 +430,10 @@ class ResizableEntityRenderer implements ICanvasEntityWrapperSchema {
       ctx.strokeStyle = "#ccc";
       ctx.setLineDash([4, 4]);
       ctx.lineWidth = 1 / viewport.z
-      X = (/*viewport.x1 +*/ Math.round(X) * gridSize - gridSize/2), // * viewport.z,
-      Y = (/*viewport.y1 +*/ Math.round(Y) * gridSize - gridSize/2), // * viewport.z,
-      W = (Math.round(W) * gridSize + gridSize), // * viewport.z,
-      H = (Math.round(H) * gridSize + gridSize), // * viewport.z,
+      X = X * gridSize - gridSize / 2
+      Y = Y * gridSize - gridSize / 2
+      W = W * gridSize + gridSize
+      H = H * gridSize + gridSize
 
       ctx.strokeRect(X, Y, W, H);
       ctx.setLineDash([]);

@@ -23,8 +23,7 @@ class Composition extends React.PureComponent<IProps> {
 
     const { gridSize, viewport, elements, engineMode } = this.props.engine
 
-    // ctx.putImageData([] as ImageData, 0, 0)
-    //ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // FIXME fill clear degrades fps greartly introduce dirty regions
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -55,18 +54,19 @@ class Composition extends React.PureComponent<IProps> {
 
     ctx.lineWidth = 1
 
+    // FIXME transformation on canvas
     ctx.setTransform(viewport.z, 0, 0, viewport.z, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
 
     let layer = 0
-    while (layer++<4) {
+    while (layer++ < 4) {
       elements.forEach((element) => {
         element.draw(layer, engineMode, ctx, viewport, gridSize, timestamp)
       })
     }
 
+    // FIXME this second transformation degrades FPS greatly
+    // FIXME introduce dirty regions
     ctx.setTransform(1, 0, 0, 1, 0, 0)
-
-    // FPS and visible entities info
 
     const lines = [
       `mode: ${engineMode}`,
@@ -85,16 +85,6 @@ class Composition extends React.PureComponent<IProps> {
     lines.forEach((line, idx) => {
       ctx.fillText(line, 10, 22 + (16 * idx));
     })
-
-    // Mouse coordinates ribon
-    /*
-    ctx.beginPath();
-    ctx.moveTo(this.props.engine.currentMouseCoordinates.x1, this.props.engine.currentMouseCoordinates.y1);
-    ctx.lineTo(this.props.engine.currentMouseCoordinates.x2, this.props.engine.currentMouseCoordinates.y2);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = "purple";
-    ctx.stroke();
-    */
   }
 
   render() {

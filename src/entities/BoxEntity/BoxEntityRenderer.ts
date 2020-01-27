@@ -50,7 +50,7 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   }
 
   drawViewDetail = (ctx: CanvasRenderingContext2D) => {
-    const offset = 3 //3 * this.viewport.z
+    const offset = 3
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color

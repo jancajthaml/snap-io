@@ -21,7 +21,7 @@ interface IProps {
 }
 
 const loadSchemaPorts = (): IDiagramSchema => {
-  const howMany = 300
+  const howMany = 600
   const modulus = Math.floor(Math.pow(howMany, 0.5))
 
   const entities = new Map<string, IEntitySchema>()
