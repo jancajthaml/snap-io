@@ -184,13 +184,13 @@ class Engine implements ICanvasEntityWrapperSchema {
         if (a instanceof PointHandle && !(b instanceof ResizerHandle)) {
           return -1
         }
-        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle)) {
+        if (a instanceof LinkEntityRenderer && !(b instanceof PointHandle) && !(b instanceof PortHandle)) {
           return -1
         }
         if (a instanceof ResizerHandle && !(b instanceof LinkEntityRenderer)) {
           return -1
         }
-        if (a instanceof PortHandle && !(b instanceof ResizerHandle) && !(b instanceof LinkEntityRenderer)) {
+        if (a instanceof PortHandle && !(b instanceof ResizerHandle)) {
           return -1
         }
         return 1

@@ -184,7 +184,7 @@ class LinkEntityRenderer /*implements ICanvasEntitySchema*/ {
 
       const square_length = b_x_a ** 2 + b_y_a ** 2;
 
-      if (4 < Math.abs(b_y_a * pointScaled.x - b_x_a * pointScaled.y + B.x * A.y - B.y * A.x) / square_length ** 0.5) {
+      if (2 < Math.abs(b_y_a * pointScaled.x - b_x_a * pointScaled.y + B.x * A.y - B.y * A.x) / square_length ** 0.5) {
         continue
       }
 
