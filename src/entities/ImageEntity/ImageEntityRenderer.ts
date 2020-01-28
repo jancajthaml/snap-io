@@ -1,6 +1,7 @@
 
 import { IEntitySchema } from './types'
-import { Point, Rectangle } from '../../atoms'
+import { Rectangle } from '../../atoms'
+
 import ImageLibrary from './ImageLibrary'
 import { ENTITY_TYPE } from './constants'
 
@@ -15,6 +16,13 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
   width: number;
   height: number;
   url: string;
+  gridSize: number;
+  viewport: Rectangle;
+  clientX: number;
+  clientY: number;
+  clientW: number;
+  clientH: number;
+  visible: boolean;
 
   constructor(props: IEntitySchema) {
     this.id = props.id
@@ -23,61 +31,56 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     this.width = props.width
     this.height = props.height
     this.url = props.url
+    this.gridSize = 1
+    this.viewport = new Rectangle()
+    this.clientX = 1
+    this.clientY = 1
+    this.clientW = 1
+    this.clientH = 1
+    this.visible = true
   }
 
-  drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
-    const W = (this.width * gridSize) * viewport.z
-    const H = (this.height * gridSize) * viewport.z
-    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
-
-    const image = ImageLibrary.get(this.url, timestamp)
-
-    const w_i = image.width as number
-    if (w_i !== 0) {
-      const h_i = image.height as number
-      const ratio  = Math.min(W / w_i, H / h_i);
-
-      ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
-    }
-
-    ctx.strokeStyle = "black"
-    ctx.strokeRect(X, Y, W, H);
+  drawEdit = (ctx: CanvasRenderingContext2D, timestamp: number) => {
+    this.drawView(ctx, timestamp)
   }
 
-  drawView = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
+  drawView = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     const image = ImageLibrary.get(this.url, timestamp)
     if (image === null) {
+      ctx.fillStyle = "orange"
+      ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH)
       return
     }
+
     const w_i = image.width as number
-    if (w_i === 0) {
-      return
-    }
-
     const h_i = image.height as number
-    const W = (this.width * gridSize) * viewport.z
-    const H = (this.height * gridSize) * viewport.z
+    const ratio  = Math.min(this.clientW / w_i, this.clientH / h_i);
 
-    const ratio  = Math.min(W / w_i, H / h_i);
-
-    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
-
-    ctx.drawImage(image, 0, 0, w_i, h_i, X + (W - w_i * ratio) / 2, Y + (H - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
+    ctx.drawImage(image, 0, 0, w_i, h_i, this.clientX + (this.clientW - w_i * ratio) / 2, this.clientY + (this.clientH - h_i * ratio) / 2, w_i * ratio, h_i * ratio);
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, timestamp: number) => {
     if (layer !== 1) {
       return
     }
+
+    if (viewport !== this.viewport || gridSize !== this.gridSize) {
+      this.gridSize = gridSize
+      this.viewport = viewport
+      this.updateClientCoordinates()
+    }
+
+    if (!this.visible) {
+      return
+    }
+
     switch (mode) {
       case EngineMode.EDIT: {
-        this.drawEdit(ctx, viewport, gridSize, timestamp)
+        this.drawEdit(ctx, timestamp)
         break
       }
       case EngineMode.VIEW: {
-        this.drawView(ctx, viewport, gridSize, timestamp)
+        this.drawView(ctx, timestamp)
         break
       }
       default: {
@@ -86,28 +89,28 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
     }
   }
 
-  isVisible = (gridSize: number, viewport: Rectangle): boolean => {
-    if ((viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0) {
+  updateClientCoordinates = () => {
+    this.clientX = (this.x * this.gridSize)
+    this.clientY = (this.y * this.gridSize)
+    this.clientW = (this.width * this.gridSize)
+    this.clientH = (this.height * this.gridSize)
+    this.visible = this.isVisible()
+  }
+
+  isVisible = () => {
+    if ((this.viewport.x2 - 2 * this.viewport.x1 - this.x * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.x1 + (this.x + this.width) * gridSize) < 0) {
+    if ((this.viewport.x1 + (this.x + this.width) * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0) {
+    if ((this.viewport.y2 - 2 * this.viewport.y1 - this.y * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.y1 + (this.y + this.height) * gridSize) < 0) {
+    if ((this.viewport.y1 + (this.y + this.height) * this.gridSize) < 0) {
       return false
     }
     return true
-  }
-
-  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
-    const X = (viewport.x1 + (x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (y * gridSize)) * viewport.z
-    const W = (width * gridSize) * viewport.z
-    const H = (height * gridSize) * viewport.z
-    return new Point(X + W / 2, Y + H / 2)
   }
 
   serialize = () => ({

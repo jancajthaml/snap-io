@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
+
 import TextEntityRenderer from './TextEntityRenderer'
+import Resizable from '../../enhancers/Resizable'
+
 import TextLibrary from './TextLibrary'
 
 interface IProps extends IEntitySchema {
@@ -13,7 +16,7 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
 
   useEffect(() => {
     const { parent, id, text } = props
-    parent.addNode(id, renderer)
+    parent.addNode(id, new Resizable(id, renderer, parent))
     return () => {
       TextLibrary.free(text)
       parent.removeNode(id)
@@ -25,6 +28,7 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
     renderer.y = props.y
     renderer.width = props.width
     renderer.height = props.height
+    renderer.updateClientCoordinates()
   }, [props.x, props.y, props.width, props.height])
 
   useEffect(() => {
@@ -33,10 +37,9 @@ const TextEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [props.id, props.text])
 
   useEffect(() => {
-    if (!ref) {
-      return
+    if (ref) {
+      ref.current = renderer
     }
-    ref.current = renderer
   }, [ref])
 
   return <React.Fragment />

@@ -1,8 +1,6 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 
 interface IProps {
-  name: string;
-  opaque?: boolean;
   draw: (ctx: CanvasRenderingContext2D, timestamp: number) => void;
   onResize: (x: number, y: number, width: number, height: number) => void;
   onKeyUp: (event: KeyboardEvent) => void;
@@ -14,7 +12,7 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 30
+const FPS = 10
 const INTERVAL = 1000 / FPS
 
 const Canvas = (props: IProps) => {
@@ -103,18 +101,18 @@ const Canvas = (props: IProps) => {
       return
     }
     ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
-      alpha: props.opaque === undefined ? true : !props.opaque,
+      alpha: false,
     }))
     onResize()
   }, [ref])
 
   const delayedRepaint = useCallback(() => {
-    const now = Date.now();
+    const now = Date.now().valueOf();
     const delta = now - lastTime.current
     if (delta > INTERVAL && ctx.current != null) {
       ctx.current.imageSmoothingEnabled = true
       props.draw(ctx.current as CanvasRenderingContext2D, now)
-      lastTime.current = now - (delta % INTERVAL)
+      lastTime.current = now - (delta - ((delta / INTERVAL) | 0) * INTERVAL)
     }
     animationRef.current = requestAnimationFrame(delayedRepaint);
   }, [])

@@ -1,6 +1,6 @@
 
 import { IEntitySchema } from './types'
-import { Point, Rectangle } from '../../atoms'
+import { Rectangle } from '../../atoms'
 import { ENTITY_TYPE } from './constants'
 import { EngineMode } from '../../modules/Diagram/constants'
 import { ICanvasEntitySchema } from '../../@types/index'
@@ -14,6 +14,15 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
   height: number;
   color: string;
 
+  gridSize: number;
+  viewport: Rectangle;
+
+  clientX: number;
+  clientY: number;
+  clientW: number;
+  clientH: number;
+  visible: boolean;
+
   constructor(props: IEntitySchema) {
     this.id = props.id
     this.x = props.x
@@ -21,56 +30,67 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     this.width = props.width
     this.height = props.height
     this.color = props.color
+    this.gridSize = 1
+    this.viewport = new Rectangle()
+    this.clientX = 1
+    this.clientY = 1
+    this.clientW = 1
+    this.clientH = 1
+    this.visible = true
   }
 
-  drawEdit = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
-    const W = (this.width * gridSize) * viewport.z
-    const H = (this.height * gridSize) * viewport.z
-
-    ctx.strokeStyle = "black"
-    ctx.strokeRect(X, Y, W, H);
-  }
-
-  drawViewSimple = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
-    const W = (this.width * gridSize) * viewport.z
-    const H = (this.height * gridSize) * viewport.z
-
+  drawEdit = (ctx: CanvasRenderingContext2D) => {
     ctx.fillStyle = this.color
-    ctx.fillRect(X, Y, W, H);
+    ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
-  drawViewDetail = (ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number) => {
-    const X = (viewport.x1 + (this.x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (this.y * gridSize)) * viewport.z
-    const W = (this.width * gridSize) * viewport.z
-    const H = (this.height * gridSize) * viewport.z
+  drawViewSimple = (ctx: CanvasRenderingContext2D) => {
+    ctx.fillStyle = this.color
+    ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
+  }
 
-    const offset = 3 * viewport.z
+  drawViewDetail = (ctx: CanvasRenderingContext2D) => {
+    const offset = 3
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.fillRect(X + offset, Y + offset, W - 2 * offset, H - 2 * offset);
-    ctx.strokeRect(X, Y, W, H);
+    ctx.fillRect(this.clientX + offset, this.clientY + offset, this.clientW - 2 * offset, this.clientH - 2 * offset);
+    ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
+  }
+
+  updateClientCoordinates = () => {
+    this.clientX = this.x * this.gridSize
+    this.clientY = this.y * this.gridSize
+    this.clientW = this.width * this.gridSize
+    this.clientH = this.height * this.gridSize
+    this.visible = this.isVisible()
   }
 
   draw = (layer: number, mode: string, ctx: CanvasRenderingContext2D, viewport: Rectangle, gridSize: number, _timestamp: number) => {
     if (layer !== 1) {
       return
     }
+
+    if (viewport !== this.viewport || gridSize !== this.gridSize) {
+      this.gridSize = gridSize
+      this.viewport = viewport
+      this.updateClientCoordinates()
+    }
+
+    if (!this.visible) {
+      return
+    }
+
     switch (mode) {
       case EngineMode.EDIT: {
-        this.drawEdit(ctx, viewport, gridSize)
+        this.drawEdit(ctx)
         break
       }
       case EngineMode.VIEW: {
         if (viewport.z <= 0.4) {
-          this.drawViewSimple(ctx, viewport, gridSize)
+          this.drawViewSimple(ctx)
         } else {
-          this.drawViewDetail(ctx, viewport, gridSize)
+          this.drawViewDetail(ctx)
         }
         break
       }
@@ -80,28 +100,20 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     }
   }
 
-  isVisible = (gridSize: number, viewport: Rectangle) => {
-    if ((viewport.x2 - 2 * viewport.x1 - this.x * gridSize) < 0) {
+  isVisible = () => {
+    if ((this.viewport.x2 - 2 * this.viewport.x1 - this.x * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.x1 + (this.x + this.width) * gridSize) < 0) {
+    if ((this.viewport.x1 + (this.x + this.width) * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.y2 - 2 * viewport.y1 - this.y * gridSize) < 0) {
+    if ((this.viewport.y2 - 2 * this.viewport.y1 - this.y * this.gridSize) < 0) {
       return false
     }
-    if ((viewport.y1 + (this.y + this.height) * gridSize) < 0) {
+    if ((this.viewport.y1 + (this.y + this.height) * this.gridSize) < 0) {
       return false
     }
     return true
-  }
-
-  getCenter = (viewport: Rectangle, gridSize: number, _ids: string[], x: number, y: number, width: number, height: number) => {
-    const X = (viewport.x1 + (x * gridSize)) * viewport.z
-    const Y = (viewport.y1 + (y * gridSize)) * viewport.z
-    const W = (width * gridSize) * viewport.z
-    const H = (height * gridSize) * viewport.z
-    return new Point(X + W / 2, Y + H / 2)
   }
 
   serialize = () => ({

@@ -46,17 +46,18 @@ class ResizerHandle  {
     return true
   }
 
-  draw = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) => {
-    const X = x + (width * this.x) - RESIZER_SIZE/2
-    const Y = y + (height * this.y) - RESIZER_SIZE/2
+  draw = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, scale: number) => {
+    const SIZE = RESIZER_SIZE / scale
+    const X = x + (width * this.x) - SIZE/2
+    const Y = y + (height * this.y) - SIZE/2
 
     if (this.selected) {
       ctx.fillStyle = "black"
-      ctx.fillRect(X, Y, RESIZER_SIZE, RESIZER_SIZE)
+      ctx.fillRect(X, Y, SIZE, SIZE)
     } else {
       ctx.strokeStyle = "black"
-      ctx.clearRect(X, Y, RESIZER_SIZE, RESIZER_SIZE)
-      ctx.strokeRect(X, Y, RESIZER_SIZE, RESIZER_SIZE)
+      ctx.clearRect(X, Y, SIZE, SIZE)
+      ctx.strokeRect(X, Y, SIZE, SIZE)
     }
   }
 

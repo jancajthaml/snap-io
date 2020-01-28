@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
+
 import LinkEntityRenderer from './LinkEntityRenderer'
+//import Resizable from '../../enhancers/Resizable'
+
 import PointHandle from './PointHandle'
 
 interface IProps extends IEntitySchema {
@@ -23,8 +26,8 @@ const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
     renderer.id = props.id
     renderer.from = props.from
     renderer.to = props.to
+    renderer.updateClientCoordinates()
   }, [props.id, props.from.join(','), props.to.join(',')])
-
 
   useEffect(() => {
     const breaks = [] as PointHandle[]
@@ -35,11 +38,11 @@ const LinkEntity = React.forwardRef((props: IProps, ref: any) => {
   }, [props.breaks.map((p) => `${p.x},${p.y}`).join(',')])
 
   useEffect(() => {
-    if (!ref) {
-      return
+    if (ref) {
+      ref.current = renderer
     }
-    ref.current = renderer
   }, [ref])
+
 
   return <React.Fragment />
 })
