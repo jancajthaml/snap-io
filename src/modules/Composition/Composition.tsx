@@ -8,20 +8,18 @@ interface IProps {
   children?: ReactNode;
 }
 
-//let times: number[] = []
+let times: number[] = []
 
 class Composition extends React.PureComponent<IProps> {
 
   draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     // FIXME check if engine is in sync if not, skip this frame
 
-    /*
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {
       times.shift();
     }
     times.push(now);
-    */
 
     const { gridSize, viewport, elements, engineMode } = this.props.engine
 
@@ -72,7 +70,6 @@ class Composition extends React.PureComponent<IProps> {
     // FIXME this second transformation degrades FPS greatly
     // FIXME introduce dirty regions
 
-    /*
     const lines = [
       `mode: ${engineMode}`,
       `fps: ${times.length}`,
@@ -90,7 +87,7 @@ class Composition extends React.PureComponent<IProps> {
 
     lines.forEach((line, idx) => {
       ctx.fillText(line, x1 + 10 / viewport.z, y1 + (22 + (16 * idx)) / viewport.z);
-    })*/
+    })
 
   }
 

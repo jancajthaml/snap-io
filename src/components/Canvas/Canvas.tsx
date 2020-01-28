@@ -12,13 +12,12 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 10
-const INTERVAL = 1000 / FPS
+const FPS = 40
 
 const Canvas = (props: IProps) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const animationRef = useRef<number>(0)
-  const lastTime = useRef<number>(Date.now())
+  const lastTime = useRef<number>(0)
   const ctx = useRef<CanvasRenderingContext2D | null>(null)
 
   const onResize = () => {
@@ -109,16 +108,18 @@ const Canvas = (props: IProps) => {
   const delayedRepaint = useCallback(() => {
     const now = Date.now().valueOf();
     const delta = now - lastTime.current
-    if (delta > INTERVAL && ctx.current != null) {
+    const interval = 1000 / FPS
+    if (delta > interval && ctx.current != null) {
       ctx.current.imageSmoothingEnabled = true
       props.draw(ctx.current as CanvasRenderingContext2D, now)
-      lastTime.current = now - (delta - ((delta / INTERVAL) | 0) * INTERVAL)
+      lastTime.current = now - (delta - ((delta / interval) | 0) * interval)
     }
     animationRef.current = requestAnimationFrame(delayedRepaint);
   }, [])
 
   useEffect(() => {
     addListeners()
+    lastTime.current = Date.now().valueOf();
     animationRef.current = requestAnimationFrame(delayedRepaint)
     return () => {
       cancelAnimationFrame(animationRef.current)
