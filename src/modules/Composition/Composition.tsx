@@ -1,17 +1,24 @@
 import React, { ReactNode } from 'react'
+import { connect } from 'react-redux'
 
+import { IRootReduxState } from '../../reducer'
+
+import { Rectangle } from '../../atoms'
 import Canvas from '../../components/Canvas'
 import Engine from '../Engine'
+import { getViewport } from '../Diagram/selectors'
 
 interface IProps {
   engine: Engine;
+  viewport: Rectangle;
   children?: ReactNode;
 }
 
-let times: number[] = []
+//let times: number[] = []
 
 class Composition extends React.PureComponent<IProps> {
 
+  /*
   draw = (ctx: CanvasRenderingContext2D, timestamp: number) => {
     // FIXME check if engine is in sync if not, skip this frame
 
@@ -90,12 +97,14 @@ class Composition extends React.PureComponent<IProps> {
     })
 
   }
+  */
 
   render() {
     return (
       <React.Fragment>
         <Canvas
-          draw={this.draw}
+          viewport={this.props.viewport}
+          //draw={this.draw}
           onResize={this.props.engine.resize}
           onKeyUp={this.props.engine.keyUp}
           onKeyDown={this.props.engine.keyDown}
@@ -104,11 +113,33 @@ class Composition extends React.PureComponent<IProps> {
           onMouseMove={this.props.engine.mouseMove}
           onDoubleClick={this.props.engine.doubleClick}
           onWheel={this.props.engine.mouseWheel}
-        />
-        {this.props.children}
+        >
+          {this.props.children}
+        </Canvas>
       </React.Fragment>
     )
   }
 }
 
-export default Composition
+const mapStateToProps = (state: IRootReduxState) => ({
+  //engineMode: getEngineMode(state),
+  //gridSize: getGridSize(state),
+  viewport: getViewport(state),
+  //resolution: getResolution(state),
+})
+
+const mapDispatchToProps = {
+  /*
+  setGridSize,
+  zoomToFit,
+  zoomIn,
+  zoomOut,
+  setSchema,
+  setEngineMode,
+  */
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Composition)
+
+
+//export default Composition

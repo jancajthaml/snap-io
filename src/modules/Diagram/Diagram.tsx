@@ -51,7 +51,7 @@ const Diagram = (props: IProps) => {
 
   return (
     <Composition engine={engine}>
-      {Array.from(props.schema.entities).map(([ _key, entity]) => {
+      {Array.from(props.schema.entities).map(([_key, entity]) => {
         if (entity.type === BOX_ENTITY_TYPE) {
           return (
             <BoxEntity

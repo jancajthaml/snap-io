@@ -1,7 +1,10 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
+
+import { Rectangle } from '../../atoms'
 
 interface IProps {
-  draw: (ctx: CanvasRenderingContext2D, timestamp: number) => void;
+  viewport: Rectangle;
+  children?: ReactNode;
   onResize: (x: number, y: number, width: number, height: number) => void;
   onKeyUp: (event: KeyboardEvent) => void;
   onKeyDown: (event: KeyboardEvent) => void;
@@ -12,22 +15,14 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 40
-
 const Canvas = (props: IProps) => {
-  const ref = useRef<HTMLCanvasElement | null>(null)
-  const animationRef = useRef<number>(0)
-  const lastTime = useRef<number>(0)
-  const ctx = useRef<CanvasRenderingContext2D | null>(null)
+  const ref = useRef<SVGSVGElement | null>(null)
 
   const onResize = () => {
     if (ref.current === null) {
       return
     }
-    const wrapper = (ref.current.parentElement as HTMLElement)
-    ref.current.width = wrapper.clientWidth
-    ref.current.height = wrapper.clientHeight
-    props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
+    props.onResize(ref.current.clientLeft, ref.current.clientTop, ref.current.clientWidth, ref.current.clientHeight)
   }
 
   const onKeyUp = (event: KeyboardEvent) => {
@@ -52,9 +47,6 @@ const Canvas = (props: IProps) => {
       event.preventDefault()
       props.onMouseDown(event.nativeEvent)
     }
-    if (ref.current !== null) {
-      ref.current.focus()
-    }
   }
 
   const onMouseUp = (event: MouseEvent) => {
@@ -66,9 +58,14 @@ const Canvas = (props: IProps) => {
   }
 
   const onWheel = (event: WheelEvent) => {
-    if (event.target == ref.current) {
-      event.preventDefault()
-      props.onWheel(event)
+    let node = (event.target as Node | null)
+    while (node != null) {
+      if (node == ref.current) {
+        event.preventDefault()
+        props.onWheel(event)
+        return;
+      }
+      node = node.parentNode;
     }
   }
 
@@ -99,43 +96,43 @@ const Canvas = (props: IProps) => {
     if (!ref) {
       return
     }
-    ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
-      alpha: false,
-    }))
     onResize()
   }, [ref])
 
-  const delayedRepaint = useCallback(() => {
-    const now = Date.now().valueOf();
-    const delta = now - lastTime.current
-    const interval = 1000 / FPS
-    if (delta > interval && ctx.current != null) {
-      ctx.current.imageSmoothingEnabled = true
-      props.draw(ctx.current as CanvasRenderingContext2D, now)
-      lastTime.current = now - (delta - ((delta / interval) | 0) * interval)
-    }
-    animationRef.current = requestAnimationFrame(delayedRepaint);
-  }, [])
-
   useEffect(() => {
     addListeners()
-    lastTime.current = Date.now().valueOf();
-    animationRef.current = requestAnimationFrame(delayedRepaint)
     return () => {
-      cancelAnimationFrame(animationRef.current)
       removeListeners()
     }
   }, [])
 
+  const howMany = 10000
+  const modulus = Math.floor(Math.pow(howMany, 0.5))
+
   return (
-    <canvas
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
       ref={ref}
       tabIndex={0}
       onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
-    />
+    >
+      <g
+        transform={`translate(${props.viewport.x1 * props.viewport.z}, ${props.viewport.y1 * props.viewport.z}) scale(${props.viewport.z})`}
+      >
+        {Array.from(Array(howMany).keys()).map((idx) => (
+          <rect
+            x={(idx % modulus) * 60}
+            y={Math.floor(idx / modulus) * 60}
+            width="50"
+            height="50"
+          />
+        ))}
+        {props.children}
+      </g>
+    </svg>
   )
 }
 
