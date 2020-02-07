@@ -5,13 +5,6 @@ import { IDiagramSchema, IEntitySchema, ILinkSchema } from './reducer'
 
 import * as C from './constants'
 
-export const setGridSize = (gridSize: number) => ({
-  type: C.SET_GRID_SIZE,
-  payload: {
-    gridSize,
-  },
-}) as const
-
 export const patchEntitySchema = (update: { [id: string]: IEntitySchema }) => ({
   type: C.PATCH_ENTITY_SCHEMA,
   payload: {
@@ -103,4 +96,3 @@ export type IAction =
   | ReturnType<typeof zoomIn>
   | ReturnType<typeof zoomOut>
   | ReturnType<typeof zoomToFit>
-  | ReturnType<typeof setGridSize>

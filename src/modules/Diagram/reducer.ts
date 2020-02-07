@@ -33,7 +33,6 @@ export const initialState = {
     entities: new Map<string, IEntitySchema>(),
     links: new Map<string, ILinkSchema>(),
   } as IDiagramSchema,
-  gridSize: 12 as number,
   viewport: new Rectangle() as Rectangle,
   resolution: new Rectangle(0, 0, 1, 1) as Rectangle,
 } as const
@@ -47,13 +46,6 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
       return {
         ...state,
         engineMode: action.payload.engineMode,
-      }
-    }
-
-    case C.SET_GRID_SIZE: {
-      return {
-        ...state,
-        gridSize: action.payload.gridSize,
       }
     }
 
@@ -86,7 +78,7 @@ export default (state: IReduxState = initialState, action: IAction): IReduxState
     }
 
     case C.ZOOM_TO_FIT: {
-      const viewport = calculateOptimalViewport(state.schema, state.gridSize, state.resolution)
+      const viewport = calculateOptimalViewport(state.schema, state.resolution)
       if (viewport === null) {
         return {
           ...state,

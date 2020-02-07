@@ -6,11 +6,12 @@ import { IRootReduxState } from '../../reducer'
 import { Rectangle } from '../../atoms'
 import Canvas from '../../components/Canvas'
 import Engine from '../Engine'
-import { getViewport } from '../Diagram/selectors'
+import { getViewport, getResolution } from '../Diagram/selectors'
 
 interface IProps {
   engine: Engine;
   viewport: Rectangle;
+  resolution: Rectangle;
   children?: ReactNode;
 }
 
@@ -104,6 +105,7 @@ class Composition extends React.PureComponent<IProps> {
       <React.Fragment>
         <Canvas
           viewport={this.props.viewport}
+          resolution={this.props.resolution}
           //draw={this.draw}
           onResize={this.props.engine.resize}
           onKeyUp={this.props.engine.keyUp}
@@ -124,6 +126,7 @@ class Composition extends React.PureComponent<IProps> {
 const mapStateToProps = (state: IRootReduxState) => ({
   //engineMode: getEngineMode(state),
   //gridSize: getGridSize(state),
+  resolution: getResolution(state),
   viewport: getViewport(state),
   //resolution: getResolution(state),
 })

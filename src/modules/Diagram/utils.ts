@@ -1,4 +1,4 @@
-import { Rectangle } from '../../atoms'
+import { Rectangle, C } from '../../atoms'
 import { IDiagramSchema } from './reducer'
 import { MIN_ZOOM, MAX_ZOOM } from './constants'
 
@@ -27,7 +27,7 @@ export const calculateZoomedViewport = (viewport: Rectangle, resolution: Rectang
   return nextViewPort
 }
 
-export const calculateOptimalViewport = (schema: IDiagramSchema, gridSize: number, resolution: Rectangle): Rectangle | null => {
+export const calculateOptimalViewport = (schema: IDiagramSchema, resolution: Rectangle): Rectangle | null => {
   const viewport = new Rectangle()
 
   let x1: number | undefined = undefined
@@ -54,10 +54,10 @@ export const calculateOptimalViewport = (schema: IDiagramSchema, gridSize: numbe
     return null
   }
 
-  x1 = (x1 as number) * gridSize
-  x2 = (x2 as number) * gridSize
-  y1 = (y1 as number) * gridSize
-  y2 = (y2 as number) * gridSize
+  x1 = (x1 as number) * C.GRID_SIZE
+  x2 = (x2 as number) * C.GRID_SIZE
+  y1 = (y1 as number) * C.GRID_SIZE
+  y2 = (y2 as number) * C.GRID_SIZE
 
   const xScale = (resolution.x2 - resolution.x1) / (x2 - x1)
   const yScale = (resolution.y2 - resolution.y1) / (y2 - y1)

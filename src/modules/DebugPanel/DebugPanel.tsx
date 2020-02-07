@@ -4,15 +4,13 @@ import { Point, Rectangle } from '../../atoms'
 import { IRootReduxState } from '../../reducer'
 import { IDiagramSchema, IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
-import { setGridSize, setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
-import { getViewport, getEngineMode, getResolution, getGridSize } from '../Diagram/selectors'
+import { setEngineMode, setSchema, zoomIn, zoomOut, zoomToFit } from '../Diagram/actions'
+import { getViewport, getEngineMode, getResolution } from '../Diagram/selectors'
 
 interface IProps {
   engineMode: EngineMode;
   viewport: Rectangle;
   resolution: Rectangle;
-  gridSize: number;
-  setGridSize: (gridSize: number) => void;
   zoomToFit: () => void;
   zoomIn: (centerX: number, centerY: number, power: number) => void;
   zoomOut: (centerX: number, centerY: number, power: number) => void;
@@ -141,7 +139,7 @@ const loadSchema_C = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'text-entity',
-        fontSize: 12,
+        fontSize: [6,12,18,24,30,26][Math.floor(Math.random() * 6)],
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       })
     } else if (idx % 2 === 0) {
@@ -190,7 +188,7 @@ const loadSchema_D = (): IDiagramSchema => {
         width: 4,
         height: 4,
         type: 'text-entity',
-        fontSize: 12,
+        fontSize: [6,12,18,24,30,26][Math.floor(Math.random() * 6)],
         text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Duis risus. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Curabitur bibendum justo non orci. Integer imperdiet lectus quis justo. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis viverra diam non justo. Pellentesque arcu. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede.\nSed convallis magna eu sem. Etiam neque. Nulla est. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Pellentesque pretium lectus id turpis. Praesent dapibus. Maecenas aliquet accumsan leo. Fusce aliquam vestibulum ipsum. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Vivamus porttitor turpis ac leo. Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo. Donec iaculis gravida nulla. Nam sed tellus id magna elementum tincidunt. Duis condimentum augue id magna semper rutrum. Aliquam erat volutpat.',
       })
     } else if (idx % 2 === 0) {
@@ -498,28 +496,6 @@ const DebugPanel = (props: IProps) => {
             margin: 0
           }}
         >
-        {`grid size ( ${props.gridSize} )`}
-        </h5>
-        <input
-          type="range"
-          min={6 * 1}
-          max={6 * 10}
-          style={{
-            display: 'block',
-          }}
-          value={props.gridSize}
-          onChange={(event) => {
-            event.preventDefault()
-            props.setGridSize(Number(event.target.value))
-          }}
-        />
-      </p>
-      <p>
-        <h5
-          style={{
-            margin: 0
-          }}
-        >
           resolution
         </h5>
         <ul>
@@ -543,13 +519,11 @@ const DebugPanel = (props: IProps) => {
 
 const mapStateToProps = (state: IRootReduxState) => ({
   engineMode: getEngineMode(state),
-  gridSize: getGridSize(state),
   viewport: getViewport(state),
   resolution: getResolution(state),
 })
 
 const mapDispatchToProps = {
-  setGridSize,
   zoomToFit,
   zoomIn,
   zoomOut,

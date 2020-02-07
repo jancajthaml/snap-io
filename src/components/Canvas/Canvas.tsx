@@ -4,6 +4,7 @@ import { Rectangle } from '../../atoms'
 
 interface IProps {
   viewport: Rectangle;
+  resolution: Rectangle;
   children?: ReactNode;
   onResize: (x: number, y: number, width: number, height: number) => void;
   onKeyUp: (event: KeyboardEvent) => void;
@@ -22,7 +23,8 @@ const Canvas = (props: IProps) => {
     if (ref.current === null) {
       return
     }
-    props.onResize(ref.current.clientLeft, ref.current.clientTop, ref.current.clientWidth, ref.current.clientHeight)
+    const wrapper = ref.current.parentElement as HTMLElement
+    props.onResize(wrapper.offsetLeft, wrapper.offsetTop, wrapper.clientWidth, wrapper.clientHeight)
   }
 
   const onKeyUp = (event: KeyboardEvent) => {
@@ -109,17 +111,34 @@ const Canvas = (props: IProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      viewBox={`0 0 ${props.resolution.x2 - props.resolution.x1} ${props.resolution.y2 - props.resolution.y1}`}
       ref={ref}
+      width={props.resolution.x2 - props.resolution.x1}
+      height={props.resolution.y2 - props.resolution.y1}
       tabIndex={0}
       onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
     >
+      <defs>
+        <clipPath id="canvas-mask">
+          <rect
+            x={0}
+            y={0}
+            width={props.resolution.x2 - props.resolution.x1}
+            height={props.resolution.y2 - props.resolution.y1}
+          />
+        </clipPath>
+      </defs>
       <g
-        transform={`translate(${props.viewport.x1 * props.viewport.z}, ${props.viewport.y1 * props.viewport.z}) scale(${props.viewport.z})`}
+        clipPath="url(#canvas-mask)"
       >
-        {props.children}
+        <g
+          transform={`translate(${props.viewport.x1 * props.viewport.z}, ${props.viewport.y1 * props.viewport.z}) scale(${props.viewport.z})`}
+        >
+          {props.children}
+        </g>
       </g>
     </svg>
   )

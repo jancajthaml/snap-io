@@ -1,6 +1,6 @@
-import { Rectangle, Point } from '../../atoms'
+import { Rectangle, Point, C } from '../../atoms'
 import { IReduxStore } from '../../store'
-import { getGridSize, getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
+import { getEngineMode, getViewport, getResolution } from '../Diagram/selectors'
 import { zoomIn, zoomOut, setViewPort, setResolution, patchEntitySchema, patchLinkSchema, removeEntityFromSchema, removeLinkFromSchema } from '../Diagram/actions'
 import { IEntitySchema, ILinkSchema } from '../Diagram/reducer'
 import { EngineMode } from '../Diagram/constants'
@@ -42,10 +42,6 @@ class Engine implements ICanvasEntityWrapperSchema {
 
   get resolution() {
     return getResolution(this.store.getState())
-  }
-
-  get gridSize() {
-    return getGridSize(this.store.getState())
   }
 
   cleanup = () => {
@@ -101,18 +97,18 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
-      const { viewport, elements, gridSize } = this
+      const { viewport, elements } = this
 
       const pointOfClick = new Point(
-        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
-        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / C.GRID_SIZE,
+        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / C.GRID_SIZE,
       )
 
       const captures: ICanvasEntitySchema[] = []
 
       elements.forEach((element) => {
         if (element.mouseDownCapture) {
-          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDoubleClick)))
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, C.GRID_SIZE).filter((node) => Boolean(node.onMouseDoubleClick)))
         }
       })
 
@@ -137,7 +133,7 @@ class Engine implements ICanvasEntityWrapperSchema {
 
       if (captures.length > 0) {
         const capture = captures[0]
-        if ((capture as any).onMouseDoubleClick(viewport, gridSize, pointOfClick)) {
+        if ((capture as any).onMouseDoubleClick(viewport, C.GRID_SIZE, pointOfClick)) {
           //this.currentMouseEventOwner = capture
           return
         }
@@ -162,18 +158,18 @@ class Engine implements ICanvasEntityWrapperSchema {
     this.currentMouseCoordinates.scaled.y2 = y
 
     if (this.engineMode === EngineMode.EDIT) {
-      const { viewport, elements, gridSize } = this
+      const { viewport, elements } = this
 
       const pointOfClick = new Point(
-        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / gridSize,
-        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / gridSize,
+        ((this.currentMouseCoordinates.scaled.x1 / viewport.z) - viewport.x1) / C.GRID_SIZE,
+        ((this.currentMouseCoordinates.scaled.y1 / viewport.z) - viewport.y1) / C.GRID_SIZE,
       )
 
       const captures: ICanvasEntitySchema[] = []
 
       elements.forEach((element) => {
         if (element.mouseDownCapture) {
-          captures.push(...element.mouseDownCapture(pointOfClick, viewport, gridSize).filter((node) => Boolean(node.onMouseDown)))
+          captures.push(...element.mouseDownCapture(pointOfClick, viewport, C.GRID_SIZE).filter((node) => Boolean(node.onMouseDown)))
         }
       })
 
@@ -260,7 +256,7 @@ class Engine implements ICanvasEntityWrapperSchema {
       return
     }
 
-    const { resolution, viewport, currentMouseCoordinates, gridSize } = this
+    const { resolution, viewport, currentMouseCoordinates } = this
 
     const x = event.clientX - resolution.x1
     const y = event.clientY - resolution.y1
@@ -277,8 +273,8 @@ class Engine implements ICanvasEntityWrapperSchema {
       currentMouseCoordinates.scaled.x2 = event.clientX - resolution.x1
       currentMouseCoordinates.scaled.y2 = event.clientY - resolution.y1
 
-      let xDelta = Math.round((currentMouseCoordinates.scaled.x2 - currentMouseCoordinates.scaled.x1) / gridSize / viewport.z)
-      let yDelta = Math.round((currentMouseCoordinates.scaled.y2 - currentMouseCoordinates.scaled.y1) / gridSize / viewport.z)
+      let xDelta = Math.round((currentMouseCoordinates.scaled.x2 - currentMouseCoordinates.scaled.x1) / C.GRID_SIZE / viewport.z)
+      let yDelta = Math.round((currentMouseCoordinates.scaled.y2 - currentMouseCoordinates.scaled.y1) / C.GRID_SIZE / viewport.z)
 
       if (xDelta === -0) {
         xDelta = 0
@@ -290,8 +286,8 @@ class Engine implements ICanvasEntityWrapperSchema {
         this.currentMouseEventOwner.onMouseMove(xDelta, yDelta)
       }
 
-      currentMouseCoordinates.scaled.x1 += xDelta * gridSize * viewport.z
-      currentMouseCoordinates.scaled.y1 += yDelta * gridSize * viewport.z
+      currentMouseCoordinates.scaled.x1 += xDelta * C.GRID_SIZE * viewport.z
+      currentMouseCoordinates.scaled.y1 += yDelta * C.GRID_SIZE * viewport.z
     }
 
     currentMouseCoordinates.original.x2 = x
@@ -336,16 +332,16 @@ class Engine implements ICanvasEntityWrapperSchema {
   }
 
   connectEntities = () => {
-    const { viewport, elements, gridSize } = this
+    const { viewport, elements } = this
 
     const startCoordinates = new Point(
-      ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / gridSize,
-      ((this.currentMouseCoordinates.original.y1 / viewport.z) - viewport.y1) / gridSize,
+      ((this.currentMouseCoordinates.original.x1 / viewport.z) - viewport.x1) / C.GRID_SIZE,
+      ((this.currentMouseCoordinates.original.y1 / viewport.z) - viewport.y1) / C.GRID_SIZE,
     )
 
     const endCoordinates = new Point(
-      ((this.currentMouseCoordinates.original.x2 / viewport.z) - viewport.x1) / gridSize,
-      ((this.currentMouseCoordinates.original.y2 / viewport.z) - viewport.y1) / gridSize,
+      ((this.currentMouseCoordinates.original.x2 / viewport.z) - viewport.x1) / C.GRID_SIZE,
+      ((this.currentMouseCoordinates.original.y2 / viewport.z) - viewport.y1) / C.GRID_SIZE,
     )
 
     const startCaptures: ICanvasEntitySchema[] = []
@@ -353,13 +349,13 @@ class Engine implements ICanvasEntityWrapperSchema {
 
     elements.forEach((element) => {
       if (element.linkCapture) {
-        const candidate = element.linkCapture(startCoordinates, viewport, gridSize)
+        const candidate = element.linkCapture(startCoordinates, viewport, C.GRID_SIZE)
         if (candidate) {
           startCaptures.push(candidate)
         }
       }
       if (element.linkCapture) {
-        const candidate = element.linkCapture(endCoordinates, viewport, gridSize)
+        const candidate = element.linkCapture(endCoordinates, viewport, C.GRID_SIZE)
         if (candidate) {
           endCaptures.push(candidate)
         }

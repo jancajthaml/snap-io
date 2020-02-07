@@ -10,4 +10,4 @@ export const getSchema = (state: IRootReduxState) => state[COMPONENT_NAME].schem
 
 export const getEngineMode = (state: IRootReduxState) => state[COMPONENT_NAME].engineMode
 
-export const getGridSize = (state: IRootReduxState) => state[COMPONENT_NAME].gridSize
+//export const getGridSize = (state: IRootReduxState) => state[COMPONENT_NAME].gridSize

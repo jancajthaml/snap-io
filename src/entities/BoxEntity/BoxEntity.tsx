@@ -1,6 +1,7 @@
 import React from 'react'
 import { ICanvasEntityWrapperSchema } from '../../@types/index'
 import { IEntitySchema } from './types'
+import { C } from '../../atoms'
 
 interface IProps extends IEntitySchema {
   parent: ICanvasEntityWrapperSchema;
@@ -14,18 +15,18 @@ const BoxEntity = React.forwardRef((props: IProps, ref: any) => {
       <rect
         stroke={props.color}
         fill="transparent"
-        x={props.x * 12}
-        y={props.y * 12}
-        width={props.width * 12}
-        height={props.height * 12}
+        x={props.x * C.GRID_SIZE}
+        y={props.y * C.GRID_SIZE}
+        width={props.width * C.GRID_SIZE}
+        height={props.height * C.GRID_SIZE}
       />
       <rect
         ref={ref}
         fill={props.color}
-        x={props.x * 12 + 2}
-        y={props.y * 12 + 2}
-        width={props.width * 12 - 4}
-        height={props.height * 12 - 4}
+        x={props.x * C.GRID_SIZE + 2}
+        y={props.y * C.GRID_SIZE + 2}
+        width={props.width * C.GRID_SIZE - 4}
+        height={props.height * C.GRID_SIZE - 4}
       />
     </g>
   )
