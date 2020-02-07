@@ -88,6 +88,7 @@ const Diagram = (props: IProps) => {
               y={entity.y}
               width={entity.width}
               height={entity.height}
+              fontSize={(entity as ITextEntitySchema).fontSize}
               text={(entity as ITextEntitySchema).text}
             />
           )

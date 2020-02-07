@@ -7,4 +7,5 @@ export interface IEntitySchema {
   height: number;
   type: string;
   text: string;
+  fontSize: number;
 }

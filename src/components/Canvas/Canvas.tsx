@@ -106,9 +106,6 @@ const Canvas = (props: IProps) => {
     }
   }, [])
 
-  const howMany = 10000
-  const modulus = Math.floor(Math.pow(howMany, 0.5))
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -122,14 +119,6 @@ const Canvas = (props: IProps) => {
       <g
         transform={`translate(${props.viewport.x1 * props.viewport.z}, ${props.viewport.y1 * props.viewport.z}) scale(${props.viewport.z})`}
       >
-        {Array.from(Array(howMany).keys()).map((idx) => (
-          <rect
-            x={(idx % modulus) * 60}
-            y={Math.floor(idx / modulus) * 60}
-            width="50"
-            height="50"
-          />
-        ))}
         {props.children}
       </g>
     </svg>
