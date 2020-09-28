@@ -23,7 +23,9 @@ class Composition extends React.PureComponent<IProps> {
 
     const { gridSize, viewport, elements, engineMode } = this.props.engine
 
-    ctx.setTransform(viewport.z, 0, 0, viewport.z, viewport.x1 * viewport.z, viewport.y1 * viewport.z)
+    const pixelRatio = window.devicePixelRatio * viewport.z;
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, (viewport.x1 * pixelRatio), viewport.y1 * pixelRatio)
+    //ctx.translate(0.5, 0.5);
 
     const x1 = -viewport.x1
     const y1 = -viewport.y1
@@ -88,7 +90,6 @@ class Composition extends React.PureComponent<IProps> {
     lines.forEach((line, idx) => {
       ctx.fillText(line, x1 + 10 / viewport.z, y1 + (22 + (16 * idx)) / viewport.z);
     })
-
   }
 
   render() {

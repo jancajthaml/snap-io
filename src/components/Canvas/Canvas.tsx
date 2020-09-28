@@ -12,7 +12,7 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 40
+const FPS = 20
 
 const Canvas = (props: IProps) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
@@ -25,8 +25,11 @@ const Canvas = (props: IProps) => {
       return
     }
     const wrapper = (ref.current.parentElement as HTMLElement)
-    ref.current.width = wrapper.clientWidth
-    ref.current.height = wrapper.clientHeight
+    ref.current.width = wrapper.clientWidth * window.devicePixelRatio
+    ref.current.height = wrapper.clientHeight * window.devicePixelRatio
+    ref.current.style.width = `${wrapper.clientWidth}px`;
+    ref.current.style.height = `${wrapper.clientHeight}px`;
+
     props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
   }
 
@@ -102,6 +105,7 @@ const Canvas = (props: IProps) => {
     ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
       alpha: false,
     }))
+
     onResize()
   }, [ref])
 
