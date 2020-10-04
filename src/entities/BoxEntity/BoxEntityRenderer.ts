@@ -44,17 +44,10 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
     ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
-  drawViewSimple = (ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = this.color
-    ctx.fillRect(this.clientX, this.clientY, this.clientW, this.clientH);
-  }
-
   drawViewDetail = (ctx: CanvasRenderingContext2D) => {
-    const offset = 3
-
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.fillRect(this.clientX + offset, this.clientY + offset, this.clientW - 2 * offset, this.clientH - 2 * offset);
+    ctx.fillRect(this.clientX + 3, this.clientY + 3, this.clientW - 6, this.clientH - 6);
     ctx.strokeRect(this.clientX, this.clientY, this.clientW, this.clientH);
   }
 
@@ -87,11 +80,7 @@ class BoxEntityRenderer implements ICanvasEntitySchema {
         break
       }
       case EngineMode.VIEW: {
-        if (viewport.z <= 0.4) {
-          this.drawViewSimple(ctx)
-        } else {
-          this.drawViewDetail(ctx)
-        }
+        this.drawViewDetail(ctx)
         break
       }
       default: {

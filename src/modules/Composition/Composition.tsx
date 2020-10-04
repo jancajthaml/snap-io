@@ -25,7 +25,6 @@ class Composition extends React.PureComponent<IProps> {
 
     const pixelRatio = window.devicePixelRatio * viewport.z;
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, (viewport.x1 * pixelRatio), viewport.y1 * pixelRatio)
-    //ctx.translate(0.5, 0.5);
 
     const x1 = -viewport.x1
     const y1 = -viewport.y1
@@ -60,7 +59,6 @@ class Composition extends React.PureComponent<IProps> {
 
     // FIXME transformation on canvas
 
-    //ctx.lineWidth = ((viewport.z / 2) + 0.5) / viewport.z;
     ctx.lineWidth = 1
     let layer = 0
     while (layer++ < 4) {
