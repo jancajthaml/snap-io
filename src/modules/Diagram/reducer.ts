@@ -27,7 +27,7 @@ export interface IDiagramSchema {
 }
 
 export const initialState = {
-  engineMode: C.EngineMode.EDIT as C.EngineMode,
+  engineMode: C.EngineMode.VIEW as C.EngineMode,
   schema: {
     id: '',
     entities: new Map<string, IEntitySchema>(),

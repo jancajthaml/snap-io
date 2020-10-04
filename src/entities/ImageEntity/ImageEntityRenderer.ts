@@ -64,7 +64,7 @@ class ImageEntityRenderer implements ICanvasEntitySchema {
       return
     }
 
-    if (viewport !== this.viewport || gridSize !== this.gridSize) {
+    if (gridSize !== this.gridSize || viewport !== this.viewport) {
       this.gridSize = gridSize
       this.viewport = viewport
       this.updateClientCoordinates()

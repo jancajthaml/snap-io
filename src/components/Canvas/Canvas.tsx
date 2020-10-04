@@ -12,12 +12,15 @@ interface IProps {
   onWheel: (event: WheelEvent) => void;
 }
 
-const FPS = 20
+const FPS = 60
+
+let wheelEvent: any = null
+let resizeEvent: any = null
 
 const Canvas = (props: IProps) => {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const animationRef = useRef<number>(0)
-  const lastTime = useRef<number>(0)
+  const lastTime = useRef<number>(performance.now())
   const ctx = useRef<CanvasRenderingContext2D | null>(null)
 
   const onResize = () => {
@@ -25,12 +28,7 @@ const Canvas = (props: IProps) => {
       return
     }
     const wrapper = (ref.current.parentElement as HTMLElement)
-    ref.current.width = wrapper.clientWidth * window.devicePixelRatio
-    ref.current.height = wrapper.clientHeight * window.devicePixelRatio
-    ref.current.style.width = `${wrapper.clientWidth}px`;
-    ref.current.style.height = `${wrapper.clientHeight}px`;
-
-    props.onResize(wrapper.offsetLeft, wrapper.offsetTop, ref.current.width, ref.current.height)
+    resizeEvent = wrapper
   }
 
   const onKeyUp = (event: KeyboardEvent) => {
@@ -65,13 +63,14 @@ const Canvas = (props: IProps) => {
   }
 
   const onMouseMove = (event: React.MouseEvent) => {
+    // FIXME move event
     props.onMouseMove(event.nativeEvent)
   }
 
   const onWheel = (event: WheelEvent) => {
     if (event.target == ref.current) {
       event.preventDefault()
-      props.onWheel(event)
+      wheelEvent = event
     }
   }
 
@@ -105,15 +104,26 @@ const Canvas = (props: IProps) => {
     ctx.current = ((ref.current as HTMLCanvasElement).getContext('2d', {
       alpha: false,
     }))
-
     onResize()
   }, [ref])
 
-  const delayedRepaint = useCallback(() => {
-    const now = Date.now().valueOf();
+  const delayedRepaint = useCallback((now) => {
     const delta = now - lastTime.current
     const interval = 1000 / FPS
-    if (delta > interval && ctx.current != null) {
+    if (delta > interval && ctx.current !== null) {
+      if (resizeEvent !== null) {
+        let c = (ref.current as HTMLCanvasElement)
+        c.width = Number(resizeEvent.clientWidth * window.devicePixelRatio)
+        c.height = Number(resizeEvent.clientHeight * window.devicePixelRatio)
+        c.style.width = `${resizeEvent.clientWidth}px`;
+        c.style.height = `${resizeEvent.clientHeight}px`;
+        props.onResize(resizeEvent.offsetLeft, resizeEvent.offsetTop, c.width, c.height)
+        resizeEvent = null
+      }
+      if (wheelEvent !== null) {
+        props.onWheel(wheelEvent)
+        wheelEvent = null
+      }
       ctx.current.imageSmoothingEnabled = true
       props.draw(ctx.current as CanvasRenderingContext2D, now)
       lastTime.current = now - (delta - ((delta / interval) | 0) * interval)
@@ -123,7 +133,7 @@ const Canvas = (props: IProps) => {
 
   useEffect(() => {
     addListeners()
-    lastTime.current = Date.now().valueOf();
+    lastTime.current = performance.now()
     animationRef.current = requestAnimationFrame(delayedRepaint)
     return () => {
       cancelAnimationFrame(animationRef.current)
